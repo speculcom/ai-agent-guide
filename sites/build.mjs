@@ -20,6 +20,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { shell as buildShell } from './shell.mjs';
 
 // 路径解析优先级：环境变量 > 向上查找仓库根 > 脚本位置推导
 //
@@ -104,6 +105,7 @@ const AXIS_DESC = {
 // 三站配置：域名、主色、定位文案
 const SITES = {
   ide: {
+    key: 'ide',
     domain: 'ide.specul.com',
     name: 'AI 编程 IDE 图谱',
     short: 'IDE',
@@ -113,6 +115,7 @@ const SITES = {
     repo: 'https://github.com/speculcom/ai-coding-agent-atlas',
   },
   cli: {
+    key: 'cli',
     domain: 'cli.specul.com',
     name: '终端 AI 编码工具图谱',
     short: 'CLI',
@@ -122,6 +125,7 @@ const SITES = {
     repo: 'https://github.com/speculcom/ai-coding-agent-atlas',
   },
   mcp: {
+    key: 'mcp',
     domain: 'mcp.specul.com',
     name: 'MCP 服务器图谱',
     short: 'MCP',
@@ -348,98 +352,13 @@ function renderList(items, cls = '') {
 const BRAND_ZH = '投机取巧';
 const BRAND_EN = 'Speculation · Craft';
 
-function header(site, active) {
-  const nav = [
-    ['https://specul.com/', '首页', 'Home'],
-    ['https://specul.com/nav.html', '导航', 'Directory'],
-    ['https://keel.specul.com/', '基座 Keel', 'Keel'],
-    ['https://ide.specul.com/', 'IDE 图谱', 'IDE'],
-    ['https://cli.specul.com/', 'CLI 图谱', 'CLI'],
-    ['https://mcp.specul.com/', 'MCP 图谱', 'MCP'],
-  ];
-  return `  <header class="site-header">
-    <div class="container site-bar">
-      <a class="brand" href="https://specul.com/" title="${BRAND_ZH}">
-        <span class="brand-dot" aria-hidden="true"></span>
-        <span class="brand-text">
-          <span class="brand-name">${BRAND_ZH}</span>
-          <span class="brand-sub" data-zh-sub="${BRAND_ZH}" data-en-sub="${BRAND_EN}">${BRAND_ZH}</span>
-        </span>
-      </a>
-      <nav class="nav-links" aria-label="站点导航">
-        ${nav.map(([href, zh, en]) => `<a href="${href}"${href === `https://${site.domain}/` ? ' aria-current="page"' : ''}><span data-zh>${zh}</span><span data-en>${en}</span></a>`).join('\n        ')}
-        <span class="nav-tools">
-          <button class="icon-btn" id="themeBtn" type="button" aria-label="切换明暗主题" title="切换明暗主题">☾</button>
-          <button class="icon-btn" id="langBtn" type="button" aria-label="Switch language" title="Switch language">EN</button>
-        </span>
-      </nav>
-    </div>
-  </header>`;
-}
-
-function footer(site) {
-  return `  <footer class="site-footer">
-    <div class="container foot-row">
-      <div class="foot-brand">
-        <span class="brand-dot" aria-hidden="true"></span>
-        <span class="foot-copy">© 2026 ${BRAND_ZH} · <span data-zh>Specul</span><span data-en>Specul</span></span>
-      </div>
-      <nav class="foot-links" aria-label="页脚导航">
-        <a href="https://specul.com/"><span data-zh>首页</span><span data-en>Home</span></a>
-        <a href="https://specul.com/nav.html"><span data-zh>导航</span><span data-en>Directory</span></a>
-        <a href="https://keel.specul.com/">Keel</a>
-        <a href="https://ide.specul.com/">IDE</a>
-        <a href="https://cli.specul.com/">CLI</a>
-        <a href="https://mcp.specul.com/">MCP</a>
-        <a href="${site.repo}" target="_blank" rel="noopener">GitHub</a>
-      </nav>
-      <nav class="foot-legal-links" aria-label="法律">
-        <a href="https://specul.com/legal.html"><span data-zh>法律条款</span><span data-en>Legal terms</span></a>
-        <a href="https://specul.com/legal.html#s6"><span data-zh>免责声明</span><span data-en>Disclaimer</span></a>
-        <a href="https://specul.com/legal.html#s8"><span data-zh>隐私与本地存储</span><span data-en>Privacy</span></a>
-        <a href="${site.repo}/blob/main/LICENSE"><span data-zh>许可</span><span data-en>License</span></a>
-      </nav>
-    </div>
-  </footer>`;
-}
-
-function page({ site, title, desc, body, jsonLd, canonical }) {
-  return `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${esc(title)}</title>
-  <meta name="description" content="${esc(desc)}" />
-  <link rel="canonical" href="${esc(canonical)}" />
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="${esc(site.name)}" />
-  <meta property="og:url" content="${esc(canonical)}" />
-  <meta property="og:title" content="${esc(title)}" />
-  <meta property="og:description" content="${esc(desc)}" />
-  <link rel="stylesheet" href="./brand.css" />
-  <style>
-    :root { --accent: ${site.accent}; }
-${SITE_CSS}
-  </style>
-${jsonLd ? `  <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>\n` : ''}</head>
-<body class="brand-ambient" style="--accent:${site.accent}">
-  <a class="skip" href="#main">跳到主要内容</a>
-${header(site, site.domain)}
-  <main id="main">
-${body}
-  </main>
-${footer(site)}
-  <script src="./brand.js"></script>
-</body>
-</html>
-`;
-}
+// header / footer / page 骨架统一由 shell.mjs 提供（全站唯一真相源）
 
 const SITE_CSS = `    /* ---- 内容层（只用 --accent，不用品牌基础色）---- */
     .hero { padding: 64px 0 40px; border-bottom: 1px solid var(--line); }
     .kicker { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
-    h1 { font-size: clamp(30px, 5vw, 46px); font-weight: 800; line-height: 1.14; letter-spacing: -.02em; margin: 0 0 14px; }
+    /* 标题走 brand.css 共享尺度，页面不再自定义 h1 字号 */
+    h1 { font-size: var(--t-h1); font-weight: 800; line-height: var(--lh-tight); letter-spacing: -.02em; margin: 0 0 14px; }
     .lede { color: var(--dim); font-size: 16px; line-height: 1.75; max-width: 62ch; margin: 0; }
     .hero-meta { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 22px; font-size: 12px; color: var(--dim); }
     .hero-meta b { color: var(--accent); font-weight: 600; }
@@ -601,7 +520,7 @@ function renderIndex(site, track, entries) {
   const body = `    <section class="hero">
       <div class="container">
         <p class="kicker">${esc(site.short)} · AI coding agent atlas</p>
-        <h1>${esc(site.name)}</h1>
+        <h1 class="t-hero">${esc(site.name)}</h1>
         <p class="lede">${esc(site.desc)}</p>
         <div class="hero-meta">
           <span><b>${entries.length}</b> 个对象</span>
@@ -771,9 +690,9 @@ ${['mcp', 'cli', 'ide'].filter(t => COVERAGE_BY_TRACK[t]).map(t => {
     })),
   };
 
-  return page({
-    site,
-    title: `${site.name} — ${site.tagline} | Specul`,
+  return buildShell({
+    current: site.key,
+    title: `${site.name} — ${site.tagline} | 投机取巧`,
     desc: site.desc,
     body,
     jsonLd,
@@ -914,9 +833,10 @@ ${srcRows}
     } : {}),
   };
 
-  return page({
-    site,
-    title: `${e.name} — ${site.short} 图谱 | Specul`,
+  return buildShell({
+    current: site.key,
+    repo: site.repo,
+    title: `${e.name} — ${site.short} 图谱 | 投机取巧`,
     desc: plain(`${e.name}（${e.vendor}）：${e.tagline || e.sec.oneline}`, 150),
     body,
     jsonLd,
