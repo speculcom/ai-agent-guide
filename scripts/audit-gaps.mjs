@@ -10,51 +10,35 @@ const PAT = /(未核验|未知|未声明|未逐条|本次未能|未能逐)/;
 
 const only = process.argv.slice(2).length ? process.argv.slice(2) : ['ide','cli','mcp'];
 
+console.log('\n（未知维度 = 该维度正文里仍有「未核验/未知/未声明」字样；已补齐 = 该维度内容完整）\n');
+
+let tTotal = 0, tDone = 0, tUnknown = 0;
 for (const t of only) {
   const dir = path.join(ROOT, 'tracks', t, 'products');
   if (!fs.existsSync(dir)) continue;
-  console.log(`\n=== ${t} ===`);
-  const rows = [];
-  for (const f of fs.readdirSync(dir).filter(x => x.endsWith('.md')).sort()) {
+  for (const f of fs.readdirSync(dir).filter(x => x.endsWith('.md'))) {
     const raw = fs.readFileSync(path.join(dir, f), 'utf8');
     const fm = raw.split('\n---\n')[0];
-    const conf = (/^confidence:\s*(\S+)/m.exec(fm) || [])[1] || '-';
-    const life = (/^lifecycle:\s*(\S+)/m.exec(fm) || [])[1] || '-';
-
-    // 抽出 axes 与 mcp 块
-    const grab = (key) => {
-      const i = fm.indexOf(`\n${key}:`);
-      if (i < 0) return '';
-      const rest = fm.slice(i + 1);
-      const nxt = rest.slice(1).search(/\n[a-z_]+:/);
-      return nxt < 0 ? rest.slice(1) : rest.slice(1, 1 + nxt);
-    };
-    const axesSeg = grab('axes');
-    const mcpSeg = grab('mcp');
-
-    const unknowns = [];
-    const scan = (seg, keys) => {
-      for (const k of keys) {
-        const i = seg.indexOf(`  ${k}:`);
-        if (i < 0) continue;
-        const after = seg.slice(i + `  ${k}:`.length);
-        const m = after.match(/\n(  [a-z_]+:|\n)/);
-        const body = (m ? after.slice(0, m.index) : after);
-        if (PAT.test(body)) unknowns.push(k);
-      }
-    };
-    scan(axesSeg, AXES);
-    scan(mcpSeg, MCP_AXES);
-
-    // 正文里的未知项清单条数
-    const body = raw.split('\n---\n')[1] || '';
-    const sec = /##\s*未知项清单\s*\r?\n([\s\S]*?)(?=\r?\n##\s|$)/.exec(body);
-    const unkList = sec ? (sec[1].match(/^\s*[-*]/gm) || []).length : 0;
-
-    rows.push({ id: f.replace('.md',''), conf, life, unknowns, unkList });
+    const isMcp = /^track:\s*mcp/m.test(fm);
+    const keys = isMcp ? [...AXES, ...MCP_AXES] : AXES;
+    const ai = fm.indexOf('\naxes:');
+    const mi = fm.indexOf('\nmcp:');
+    const pi = fm.indexOf('\npitfalls:');
+    const axesSeg = ai >= 0 ? fm.slice(ai, mi > ai ? mi : pi) : '';
+    const mcpSeg = mi >= 0 ? fm.slice(mi, pi) : '';
+    for (const k of keys) {
+      tTotal++;
+      const seg = (k === 'transport' || k === 'auth' || k === 'scope') ? mcpSeg : axesSeg;
+      const i = seg.indexOf(`  ${k}:`);
+      if (i < 0) continue;
+      const after = seg.slice(i + `  ${k}:`.length);
+      const m = after.match(/\n(?=  [a-z_]+:)|\n(?=\S)/);
+      const body = m ? after.slice(0, m.index) : after;
+      if (PAT.test(body)) tUnknown++; else tDone++;
+    }
   }
-  rows.forEach(r => {
-    const flag = r.conf === 'partial' ? '⚠' : ' ';
-    console.log(`  ${flag} ${r.id.padEnd(16)} ${r.conf.padEnd(9)} ${r.life.padEnd(12)} 未知维度 ${String(r.unknowns.length).padStart(2)}  正文清单 ${String(r.unkList).padStart(2)}  ${r.unknowns.join(',')}`);
-  });
 }
+const pct = tTotal ? Math.round(tDone / tTotal * 100) : 0;
+console.log(`全赛道维度补齐率：${tDone}/${tTotal} = ${pct}%  （未核验 ${tUnknown}）`);
+if (pct >= 60) console.log('  → 已过半，继续补齐可显著提升 confidence 分布');
+if (pct >= 85) console.log('  → 接近完整，剩余多为实测才能补的项');
