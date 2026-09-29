@@ -35,7 +35,14 @@ axes:
     共享会话列表、消息历史、权限队列、LSP 与 MCP 状态。
     **但每次新调用都会启动新进程**，所以 first-wins 规则会影响共享 workspace 的配置。
   local_files: >-
-    面向代码库工作。**索引策略与大仓库表现本次未核验。**
+    **LSP 增强上下文**（README 原文「LSP-Enhanced: Crush uses LSPs for
+    additional context, just like you do」）——
+    与人一样靠 LSP 拿额外上下文。
+    **按项目维护多个工作会话与上下文**
+    （README「Session-Based: maintain multiple work sessions and contexts per project」）。
+    **可在会话中途切换模型且保留上下文**
+    （README「Flexible: switch LLMs mid-session while preserving context」）。
+    **索引算法与大仓库耗时本次未核验。**
   background: >-
     不支持终端形态的后台长任务。
     **是否有其他运行形态本次未核验。**
@@ -43,10 +50,21 @@ axes:
     **明确支持 MCP，且传输方式标注最完整**：
     README 写明支持 `http`、`stdio` 和 `sse` 三种。
     这是本赛道里把 MCP 传输方式写清楚的少数几个之一。
+    另支持自定义配置文件 `~/.config/crush/crushrc`
+    （Windows 为 `%USERPROFILE%\.config\crush\crushrc`），
+    且**可按机器条件覆盖配置**（示例里用 `$HOSTNAME` 判断）。
+    模型可通过 `model add ollama/llama3.3 --name "Llama 3.3" --context-window 128000`
+    手动添加——**支持本地模型且可显式声明其上下文窗口**。
   context: >-
-    **具体上下文窗口与压缩策略本次未核验，记为未知。**
+    **LSP 提供额外上下文**（见 local_files）。
+    **按项目维护多个工作会话与上下文**（per-project sessions）。
+    **切换模型时保留上下文**——这是本赛道少见的明确承诺，
+    因为换模型通常也意味着换上下文策略。
+    **上下文压缩策略本次未核验。**
   permissions: >-
-    **默认每次工具调用都询问**，可在配置里 `permissions allow` 某些工具免确认。
+    **默认每次工具调用都询问**（README「By default, Crush will ask you for
+    permission before running tool calls」），
+    可在配置里 `permissions allow view edit` 免确认特定工具。
     官方原文对免确认模式的措辞是
     "Use this with care"（谨慎使用）。
     另有 `--yolo` 开关可整体放宽审批；
@@ -54,13 +72,18 @@ axes:
     同一 cwd 下首个客户端的设置会锁定后续客户端的行为，
     不一致时会打一行 debug 日志记录这种不匹配。
     **多客户端同时接入同一目录时需注意这个规则。**
+    凭据配置也支持按机器分叉（可用 `$HOSTNAME` 条件覆盖）。
   fit: >-
     喜欢 Charm 生态的终端体验（TUI 审美与交互）。
     需要在多个 provider 间切换，或想用官方订阅方案 Hyper 的用户。
+    **想中途换模型且不丢上下文的人**（README 明确承诺）。
+    想用本地模型并显式声明其上下文窗口的人。
+    需要 MCP 三种传输都支持的人。
 
 pitfalls:
   - 以为许可证明确可商用，GitHub 识别为 NOASSERTION，条款未核验
   - 以为只能用自己的模型，实际上可以接 Anthropic / OpenAI 等
+  - 以为每个终端窗口独立配置，其实同 workspace 下 first-wins 会锁定设置
 
 tags: [编程, 终端, 本地]
 
