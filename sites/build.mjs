@@ -343,28 +343,34 @@ function renderList(items, cls = '') {
 }
 
 // ── 品牌壳（严格照 brand.css 约定的结构，见 brand.css 头部注释）───────────
+// 品牌标识：全站唯一来源（brand.css 头部注释已说明这里是唯一定义处）。
+// 中文「投机取巧」是品牌名；正文里的「投机策略」是产品理念表述，两者不要混。
+const BRAND_ZH = '投机取巧';
+const BRAND_EN = 'Speculation · Craft';
+
 function header(site, active) {
   const nav = [
     ['https://specul.com/', '首页', 'Home'],
     ['https://specul.com/nav.html', '导航', 'Directory'],
+    ['https://keel.specul.com/', '基座 Keel', 'Keel'],
     ['https://ide.specul.com/', 'IDE 图谱', 'IDE'],
     ['https://cli.specul.com/', 'CLI 图谱', 'CLI'],
     ['https://mcp.specul.com/', 'MCP 图谱', 'MCP'],
   ];
   return `  <header class="site-header">
     <div class="container site-bar">
-      <a class="brand" href="https://specul.com/" title="Specul">
+      <a class="brand" href="https://specul.com/" title="${BRAND_ZH}">
         <span class="brand-dot" aria-hidden="true"></span>
         <span class="brand-text">
-          <span class="brand-name">SPECUL</span>
-          <span class="brand-sub">投机 · 推演</span>
+          <span class="brand-name">${BRAND_ZH}</span>
+          <span class="brand-sub" data-zh-sub="${BRAND_ZH}" data-en-sub="${BRAND_EN}">${BRAND_ZH}</span>
         </span>
       </a>
       <nav class="nav-links" aria-label="站点导航">
-        ${nav.map(([href, zh, en], i) => `<a href="${href}"${href === `https://${site.domain}/` ? ' aria-current="page"' : ''}><span data-zh>${zh}</span><span data-en>${en}</span></a>`).join('\n        ')}
+        ${nav.map(([href, zh, en]) => `<a href="${href}"${href === `https://${site.domain}/` ? ' aria-current="page"' : ''}><span data-zh>${zh}</span><span data-en>${en}</span></a>`).join('\n        ')}
         <span class="nav-tools">
-          <button class="icon-btn" id="themeBtn" type="button" aria-label="切换明暗主题">☾</button>
-          <button class="icon-btn" id="langBtn" type="button" aria-label="Switch language">EN</button>
+          <button class="icon-btn" id="themeBtn" type="button" aria-label="切换明暗主题" title="切换明暗主题">☾</button>
+          <button class="icon-btn" id="langBtn" type="button" aria-label="Switch language" title="Switch language">EN</button>
         </span>
       </nav>
     </div>
@@ -376,11 +382,12 @@ function footer(site) {
     <div class="container foot-row">
       <div class="foot-brand">
         <span class="brand-dot" aria-hidden="true"></span>
-        <span class="foot-copy">© 2026 Specul · <span data-zh>投机 · 推演</span><span data-en>Speculation · Speculate</span></span>
+        <span class="foot-copy">© 2026 ${BRAND_ZH} · <span data-zh>Specul</span><span data-en>Specul</span></span>
       </div>
       <nav class="foot-links" aria-label="页脚导航">
         <a href="https://specul.com/"><span data-zh>首页</span><span data-en>Home</span></a>
         <a href="https://specul.com/nav.html"><span data-zh>导航</span><span data-en>Directory</span></a>
+        <a href="https://keel.specul.com/">Keel</a>
         <a href="https://ide.specul.com/">IDE</a>
         <a href="https://cli.specul.com/">CLI</a>
         <a href="https://mcp.specul.com/">MCP</a>
