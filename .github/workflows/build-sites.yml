@@ -6,16 +6,16 @@ name: build & deploy sites
 # 站仓库的 CNAME + Pages 配置已就绪，推送即触发 GitHub Pages 自动发布。
 #
 # 手动触发：Actions 页面 → Run workflow
-# 触发条件：push 到 master（数据变更）、手动、PR（仅校验不部署）
+# 触发条件：push 到 main（数据变更）、手动、PR（仅校验不部署）
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths-ignore:
       - '**/*.md.orig'
       - '.gitignore'
   pull_request:
-    branches: [master]
+    branches: [main]
   workflow_dispatch:
     inputs:
       track:
