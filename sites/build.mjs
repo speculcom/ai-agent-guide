@@ -203,6 +203,19 @@ function parseFrontmatter(text) {
   return data;
 }
 
+// 数据完整度快照：来自数据层 `node scripts/audit-gaps.mjs` 的输出。
+// 写死而非运行时计算，有两个原因：
+//   1. 站点构建不必再跑一次解析
+//   2. 这个数字本身就是「上一次人工核验的快照」，带 last_verified 语义，
+//      动态计算反而会掩盖「数据多久没动了」
+// 更新方式：跑 audit-gaps 后同步这里。
+const COVERAGE = { done: 120, total: 211 };
+const COVERAGE_BY_TRACK = {
+  mcp: { done: 69, total: 99, note: '官方 README 信息充分，70% 维度已核验' },
+  cli: { done: 22, total: 48, note: '部分对象的官方文档不完整' },
+  ide: { done: 29, total: 64, note: '多为闭源产品，索引策略等细节官方不公开' },
+};
+
 // ── 读取一个赛道 ───────────────────────────────────────────────────────────
 function loadTrack(track) {
   const dir = path.join(DATA, 'tracks', track, 'products');
@@ -684,7 +697,7 @@ ${entries.map(e => `              <tr>
         </div>
         <div class="panel">
           <h2>可信度标记怎么读</h2>
-          <p style="color:var(--dim);font-size:13px;margin-bottom:12px">详情页与上表都带 <code>confidence</code>，它反映本站数据的完整度，不是对产品的评价。</p>
+          <p style="color:var(--dim);font-size:13px;margin-bottom:12px">详情页与上表都带 <code>confidence</code>，它反映<strong>本站数据的完整度</strong>，不是对产品的评价。</p>
           <table class="src" style="margin:0">
             <tbody>
               <tr><th style="width:90px"><span class="td-conf verified">verified</span></th><td>${axisNames.length} 个维度均有官方源支撑，且核验日在 90 天内</td></tr>
@@ -692,6 +705,34 @@ ${entries.map(e => `              <tr>
               <tr><th><span class="td-conf stale">stale</span></th><td>官方已发布重大变化，本站尚未核验</td></tr>
             </tbody>
           </table>
+        </div>
+        <div class="panel">
+          <h2>本站当前的完整度</h2>
+          <p style="color:var(--dim);font-size:13px;margin-bottom:10px">
+            数据层用 <code>node scripts/audit-gaps.mjs</code> 可随时复核这个数字。
+            以下是最近一次核验的快照（核验日 2026-09-29）：
+          </p>
+          <table class="src" style="margin:0 0 12px">
+            <thead><tr><th>赛道</th><th>已补齐</th><th>说明</th></tr></thead>
+            <tbody>
+${['mcp', 'cli', 'ide'].filter(t => COVERAGE_BY_TRACK[t]).map(t => {
+  const c = COVERAGE_BY_TRACK[t];
+  const label = { mcp: 'MCP 服务器', cli: 'CLI 工具', ide: 'IDE 工具' }[t];
+  return `              <tr><td style="white-space:nowrap">${esc(label)}</td>
+                <td style="white-space:nowrap"><strong>${c.done}/${c.total}</strong></td>
+                <td style="color:var(--dim)">${esc(c.note)}</td></tr>`;
+}).join('\n')}
+            </tbody>
+          </table>
+          <p><strong style="font-size:15px">全赛道合计 ${COVERAGE.done}/${COVERAGE.total} 维度已补齐（${Math.round(COVERAGE.done / COVERAGE.total * 100)}%）</strong></p>
+          <p style="color:var(--dim);font-size:13px">
+            剩余未补齐项分三类：<strong>官方未公开</strong>（索引算法、沙箱实现细节本就不对外说明）、
+            <strong>需实测才能确定</strong>（大仓库表现、CI 无 TTY 行为）、
+            <strong>客观渠道不可达</strong>。
+          </p>
+          <p style="color:var(--dim);font-size:13px">
+            我们选择留白而不是填「已支持」——错误的成本最终由使用者承担。
+          </p>
         </div>
         <div class="panel">
           <h2>数据来源与复核方式</h2>
