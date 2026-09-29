@@ -354,145 +354,9 @@ const BRAND_EN = 'Speculation · Craft';
 
 // header / footer / page 骨架统一由 shell.mjs 提供（全站唯一真相源）
 
-const SITE_CSS = `    /* ---- 内容层（只用 --accent，不用品牌基础色）---- */
-    .hero { padding: 64px 0 40px; border-bottom: 1px solid var(--line); }
-    .kicker { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
-    /* 标题走 brand.css 共享尺度，页面不再自定义 h1 字号 */
-    h1 { font-size: var(--t-h1); font-weight: 800; line-height: var(--lh-tight); letter-spacing: -.02em; margin: 0 0 14px; }
-    .lede { color: var(--dim); font-size: 16px; line-height: 1.75; max-width: 62ch; margin: 0; }
-    .hero-meta { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 22px; font-size: 12px; color: var(--dim); }
-    .hero-meta b { color: var(--accent); font-weight: 600; }
-
-    .section { padding: 46px 0; border-bottom: 1px solid var(--line); }
-    .section > h2 { font-size: 24px; font-weight: 700; margin: 0 0 6px; letter-spacing: -.01em; }
-    .section > .section-desc { color: var(--dim); font-size: 14px; line-height: 1.7; margin: 0 0 26px; max-width: 70ch; }
-
-    /* 状态声明带：诚实边界必须显眼 */
-    .status-band { background: color-mix(in srgb, var(--accent) 5%, transparent); }
-    .status-inner { display: flex; gap: 16px; align-items: flex-start; max-width: 78ch; }
-    .status-mark {
-      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; margin-top: 2px;
-      display: grid; place-items: center; font-weight: 700; font-size: 15px;
-      color: var(--accent);
-      border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
-      background: color-mix(in srgb, var(--accent) 12%, transparent);
-    }
-    .status-inner h2 { font-size: 17px; font-weight: 700; margin: 0 0 8px; }
-    .status-inner p { font-size: 14px; line-height: 1.75; color: var(--ink); margin: 0 0 8px; }
-    .status-inner p:last-child { margin-bottom: 0; }
-
-    .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
-    .card {
-      background: var(--panel); border: 1px solid var(--line);
-      border-radius: 12px; padding: 20px; min-width: 0;
-      display: flex; flex-direction: column; gap: 12px;
-    }
-    .card:hover { border-color: var(--line-strong); }
-    .card-top { display: flex; align-items: flex-start; gap: 11px; }
-    .mark {
-      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
-      display: grid; place-items: center; font-weight: 700; font-size: 14px;
-      background: color-mix(in srgb, var(--card-accent, var(--accent)) 16%, transparent);
-      color: var(--card-accent, var(--accent));
-      border: 1px solid color-mix(in srgb, var(--card-accent, var(--accent)) 34%, transparent);
-    }
-    .card h3 { font-size: 18px; font-weight: 700; margin: 0 0 2px; }
-    .card .vendor { font-size: 11px; color: var(--dim); letter-spacing: .08em; text-transform: uppercase; }
-    .card .tagline { font-size: 14px; line-height: 1.6; color: var(--ink); }
-    .card .summary { font-size: 13px; line-height: 1.65; color: var(--dim); }
-
-    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
-    .tag {
-      font-size: 10px; padding: 3px 8px; border-radius: 20px;
-      border: 1px solid var(--line); color: var(--dim);
-    }
-    .tag.on { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 42%, transparent); }
-
-    .conf {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 11px; color: var(--dim); margin-top: auto; padding-top: 4px;
-    }
-    .conf .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
-    .conf.verified .dot { background: #34d399; }
-    .conf.partial .dot { background: var(--accent); }
-    .conf.stale .dot { background: #f87171; }
-
-    .more { font-size: 12px; color: var(--accent); text-decoration: none; margin-top: 10px; }
-    .more:hover { text-decoration: underline; }
-
-    /* 对比表 */
-    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
-    table.cmp { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 640px; }
-    table.cmp th, table.cmp td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
-    table.cmp thead th { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); font-weight: 500; background: rgba(255,255,255,.02); }
-    table.cmp tbody tr:last-child td { border-bottom: 0; }
-    table.cmp tbody tr:hover { background: rgba(255,255,255,.025); }
-    table.cmp td a { color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 9px; white-space: nowrap; }
-    table.cmp td a:hover { color: var(--accent); }
-    .td-mark {
-      width: 24px; height: 24px; border-radius: 6px; flex-shrink: 0;
-      display: grid; place-items: center; font-size: 11px; font-weight: 700;
-      background: color-mix(in srgb, var(--card-accent, var(--accent)) 16%, transparent);
-      color: var(--card-accent, var(--accent));
-      border: 1px solid color-mix(in srgb, var(--card-accent, var(--accent)) 34%, transparent);
-    }
-    .td-vendor, .td-date { color: var(--dim); font-size: 12px; white-space: nowrap; }
-    .td-fit { color: var(--dim); font-size: 12px; line-height: 1.6; min-width: 200px; }
-    .td-conf { font-size: 11px; padding: 2px 8px; border-radius: 4px; border: 1px solid var(--line); color: var(--dim); white-space: nowrap; }
-    .td-conf.verified { color: #34d399; border-color: color-mix(in srgb, #34d399 40%, transparent); }
-    .td-conf.partial { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
-    .td-conf.stale { color: #f87171; border-color: color-mix(in srgb, #f87171 40%, transparent); }
-
-    /* 详情页 */
-    .detail { padding: 44px 0 60px; }
-    .back { font-size: 12px; color: var(--dim); text-decoration: none; display: inline-block; margin-bottom: 20px; }
-    .detail-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 20px; }
-    .detail-head .mark { width: 46px; height: 46px; font-size: 18px; border-radius: 11px; }
-    .detail-head h1 { font-size: clamp(26px, 4vw, 38px); margin: 0 0 4px; }
-    .badges { display: flex; flex-wrap: wrap; gap: 7px; margin: 16px 0 26px; }
-    .badge {
-      font-size: 11px; padding: 4px 10px; border-radius: 6px;
-      border: 1px solid var(--line); color: var(--dim);
-    }
-    .badge.accent { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
-
-    .axis { padding: 18px 0; border-bottom: 1px solid var(--line); }
-    .axis:last-of-type { border-bottom: 0; }
-    .axis dt { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
-    .axis dd { margin: 0; font-size: 14px; line-height: 1.78; color: var(--ink); }
-    .axis dd code { background: var(--panel-solid); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
-
-    .panel { margin: 28px 0; padding: 20px 22px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
-    .panel h2 { font-size: 16px; font-weight: 700; margin: 0 0 12px; }
-    .panel.warn { border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
-    .panel h2.warn { color: var(--accent); }
-    .panel p { font-size: 14px; line-height: 1.75; margin: 0 0 10px; }
-    .panel p:last-child { margin-bottom: 0; }
-    .panel p.warn-p { color: var(--accent); }
-    .panel ul { margin: 0; padding-left: 20px; }
-    .panel li { font-size: 14px; line-height: 1.72; margin-bottom: 7px; }
-    .panel li::marker { color: var(--accent); }
-
-    table.src { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
-    table.src th, table.src td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
-    table.src th { color: var(--dim); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
-    table.src td a { color: var(--accent); word-break: break-all; }
-
-    .unknown { color: var(--accent); font-weight: 500; }
-
-    .skip {
-      position: absolute; left: -9999px; top: 8px; z-index: 100;
-      background: var(--accent); color: #0b0e12; padding: 10px 14px; border-radius: 6px;
-    }
-    .skip:focus { left: 12px; }
-
-    @media (max-width: 640px) {
-      .hero { padding: 40px 0 30px; }
-      .grid { grid-template-columns: 1fr; }
-      .section { padding: 34px 0; }
-      .detail { padding: 28px 0 44px; }
-    }
-`;
+// 内容层样式已抽到 site.css（与 brand.css 分开：前者是站点特有结构，后者是全站设计系统）
+// 见 _template/site.css —— 那里用 var(--brand)/var(--accent)/var(--fs-*) 引用 brand.css 的 token
+const SITE_CSS = '';
 
 // ── 渲染 ─────────────────────────────────────────────────────────────────
 function renderIndex(site, track, entries) {
@@ -500,20 +364,24 @@ function renderIndex(site, track, entries) {
   const axisNames = axisKeys.map(x => x[1]);
   const verified = entries.filter(e => e.confidence === 'verified').length;
 
+  // 卡片信息刻意精简：标识 + 名称/厂商 + 一句定位 + 状态 + 入口。
+  // 原设计有 tagline / summary / 标签 / 状态 / 链接 五块，视觉上糊成一片；
+  // 标签信息价值低（详情页有完整标签），首页不需要重复。
   const cards = entries.map(e => {
-    const marks = [...new Set((e.tags || []).slice(0, 4))];
+    const line = plain(e.tagline || e.sec.oneline || '', 62);
     return `        <article class="card" style="--card-accent:${esc(e.accent || site.accent)}">
           <div class="card-top">
             <div class="mark" aria-hidden="true">${esc(e.mark || e.name.slice(0,2))}</div>
-            <div>
-              <h3><a href="./${esc(e.id)}.html" style="color:inherit;text-decoration:none">${esc(e.name)}</a></h3>
+            <div class="card-id">
+              <h3><a href="./${esc(e.id)}.html">${esc(e.name)}</a></h3>
               <div class="vendor">${esc(e.vendor)}</div>
             </div>
           </div>
-          <p class="tagline">${mdInline((e.tagline || e.sec.oneline).split('\n')[0].slice(0, 80))}</p>
-          <div class="tags">${marks.map(t => `<span class="tag on">${esc(t)}</span>`).join('')}</div>
-          <div class="conf ${esc(e.confidence)}"><span class="dot" aria-hidden="true"></span>${esc(e.confidence)} · 核验 ${esc(e.lastVerified)}</div>
-          <a class="more" href="./${esc(e.id)}.html">${axisNames.length} 个维度 →</a>
+          <p class="tagline">${esc(line)}</p>
+          <div class="card-foot">
+            <span class="t-state ${e.confidence === 'verified' ? 'is-ok' : e.confidence === 'stale' ? 'is-stop' : 'is-warn'}">${esc(e.confidence === 'verified' ? '已核验' : e.confidence === 'stale' ? '待复核' : '部分核验')}</span>
+            <a class="more" href="./${esc(e.id)}.html" aria-label="${esc(e.name)} 详情">详情 →</a>
+          </div>
         </article>`;
   }).join('\n');
 
@@ -554,7 +422,7 @@ ${cards}
               实测协议已经写好（统一任务、统一验收、记录人工介入与返工次数），任务清单也已就绪，
               <strong>尚未执行</strong>。
             </p>
-            <p style="color:var(--dim);font-size:13px">
+            <p class="t-sm">
               ${track === 'mcp'
                 ? 'MCP server 的风险不在「能不能干活」，而在<strong>权限边界是否清楚、越界是否被拒</strong>。'
                 : '所以本站给的是<strong>能力边界与证据</strong>，不是「哪个更好用」的结论。'}
@@ -572,13 +440,13 @@ ${cards}
           所有对象在同一坐标系下被描述${track === 'mcp' ? '（MCP 服务器另有 3 个特有维度）' : ''}。
           点开任一对象，每一格下面都有官方源链接与核验日期——不认同可以自己回去查。
         </p>
-        <div class="panel">
-          <dl style="margin:0;display:grid;gap:0">
-${axisKeys.map(([k, label]) => `            <div style="padding:12px 0;border-bottom:1px solid var(--line)">
-              <dt style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:4px">${esc(label)}</dt>
-              <dd style="margin:0;font-size:13px;color:var(--dim);line-height:1.7">${esc(AXIS_DESC[k] || '')}</dd>
-            </div>`).join('\n')}
-          </dl>
+        <div class="t-mesh axis-mesh">
+${axisKeys.map(([k, label], i) => `          <div class="axis-cell">
+            <span class="t-index">${String(i + 1).padStart(2, '0')}</span>
+            <h3 class="axis-name">${esc(label)}</h3>
+            <p class="axis-ask">${esc(AXIS_DESC[k] || '')}</p>
+          </div>`).join('\n')}
+        </div>
         </div>
       </div>
     </section>
@@ -623,10 +491,10 @@ ${entries.map(e => `              <tr>
         </div>
         <div class="panel">
           <h2>可信度标记怎么读</h2>
-          <p style="color:var(--dim);font-size:13px;margin-bottom:12px">详情页与上表都带 <code>confidence</code>，它反映<strong>本站数据的完整度</strong>，不是对产品的评价。</p>
-          <table class="src" style="margin:0">
+          <p class="t-sm mb-3">详情页与上表都带 <code>confidence</code>，它反映<strong>本站数据的完整度</strong>，不是对产品的评价。</p>
+          <table class="src is-flush">
             <tbody>
-              <tr><th style="width:90px"><span class="td-conf verified">verified</span></th><td>${axisNames.length} 个维度均有官方源支撑，且核验日在 90 天内</td></tr>
+              <tr><th class="w-24"><span class="td-conf verified">verified</span></th><td>${axisNames.length} 个维度均有官方源支撑，且核验日在 90 天内</td></tr>
               <tr><th><span class="td-conf partial">partial</span></th><td>部分维度标为未知，或官方文档不可访问，或核验日超过 90 天</td></tr>
               <tr><th><span class="td-conf stale">stale</span></th><td>官方已发布重大变化，本站尚未核验</td></tr>
             </tbody>
@@ -634,35 +502,35 @@ ${entries.map(e => `              <tr>
         </div>
         <div class="panel">
           <h2>本站当前的完整度</h2>
-          <p style="color:var(--dim);font-size:13px;margin-bottom:10px">
+          <p class="t-sm mb-2">
             数据层用 <code>node scripts/audit-gaps.mjs</code> 可随时复核这个数字。
             以下是最近一次核验的快照（核验日 2026-09-29）：
           </p>
-          <table class="src" style="margin:0 0 12px">
+          <table class="src is-flush mb-3">
             <thead><tr><th>赛道</th><th>已补齐</th><th>说明</th></tr></thead>
             <tbody>
 ${['mcp', 'cli', 'ide'].filter(t => COVERAGE_BY_TRACK[t]).map(t => {
   const c = COVERAGE_BY_TRACK[t];
   const label = { mcp: 'MCP 服务器', cli: 'CLI 工具', ide: 'IDE 工具' }[t];
-  return `              <tr><td style="white-space:nowrap">${esc(label)}</td>
-                <td style="white-space:nowrap"><strong>${c.done}/${c.total}</strong></td>
-                <td style="color:var(--dim)">${esc(c.note)}</td></tr>`;
+  return `              <tr><td class="nw">${esc(label)}</td>
+                <td class="nw"><strong>${c.done}/${c.total}</strong></td>
+                <td class="td-vendor">${esc(c.note)}</td></tr>`;
 }).join('\n')}
             </tbody>
           </table>
-          <p><strong style="font-size:15px">全赛道合计 ${COVERAGE.done}/${COVERAGE.total} 维度已补齐（${Math.round(COVERAGE.done / COVERAGE.total * 100)}%）</strong></p>
-          <p style="color:var(--dim);font-size:13px">
+          <p><strong class="em">全赛道合计 ${COVERAGE.done}/${COVERAGE.total} 维度已补齐（${Math.round(COVERAGE.done / COVERAGE.total * 100)}%）</strong></p>
+          <p class="t-sm">
             剩余未补齐项分三类：<strong>官方未公开</strong>（索引算法、沙箱实现细节本就不对外说明）、
             <strong>需实测才能确定</strong>（大仓库表现、CI 无 TTY 行为）、
             <strong>客观渠道不可达</strong>。
           </p>
-          <p style="color:var(--dim);font-size:13px">
+          <p class="t-sm">
             我们选择留白而不是填「已支持」——错误的成本最终由使用者承担。
           </p>
         </div>
         <div class="panel">
           <h2>数据来源与复核方式</h2>
-          <p>全部数据来自开源仓库 <a href="${site.repo}" target="_blank" rel="noopener" style="color:var(--accent)">speculcom/ai-coding-agent-atlas</a>（CC BY 4.0）。</p>
+          <p>全部数据来自开源仓库 <a href="${site.repo}" target="_blank" rel="noopener" class="link-brand">speculcom/ai-coding-agent-atlas</a>（CC BY 4.0）。</p>
           <p>每个条目都是纯 Markdown + frontmatter，含 8 个维度、证据链接、核验日与可信度标记。仓库内含：</p>
           <ul>
             <li><code>METHODOLOGY.md</code> —— 方法论总纲与四条核心规则</li>
@@ -670,7 +538,7 @@ ${['mcp', 'cli', 'ide'].filter(t => COVERAGE_BY_TRACK[t]).map(t => {
             <li><code>SCHEMA.md</code> —— 数据格式规范与构建校验规则</li>
             <li><code>tracks/*/tasks/_protocol.md</code> —— 实测协议（<strong>尚未执行</strong>，故本站暂无实测结论）</li>
           </ul>
-          <p style="color:var(--dim);font-size:13px">发现错误或有新证据，欢迎提 Issue 或 PR——每条修正都会注明依据与影响范围。</p>
+          <p class="t-sm">发现错误或有新证据，欢迎提 Issue 或 PR——每条修正都会注明依据与影响范围。</p>
         </div>
       </div>
     </section>`;
@@ -741,7 +609,7 @@ function renderDetail(site, track, e) {
         <div class="mark" style="--card-accent:${esc(e.accent || site.accent)}" aria-hidden="true">${esc(e.mark || e.name.slice(0,2))}</div>
         <div>
           <h1>${esc(e.name)}</h1>
-          <div class="vendor" style="font-size:12px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase">${esc(e.vendor)}</div>
+          <div class="vendor is-caps">${esc(e.vendor)}</div>
         </div>
       </div>
 
@@ -752,7 +620,7 @@ function renderDetail(site, track, e) {
         <span class="badge">核验 ${esc(e.lastVerified)}</span>
       </div>
 
-      ${e.sec.oneline ? `      <div class="panel"><p style="margin:0;font-size:15px;line-height:1.75">${mdLinks(e.sec.oneline)}</p></div>\n` : ''}
+      ${e.sec.oneline ? `      <p class="panel-lead">${mdLinks(e.sec.oneline)}</p>\n` : ''}
       ${e.sec.fit ? (() => {
         // 段落以空行分隔；「不适合」段用警示色
         const paras = e.sec.fit.split(/\n{2,}/).map(s => s.trim()).filter(Boolean);
@@ -761,15 +629,16 @@ function renderDetail(site, track, e) {
           const cls = isWarn ? ' class="warn-p"' : '';
           return `        <p${cls}>${mdLinks(p)}</p>`;
         }).join('\n');
-        return `      <div class="panel">
+        return `      <div class="panel is-slim">
         <h2>适合与不适合</h2>
 ${body}
-      </div>\n`;
-      })() : ''}
+      </div>\n`;      })() : ''}
 
-      <h2 style="font-size:18px;font-weight:700;margin:34px 0 4px">固定坐标系</h2>
-      <p style="color:var(--dim);font-size:13px;margin:0 0 10px">${axisKeys.length} 个维度，与同赛道其他对象逐项可比。</p>
-      <dl style="margin:0">
+      <div class="block-head">
+        <h2 class="t-h2">固定坐标系</h2>
+        <p class="t-section-lead">${axisKeys.length} 个维度，与同赛道其他对象逐项可比。</p>
+      </div>
+      <dl class="axes">
 ${axesHtml}
       </dl>
 
@@ -780,17 +649,17 @@ ${e.pitfalls.map(p => `          <li>${mdLinks(p)}</li>`).join('\n')}
         </ul>
       </div>\n` : ''}
 
-      ${priceRows.length ? `      <div class="panel">
+      ${priceRows.length ? `      <div class="panel is-slim">
         <h2>价格</h2>
         <table class="src">
           <tbody>
-${priceRows.map(([k, v]) => `            <tr><th style="width:110px">${esc(k)}</th><td>${mdLinks(v)}</td></tr>`).join('\n')}
+${priceRows.map(([k, v]) => `            <tr><th class="w-28">${esc(k)}</th><td>${mdLinks(v)}</td></tr>`).join('\n')}
           </tbody>
         </table>
-        <p style="margin-top:12px;font-size:12px;color:var(--dim)">不同币种不做折算。优惠、地区、税费与登录后报价可能变化，购买前请到官方页面确认。</p>
+        <p class="fine mt-3">不同币种不做折算。优惠、地区、税费与登录后报价可能变化，购买前请到官方页面确认。</p>
       </div>\n` : ''}
 
-      ${e.sec.unknowns && /^\s*[-*]/m.test(e.sec.unknowns) ? `      <div class="panel">
+      ${e.sec.unknowns && /^\s*[-*]/m.test(e.sec.unknowns) ? `      <div class="panel is-slim">
         <h2>未知项清单</h2>
         <ul>
 ${e.sec.unknowns.split('\n').filter(l => /^\s*[-*]/.test(l)).map(l => `          <li>${mdLinks(l.replace(/^\s*[-*]\s*/, ''))}</li>`).join('\n')}
@@ -799,22 +668,22 @@ ${e.sec.unknowns.split('\n').filter(l => /^\s*[-*]/.test(l)).map(l => `         
 
       <div class="panel">
         <h2>证据来源</h2>
-        <p style="color:var(--dim);font-size:13px">判断可回到以下一手源复核。本站核验日 ${esc(e.lastVerified)}，内容更新日 ${esc(e.lastUpdated)}。</p>
+        <p class="t-sm">判断可回到以下一手源复核。本站核验日 ${esc(e.lastVerified)}，内容更新日 ${esc(e.lastUpdated)}。</p>
         <table class="src">
-          <thead><tr><th style="width:80px">类型</th><th style="width:200px">名称</th><th>链接</th></tr></thead>
+          <thead><tr><th class="w-20">类型</th><th class="w-52">名称</th><th>链接</th></tr></thead>
           <tbody>
 ${srcRows}
           </tbody>
         </table>
       </div>
 
-      ${e.sec.runs ? `      <div class="panel">
+      ${e.sec.runs ? `      <div class="panel is-slim">
         <h2>实测记录</h2>
         <p>${mdLinks(e.sec.runs)}</p>
       </div>\n` : ''}
 
-      <p style="margin-top:32px;font-size:12px;color:var(--dim);line-height:1.7">
-        本页由 <a href="${site.repo}" target="_blank" rel="noopener" style="color:var(--accent)">ai-coding-agent-atlas</a> 数据层生成（CC BY 4.0）。
+      <p class="fine mt-6">
+        本页由 <a href="${site.repo}" target="_blank" rel="noopener" class="link-brand">ai-coding-agent-atlas</a> 数据层生成（CC BY 4.0）。
         方法论与坐标系定义见仓库内 <code>METHODOLOGY.md</code>。
       </p>
     </div>`;
@@ -853,6 +722,8 @@ function copyBrand(track) {
   fs.mkdirSync(dir, { recursive: true });
   fs.copyFileSync(BRAND, path.join(dir, 'brand.css'));
   fs.copyFileSync(BRANDJS, path.join(dir, 'brand.js'));
+  // 内容层样式（与 brand.css 分开：前者是站点特有结构，后者是全站设计系统）
+  fs.copyFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), 'site.css'), path.join(dir, 'site.css'));
 }
 
 let totalErr = 0;
