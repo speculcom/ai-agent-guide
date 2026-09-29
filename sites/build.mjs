@@ -1,0 +1,180 @@
+name: build & deploy sites
+
+# 数据层是唯一真相源：这里一改，三个结论层站点同步重建。
+#
+# 流程：checkout 数据仓库 → 校验 → 构建三站 → 分别推送到三个站仓库的 main 分支
+# 站仓库的 CNAME + Pages 配置已就绪，推送即触发 GitHub Pages 自动发布。
+#
+# 手动触发：Actions 页面 → Run workflow
+# 触发条件：push 到 master（数据变更）、手动、PR（仅校验不部署）
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - '**/*.md.orig'
+      - '.gitignore'
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      track:
+        description: '只构建某个赛道（留空 = 全部）'
+        required: false
+        default: ''
+      deploy:
+        description: '是否部署到线上'
+        type: boolean
+        required: false
+        default: true
+
+# 同一分支的并发构建只保留最新一次
+concurrency:
+  group: build-sites-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: 校验并构建
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 数据仓库
+        uses: actions/checkout@v4
+
+      - name: 安装 Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: 结构校验（validate --strict）
+        run: node scripts/validate.mjs --strict
+
+      - name: 内部一致性审计（audit）
+        run: node scripts/audit.mjs
+
+      - name: 内容质量审计（quality）
+        run: node scripts/quality.mjs
+
+      - name: 拉取品牌壳
+        run: |
+          set -euo pipefail
+          mkdir -p .build
+          # 品牌壳（顶栏/页脚/基础 token）的唯一来源是品牌站仓库。
+          # 拉不到就中止——不要用副本兜底，那会让三站与品牌站悄悄脱钩。
+          curl -fsSL --retry 2 \
+            https://raw.githubusercontent.com/speculcom/www/main/brand.css \
+            -o .build/brand.css
+          curl -fsSL --retry 2 \
+            https://raw.githubusercontent.com/speculcom/www/main/brand.js \
+            -o .build/brand.js
+          wc -c .build/brand.css .build/brand.js
+
+      - name: 构建三站
+        env:
+          TRACK: ${{ github.event.inputs.track }}
+        run: |
+          set -euo pipefail
+          if [ -n "${TRACK:-}" ]; then
+            node sites/build.mjs "$TRACK"
+          else
+            node sites/build.mjs
+          fi
+
+      - name: 产出自检
+        run: |
+          set -euo pipefail
+          for t in ide cli mcp; do
+            [ -d "dist/$t" ] || { echo "缺少 dist/$t"; exit 1; }
+            [ -f "dist/$t/index.html" ] || { echo "缺少 dist/$t/index.html"; exit 1; }
+            [ -f "dist/$t/CNAME" ] || { echo "缺少 CNAME"; exit 1; }
+            n=$(ls dist/$t/*.html | wc -l)
+            echo "  $t: $n 个页面"
+            [ "$n" -ge 2 ] || { echo "  $t 页面数异常"; exit 1; }
+          done
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: sites
+          path: dist/
+          retention-days: 7
+
+  deploy:
+    name: 部署三站
+    needs: build
+    runs-on: ubuntu-latest
+    # PR 只校验不部署
+    if: github.event_name != 'pull_request' && github.event.inputs.deploy != 'false'
+
+    steps:
+      - name: Checkout 数据仓库
+        uses: actions/checkout@v4
+
+      - name: 下载构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: sites
+          path: dist
+
+      - name: 部署到三个站仓库
+        env:
+          GH_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+          TRACK: ${{ github.event.inputs.track }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::error::未配置 secrets.DEPLOY_TOKEN，跳过部署"
+            exit 1
+          fi
+
+          for t in ide cli mcp; do
+            [ -n "${TRACK:-}" ] && [ "$TRACK" != "$t" ] && continue
+            case "$t" in
+              ide) repo=ai-coding-ide ;;
+              cli) repo=ai-coding-cli ;;
+              mcp) repo=ai-coding-mcp ;;
+            esac
+            echo "=== 部署 $t → speculcom/$repo ==="
+            ok=0; fail=0
+            for f in dist/$t/*; do
+              name=$(basename "$f")
+              case "$name" in
+                *.html|*.css|*.js|*.xml|*.txt|CNAME|README.md) ;;
+                *) continue ;;
+              esac
+              sha=$(gh api "repos/speculcom/$repo/contents/$name" --jq '.sha' 2>/dev/null || echo "")
+              body=$(jq -n --rawfile c "$f" \
+                            --arg m "ci: $name" \
+                            --arg s "$sha" \
+                            --arg b "main" \
+                            '{message:$m, content:($c|@base64), branch:$b}
+                             + (if $s=="" then {} else {sha:$s} end)')
+              if echo "$body" | gh api -X PUT "repos/speculcom/$repo/contents/$name" --input - \
+                   --jq '.content.size' >/dev/null 2>&1; then
+                ok=$((ok+1))
+              else
+                echo "  ✗ $name"
+                fail=$((fail+1))
+              fi
+            done
+            echo "  $t: $ok 成功 / $fail 失败"
+            [ "$fail" -eq 0 ] || exit 1
+          done
+
+      - name: 部署摘要
+        run: |
+          {
+            echo "### 部署完成"
+            echo ""
+            echo "| 站点 | URL |"
+            echo "|---|---|"
+            echo "| IDE | https://ide.specul.com/ |"
+            echo "| CLI | https://cli.specul.com/ |"
+            echo "| MCP | https://mcp.specul.com/ |"
+            echo ""
+            echo "数据源 commit：${GITHUB_SHA}"
+          } >> "$GITHUB_STEP_SUMMARY"
