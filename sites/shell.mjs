@@ -21,8 +21,8 @@ export const BRAND = {
 /** 全站导航（五项，顺序固定；各站自己那项由 current 高亮） */
 export const NAV = [
   { key: 'www', href: 'https://specul.com/', zh: '首页', en: 'Home' },
-  { key: 'nav', href: 'https://specul.com/nav.html', zh: '导航', en: 'Directory' },
-  { key: 'keel', href: 'https://keel.specul.com/', zh: '基座', en: 'Keel' },
+  { key: 'nav', href: 'https://nav.specul.com/', zh: '导航', en: 'Directory' },
+  { key: 'keel', href: 'https://keel.specul.com/', zh: '规划中', en: 'Plan' },
   { key: 'ide', href: 'https://ide.specul.com/', zh: 'IDE 图谱', en: 'IDE' },
   { key: 'cli', href: 'https://cli.specul.com/', zh: 'CLI 图谱', en: 'CLI' },
   { key: 'mcp', href: 'https://mcp.specul.com/', zh: 'MCP 图谱', en: 'MCP' },
@@ -55,8 +55,8 @@ ${items}
   </header>`;
 }
 
-/** footer —— repo 参数让图谱站链自己的数据仓库，其余站链 keel3d */
-export function footer(repo = 'https://github.com/lifeidle/keel3d', repoLabel = 'GitHub') {
+/** footer —— repo 参数让图谱站链自己的数据仓库（默认图谱仓库，不再链 keel3d） */
+export function footer(repo = 'https://github.com/speculcom/ai-coding-agent-atlas', repoLabel = 'GitHub') {
   const links = NAV.map((n) => {
     const label = n.key === 'nav' || n.key === 'www' ? '' : n.zh;
     return label
