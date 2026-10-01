@@ -20,8 +20,8 @@ providers:
 
 pricing:
   model: open-source
-  monthly_usd: null
-  monthly_label: OSS 框架免费（MIT）；LlamaParse 商业平台另行计费
+  monthly_usd: 0
+  monthly_label: OSS 框架免费（MIT）；LlamaParse 平台 Free $0 / Starter $50 / Pro $500 每月
   note: >-
     **这一条必须写在最前面，因为它决定了这个对象现在是什么。**
     核验依据：仓库 MIT（经license API）+ README 首屏NOTE 段落原文。
@@ -35,12 +35,25 @@ pricing:
     our benchmarking efforts."
     **换句话说：公司的主战场已从「编排框架」移到「文档解析 / agentic OCR」，
     编排（Workflows）本身被放进了商业平台 LlamaAgents。**
-    LlamaParse 需注册取API key，其定价本站未核验。
+    **LlamaParse 定价（2026-10-01 官方 pricing 页核实，以 credits 计费）**：
+    Free $0/月含 **10K credits**；Starter **$50/月含 40K credits**（可加购至 400K）；
+    Pro **$500/月含 400K credits**（另有一次性 800K credits 赠额，官方折算价值 $1,000，
+    可加购至 $5,000/月）；Enterprise 定制。**三档均含 100 个用户席位**，
+    超出按 **1,000 credits = $1.25** 加购。
+    ⚠ **关键：官方只给 credits 单价，没给「一页文档消耗多少 credits」的口径**
+    —— 所以「$50 能解析多少页 PDF」**在公开信息里换算不出来**，
+    选型前必须自己拿真实文档试跑。这一点是本站明确的信息缺口，不做推测。
+    另外官方另推**LiteParse**（VLM-free、可本地跑的 OSS 解析器）—— **它不吃 credits、免费**，
+    官方自己形容为 "VLM-free fast and local OSS parsing"，这是零成本路线的存在。
 pricing_pitfalls:
   - 以为 LlamaIndex 仍是以「编排框架」为核心的项目 —— **官方首屏已声明 primary focus 已转向文档解析**
   - 以为 OSS 里的 workflow / agent 编排能力是主线 —— README 把 Workflows 写在
     **商业平台的 Agents 那一节**（LlamaAgents），不是 OSS 那节
-  - 把 LlamaParse 当成免费开源组件 —— 它是商业平台，需注册取 key
+  - 把 LlamaParse 当成免费开源组件 —— 它是商业平台，需注册取 key；
+    **且计费单位是 credits 不是「页数」**，1,000 credits = $1.25，
+    而官方**没公布每页消耗多少 credits**，所以「$50 能解析多少页」换算不出来
+  - 以为 LlamaParse 是唯一解析路线 —— 官方另有**LiteParse**，VLM-free + 本地可跑 + OSS，
+    **不吃 credits**；预算敏感或有本地化要求时应先看它
   - 以为「300+ 集成包」是 LlamaIndex 自己维护的 —— 多数是社区集成，能力对齐度需逐个确认
 
 # 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
@@ -165,6 +178,9 @@ sources:
   - label: LlamaParse 商业平台（README 称其为 enterprise platform）
     url: https://cloud.llamaindex.ai
     kind: docs
+  - label: LlamaParse 官方定价页（Free/Starter/Pro 三档credits 额度、加购上限、1,000 credits = $1.25、LiteParse 免费 OSS，核验 2026-10-01）
+    url: https://www.llamaindex.ai/pricing
+    kind: pricing
   - label: run-llama/liteparse · 免费快速文本解析器（官方另立项目）
     url: https://github.com/run-llama/liteparse
     kind: repo
