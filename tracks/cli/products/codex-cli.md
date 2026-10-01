@@ -46,9 +46,17 @@ axes:
   permissions: >-
     沙箱与审批边界跟随运行环境。
     **API key 计费与订阅不是同一额度**（此点已在定价说明中确认）。
-    **具体审批模式（自动 / 手动 / 计划模式）本次未核验，记为未知。**
+    **审批与沙箱模式已于 2026-10-01 核验完成**（此前记为未核验）：
+    来自 `@openai/codex-sdk` 源码 `sdk/typescript/src/threadOptions.ts` 的类型定义 ——
+    `ApprovalMode = "never" | "on-request" | "on-failure" | "untrusted"`（四档）、
+    `SandboxMode = "read-only" | "workspace-write" | "danger-full-access"`（三档），
+    网络由 `networkAccessEnabled` / `webSearchMode`（disabled/cached/live）单独控制。
+    证据在 SDK 侧而非 CLI 文档侧 —— `docs/sandbox.md` 正文只有外链，所以当初核验不到。
+    ⚠ 三档沙箱的**跨平台实现差异仍未核验**（尤其 Windows）。详见 [Codex SDK 档案](../../harness/products/codex-sdk.md)。
   fit: >-
     在终端里做工程任务，需要接入 CI 或自建客户端的场景。
+    **非交互模式有官方文档支持**（`docs/exec.md`标题即 Non-interactive mode，正文为外链），
+    这使它是本站 CLI 站里除 Gemini CLI 外唯一有非交互证据的对象。
     已有仓库的续接与恢复是其架构重点。
 
 pitfalls:
