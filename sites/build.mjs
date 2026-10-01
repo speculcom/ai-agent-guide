@@ -134,6 +134,16 @@ const SITES = {
     desc: 'filesystem、git、memory、fetch、playwright、context7 等 MCP server 的权限范围、传输方式与输出可用性。',
     repo: 'https://github.com/speculcom/ai-coding-agent-atlas',
   },
+  harness: {
+    key: 'harness',
+    domain: 'harness.specul.com',
+    name: 'Agent Harness 图谱',
+    short: 'Harness',
+    accent: '#3b82f6',
+    tagline: 'Agent 运行时 / 编排框架 / SDK 对比',
+    desc: 'Codex SDK、Claude Agent SDK、Deep Agents、Hermes Agent、LangGraph、CrewAI、Google ADK、LlamaIndex、OpenHands、OpenAI Agents SDK 的责任边界、状态持久化能力与权限模型。',
+    repo: 'https://github.com/speculcom/ai-coding-agent-atlas',
+  },
 };
 
 const args = process.argv.slice(2);
@@ -759,6 +769,12 @@ for (const track of targets) {
 
   // CNAME：Pages 绑自定义域名必需（见 keel 仓库同款做法）
   fs.writeFileSync(path.join(dir, 'CNAME'), site.domain + '\n', 'utf8');
+
+  // .nojekyll：让 GitHub Pages 跳过 Jekyll 处理，直接原样发布静态文件。
+  // 缺它时 Jekyll 会把带下划线开头或方括号的内容当 Liquid 模板解析，构建报
+  // "Page build failed."（2026-09-30 在 cli 站实际踩到：连续 3 次构建 errored，
+  //  而线上还能访问 —— 因为服务的是上一次成功的旧产物）。
+  fs.writeFileSync(path.join(dir, '.nojekyll'), '', 'utf8');
 
   // sitemap：三个站互链，便于搜索引擎发现同族内容
   const pages = [
