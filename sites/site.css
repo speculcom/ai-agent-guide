@@ -49,6 +49,95 @@ h1 {
   margin: 0 0 var(--sp-5); max-width: 68ch;
 }
 
+/* ── 「从这里开始」引导区 ────────────────────────────────────────────────
+   访客从搜索/推荐落地后的第一屏。目的不是罗列对象，而是先让他回答一个
+   是非题（我属于哪一类），再给下一跳。数据再准，读者不知道用途就等于没用。
+   视觉上刻意比下面的对象表轻：左边一条竖线表明这是「导读」不是「结论」。
+   ────────────────────────────────────────────────────────────────────── */
+.guide-band { border-top: 0; }
+.guide-list {
+  list-style: none; margin: 0 0 var(--sp-5); padding: 0;
+  display: grid; gap: var(--sp-2);
+  max-width: 92ch;
+}
+.guide-step {
+  display: grid;
+  /* 两列：左侧「你的情况」，右侧「所以看哪」。用 grid 而非 flex 是为了让
+     两列在窄屏能干净地叠成一列，不出现挤压。 */
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: var(--sp-2) var(--sp-5);
+  align-items: baseline;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent, var(--brand));
+  border-radius: 3px;
+  background: var(--bg-raise);
+}
+.guide-q {
+  display: flex; align-items: baseline; gap: var(--sp-2);
+  font-size: var(--fs-sm); color: var(--ink-mid); line-height: 1.6;
+}
+.guide-n {
+  flex-shrink: 0;
+  display: inline-grid; place-items: center;
+  width: 18px; height: 18px; border-radius: 50%;
+  font-size: 10.5px; font-weight: 700; line-height: 1;
+  color: var(--accent, var(--brand));
+  border: 1px solid color-mix(in srgb, var(--accent, var(--brand)) 42%, transparent);
+  background: color-mix(in srgb, var(--accent, var(--brand)) 11%, transparent);
+  transform: translateY(2px);
+}
+.guide-a {
+  display: flex; flex-direction: column; gap: 2px;
+  font-size: var(--fs-sm); line-height: 1.6;
+}
+.guide-a strong { color: var(--ink); font-weight: 700; }
+/* 为什么这样分——一行灰字，是本文档存在的理由，别删 */
+.guide-why { color: var(--ink-faint); font-size: var(--fs-xs); line-height: 1.62; }
+.guide-foot {
+  font-size: var(--fs-xs); color: var(--ink-dim); line-height: 1.7;
+  margin: 0; max-width: 82ch;
+  padding-top: var(--sp-3); border-top: 1px solid var(--line);
+}
+.guide-foot strong { color: var(--ink-mid); }
+
+@media (max-width: 760px) {
+  .guide-step { grid-template-columns: 1fr; gap: var(--sp-1); }
+  .guide-a { padding-left: calc(18px + var(--sp-2)); }
+}
+/* ≤520px 时两级缩进 + 长平台名串（"Telegram/Discord/Slack/WhatsApp/Signal/Email"）
+   会把 grid item 撑到容器外——grid item 默认 min-width:auto 不允许比容器窄。
+   min-width:0 让它可收缩，overflow-wrap让长串能断。
+   实测 320px 视口下 harness 站引导区scrollWidth 361，超出 41px。 */
+@media (max-width: 520px) {
+  .guide-step { padding: var(--sp-3); }
+  .guide-q, .guide-a, .guide-why, .guide-foot { min-width: 0; overflow-wrap: anywhere; }
+  .guide-a { padding-left: 0; }
+  .guide-n { display: none; }  /* 序号已由列表序号表达，去掉圆圈省出整行宽度 */
+}
+
+/* ── harness 站的family 分组 ────────────────────────────────────────────────
+   validate 把 family 定为必填枚举，注释写明「决定首页矩阵怎么分组」。
+   分组标题里必须带这一层的判别理由（不只是名字），否则分组只是装饰。
+   ────────────────────────────────────────────────────────────────────── */
+.fam-block { margin-bottom: var(--sp-6); }
+.fam-block:last-child { margin-bottom: 0; }
+.fam-head { margin-bottom: var(--sp-3); }
+.fam-head h3 {
+  display: flex; align-items: baseline; gap: var(--sp-2);
+  font-size: var(--fs-lg); font-weight: 700; letter-spacing: -.012em;
+  margin: 0 0 var(--sp-1);
+}
+.fam-n {
+  font-size: var(--fs-micro); font-weight: 600; line-height: 1;
+  color: var(--ink-dim); font-variant-numeric: tabular-nums;
+  padding: 3px 7px; border: 1px solid var(--line-mid); border-radius: 999px;
+}
+.fam-head p {
+  margin: 0; font-size: var(--fs-sm); line-height: 1.7;
+  color: var(--ink-dim); max-width: 84ch;
+}
+
 /* ── 状态声明带：诚实边界必须显眼，但不是喊 ────────────────────────── */
 .status-band { border-top: 1px solid var(--brand-line); }
 .status-inner {
@@ -76,7 +165,10 @@ h1 {
 /* ── 对象网格：给每张卡一个视觉锚（字母标识 + 状态色条）───────────── */
 .grid {
   display: grid; gap: var(--sp-3);
-  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  /* min(330px, 100%) 而非 minmax(330px, 1fr)：后者在视口 < 330px 时
+     仍强制 330px 下限 → 卡片溢出（320px 视口实测 scrollWidth 469）。
+     100% 上限让它在窄屏收缩到容器宽。 */
+  grid-template-columns: repeat(auto-fill, minmax(min(330px, 100%), 1fr));
 }
 .card {
   background: var(--bg-panel);
@@ -250,6 +342,15 @@ td a:hover { color: var(--accent, var(--brand)); }
 .fine.mt-6 { margin-top: var(--sp-6); }
 table.src.is-flush { margin: 0; }
 table.src.is-flush.mb-3 { margin: 0 0 var(--sp-3); }
+/* is-flush 表格直接放在 .panel 里（没有 .table-wrap 包裹），列多时会把
+   面板撑出横向滚动条。给它自己的 display:block + overflow-x:auto，
+   这样溢出被限制在表格内部，全站仍无横向滚动条。 */
+.panel > table.src.is-flush,
+.panel > table.cmp.is-flush {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+}
 th.w-20 { width: 80px; }  th.w-24 { width: 96px; }
 th.w-28 { width: 112px; } th.w-52 { width: 208px; }
 .nw { white-space: nowrap; }
