@@ -1,8 +1,8 @@
 name: build & deploy sites
 
-# 数据层是唯一真相源：这里一改，三个结论层站点同步重建。
+# 数据层是唯一真相源：这里一改，四个结论层站点同步重建。
 #
-# 流程：checkout 数据仓库 → 校验 → 构建三站 → 分别推送到三个站仓库的 main 分支
+# 流程：checkout 数据仓库 → 校验 → 构建四站 → 分别推送到四个站仓库的 main 分支
 # 站仓库的 CNAME + Pages 配置已就绪，推送即触发 GitHub Pages 自动发布。
 #
 # 手动触发：Actions 页面 → Run workflow
@@ -73,7 +73,7 @@ jobs:
             -o .build/brand.js
           wc -c .build/brand.css .build/brand.js
 
-      - name: 构建三站
+      - name: 构建四站
         env:
           TRACK: ${{ github.event.inputs.track }}
         run: |
@@ -87,10 +87,11 @@ jobs:
       - name: 产出自检
         run: |
           set -euo pipefail
-          for t in ide cli mcp; do
+          for t in ide cli mcp harness; do
             [ -d "dist/$t" ] || { echo "缺少 dist/$t"; exit 1; }
             [ -f "dist/$t/index.html" ] || { echo "缺少 dist/$t/index.html"; exit 1; }
             [ -f "dist/$t/CNAME" ] || { echo "缺少 CNAME"; exit 1; }
+            [ -f "dist/$t/.nojekyll" ] || { echo "缺少 .nojekyll（Pages 会构建失败）"; exit 1; }
             n=$(ls dist/$t/*.html | wc -l)
             echo "  $t: $n 个页面"
             [ "$n" -ge 2 ] || { echo "  $t 页面数异常"; exit 1; }
@@ -120,7 +121,7 @@ jobs:
           name: sites
           path: dist
 
-      - name: 部署到三个站仓库
+      - name: 部署到四个站仓库
         env:
           GH_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
           TRACK: ${{ github.event.inputs.track }}
@@ -131,12 +132,13 @@ jobs:
             exit 1
           fi
 
-          for t in ide cli mcp; do
+          for t in ide cli mcp harness; do
             [ -n "${TRACK:-}" ] && [ "$TRACK" != "$t" ] && continue
             case "$t" in
               ide) repo=ai-coding-ide ;;
               cli) repo=ai-coding-cli ;;
               mcp) repo=ai-coding-mcp ;;
+              harness) repo=ai-coding-harness ;;
             esac
             echo "=== 部署 $t → speculcom/$repo ==="
             ok=0; fail=0
@@ -175,6 +177,7 @@ jobs:
             echo "| IDE | https://ide.specul.com/ |"
             echo "| CLI | https://cli.specul.com/ |"
             echo "| MCP | https://mcp.specul.com/ |"
+            echo "| Harness | https://harness.specul.com/ |"
             echo ""
             echo "数据源 commit：${GITHUB_SHA}"
           } >> "$GITHUB_STEP_SUMMARY"
