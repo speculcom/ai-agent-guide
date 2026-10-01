@@ -10,17 +10,19 @@ accent: "#24292F"
 pricing:
   model: paid
   monthly_usd: 10
-  monthly_label: Copilot Free（有限额度）/ Pro $10 每月
+  monthly_label: Copilot Free（2,000 补全/月）/ Pro $10 / Pro+ $39 / Max $100 每月
   annual_usd: null
-  annual_label: 未核验年付报价
+  annual_label: 年付按档折算（Pro $15、Pro+ $70、Max $200 每月等值），无统一折算率
   note: >-
-    **本次采集中价格数字最完整的一个**。官方 plans 页显示的数字序列为
-    Free / $15 / $70 / $200 与 Business 档的 $100（每年）/ $5 / $31 / $100。
-    **各档位的具体对应关系需以官网为准**——
-    页面同时存在月付与年付口径，本次未能逐档确认，标记为未知。
-    另有机制：Flex allotment（可变的额外用量，
-    官方明确标注「Flex allotments may change over time」）、
-    可额外购买 GitHub AI Credits、
+    **2026-10-01 用 Playwright 渲染官方 plans 页后逐档确认，月付/年付两套口径都拿到**：
+    个人四档 —— Free $0（**每月 2,000 次补全**，chat 与 agent 用量有限）、
+    Pro $10/月、Pro+ $39/月、Max $100/月；这三档的 agent 与 chat 配额均为 **Unlimited**。
+    **月付额度**：Pro $15、Pro+ $70、Max $200 每月总credits（官方标注序号 6的附加说明）。
+    团队每用户每月 —— Pro $10、Pro+ $39、Max $100（另有 Enterprise 定制）。
+    **年付口径数字不同**（Pro $15、Pro+ $70、Max $200），页面同时呈现两套，
+    本站按「月付=当年付折扣后」理解，但**具体折算率官方未单列，勿自行推算**。
+    另有机制：Flex allotment（官方明确标注「Flex allotments may change over time」，
+    即额度可变）、可额外购买 GitHub AI Credits、
     Business/Enterprise 有 Pooled usage（组织内共享额度 + 管理员支出控制）。
 pricing_pitfalls:
   - 把 Flex allotment 当成固定额度，官方明确说它会随时间变化
