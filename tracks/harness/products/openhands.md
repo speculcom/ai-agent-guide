@@ -20,18 +20,40 @@ providers:
 
 pricing:
   model: freemium
-  monthly_usd: null
-  monthly_label: 自托管免费（MIT）；另有 OpenHands Cloud / Enterprise 商业版，报价未核验
+  monthly_usd: 0
+  monthly_label: 开源自托管 Free（MIT，1 用户）/ Cloud Individual Free（1 用户，每日 10 轮对话）/ Enterprise 定制报价
   note: >-
     **本站收录的是可自托管的开源部分，不是商业版。**
-    核验依据：主仓MIT（经 license API）、README 的四份docker / npm 安装命令全部指向自建。
-    商业线是 README 里提到的两种可选后端：
-    OpenHands Cloud（our commercial offering）与 OpenHands Enterprise infrastructure。
-    **这两条线的定价、限额、是否可自带模型，本站均未核验。**
+    核验依据：主仓 MIT（经license API）、README 的四份 docker / npm 安装命令全部指向自建、
+    官方定价页（核验 2026-10-01）。
+    **⚠ 本轮核验的结论可能与预期不同：官方定价页上没有「付费个人档」**——
+    三档里两档是$0，一档是定制：
+    **① Open Source — Free**（本地跑：Web GUI + Terminal UI + CLI、Git 集成、
+    社区支持、model agnostic，**1 用户**、**每日对话数 Unlimited**）；
+    **② SaaS Individual — Free**（云端访问，支持桌面与移动端、API 用于自动化与脚本、
+    Jira 与 Slack 集成，**1 用户**）；
+    **③ SaaS 或 Self-hosted Enterprise — Custom pricing**（可部署在客户自有 VPC、
+    Enterprise SAML/SSO、**每用户无限并发会话**、Large Codebase SDK、
+    优先支持 + 共享 Slack 频道、**Named Customer Engineer**、**用户数 Unlimited**）。
+    **最关键的一条硬数字：Individual 档「Max Daily Conversations = 10」。**
+    对照 Open Source 档的同 一栏是 **Unlimited** ——
+    **即「免费」不等于「不限量」，云端免费档每天只有 10 轮对话，
+    本地自托管才是 Unlimited。** 这是选型时极易踩的落差。
+    **另一条重要机制（官方 FAQ 原文）**：Individual 档**支持自带 key（BYOK）**，
+    没有 key 时可用 OpenHands LLM provider，官方强调
+    "**at cost, with no markup**"（按成本价、**零加价**，按量付费）——
+    并可在 Settings > API 生成 API key，供 CLI / Local Web UI / Software Agent SDK 使用。
+    ⚠ 「零加价」的**实际单价表本站未核验**，只能确认官方声明不加价。
 pricing_pitfalls:
   - 以为「MIT 免费」等于「零成本」—— 模型推理费用、跑 agent 的机器/容器资源都要自己承担
   - 把自托管版与 OpenHands Cloud / Enterprise 混谈 —— 后者是商业托管服务，不是这个仓
   - 以为本地跑就安全 —— README 自己在两个安装选项上打了 WARNING，见 permissions
+  - **以为「云端免费档」等于「不限量」—— Individual 档每天只有 10 轮对话**
+    （官方对比表Max Daily Conversations：Open Source = Unlimited，
+    Individual = 10，Enterprise = Unlimited）。想不限量只能本地跑或上Enterprise
+  - 以为 Enterprise 只是「多几个用户」—— 它实际是另一套东西：
+    可部署在**客户自有 VPC**、SAML/SSO、RBAC、集中账单、
+    Large Codebase SDK、Named Customer Engineer，**报价需联系销售**
 
 # 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
@@ -153,6 +175,9 @@ sources:
   - label: docs/SELF_HOSTING.md（API key、--public 模式、loopback 默认、防火墙要求）
     url: https://github.com/OpenHands/OpenHands/blob/main/docs/SELF_HOSTING.md
     kind: docs
+  - label: 官方定价页（核验 2026-10-01：Open Source $0 / Cloud Individual $0 / Enterprise 定制；**Individual Max Daily Conversations = 10** 而 Open Source 为 Unlimited；BYOK 与 "at cost, with no markup"；Enterprise 可部署客户自有 VPC、SAML/SSO、RBAC、每用户无限并发）
+    url: https://www.all-hands.dev/pricing
+    kind: pricing
   - label: OpenHands/software-agent-sdk · 仓库（Python SDK 与 Agent Server 的真实所在，1,190★，MIT）
     url: https://github.com/OpenHands/software-agent-sdk
     kind: repo
@@ -229,6 +254,35 @@ README 原文列了 "OpenHands, Claude Code, Codex, Gemini, or any ACP-compatibl
 ⚠ **89,675★ 是控制中心的星数，不是 SDK 的星数**。
 如果你要的是「嵌进自己 Python 进程的 SDK」，那对象是 `software-agent-sdk`（1,190★），不是本条目。
 **本站本次未单独收录它** —— 见下方实测建议第 1 条。
+
+## 定价：三档里两档是 $0，但「免费」有个硬上限
+
+2026-10-01 核验官方定价页。**结论可能与预期不同：没有「付费个人档」。**
+
+| 档位 | 价格 | 部署 | 用户 | 每日对话 |
+|---|---|---|---|---|
+| **Open Source** | **Free** | 本地 | 1 | **Unlimited** |
+| **SaaS Individual** | **Free** | 云端 | 1 | **10** |
+| **Enterprise** | **Custom**（Contact Us） | SaaS 或**客户自有 VPC** | Unlimited | Unlimited |
+
+**① 最关键的一条落差：云端免费档每天只有 10 轮对话。**
+官方对比表同一栏：Open Source = **Unlimited**，Individual = **10**，Enterprise = Unlimited。
+**即「免费」不等于「不限量」—— 想不限量只有两条路：本地跑，或上Enterprise。**
+
+**② Individual 支持自带 key（BYOK）。**
+官方 FAQ 原文：Open Source 与 Cloud 各档都支持自带 LLM key。
+没有 key 时可用 OpenHands LLM provider，官方强调 "**at cost, with no markup**"
+（按成本价、**零加价**，按量付费），可在 Settings > API 生成 API key
+供 CLI / Local Web UI / Software Agent SDK 使用。
+⚠ 「零加价」的**实际单价表未公开**，只能确认官方声明不加价。
+
+**③ Individual 还有一批 OSS 档没有的东西**：云端访问（桌面 + 移动端）、
+Cloud API 用于自动化与脚本、Jira 与 Slack 集成、Secrets、组织支持。
+
+**④ Enterprise 实际是另一套东西，不是「多几个用户」**：
+可部署在**客户自有 VPC**、Enterprise SAML/SSO、多用户 RBAC、集中团队账单、
+**每用户无限并发会话**、Large Codebase SDK、
+**Named Customer Engineer + 共享 Slack 频道 + 优先支持**。报价需联系销售。
 
 ## 四种部署形态：这是本对象最实用的部分
 
@@ -330,8 +384,15 @@ Repository boundaries 表、More documentation）、`docs/SELF_HOSTING.md` 286 �
 未核验：**对话上下文压缩与摘要策略（降级主因）**、
 「any LLM」的完整 provider 清单与 LiteLLM 类网关的存在形式、LLM profiles 的具体配置格式、
 本地量化模型能否接入、ACP 与 MCP 的定位差异、多用户/角色/审计体系是否存在、
-OpenHands Cloud 与 Enterprise 的定价与限额、后端远程时本地仓库的同步机制、
+后端远程时本地仓库的同步机制、
 `software-agent-sdk` 的 API 形态
+
+**本轮（2026-10-01）补上的**：官方定价页三档已核实 ——
+Open Source $0 / Cloud Individual $0 / Enterprise 定制；
+**Individual 每日 10 轮对话上限**（对照Open Source 的 Unlimited）；
+Individual 支持 BYOK、无 key 时走 OpenHands provider 且官方声明 **at cost, no markup**；
+Enterprise 可部署客户自有 VPC、SAML/SSO、RBAC、每用户无限并发。
+Enterprise 的具体报价与「零加价」的实际单价表仍未核验。
 
 ## 实测记录
 
@@ -354,7 +415,9 @@ OpenHands Cloud 与 Enterprise 的定价与限额、后端远程时本地仓库�
 - 对话上下文压缩/摘要/落盘策略（**本站最看重的维度，证据缺失**）
 - 多用户、角色与审计体系是否存在
 - ACP 与 MCP 的关系：能否复用已有 MCP server 生态
-- OpenHands Cloud / Enterprise 的定价、配额、是否可自带模型
+- **Enterprise 的具体报价**（官方仅标 Custom pricing / Contact Us）
+- OpenHands LLM provider「at cost, no markup」的**实际单价表**（官方声明不加价，数字未公开）
+- Individual 每日 10 轮之外，超出后的行为（停用 / 提示升级 / 其它，官方页未写）
 - 后端远程部署时本地代码库的同步机制
 - `software-agent-sdk` 的 API 形态与版本独立节奏
 - 每会话容器在并发压测下的资源与稳定性
