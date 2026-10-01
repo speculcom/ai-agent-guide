@@ -1,0 +1,389 @@
+---
+id: langgraph
+track: harness
+family: orchestration
+name: LangGraph
+vendor: LangChain Inc
+homepage: https://docs.langchain.com/oss/python/langgraph/
+mark: LG
+accent: "#1C3C3C"
+stars: 42538
+license: MIT
+latest_version: 1.2.12
+language: Python（主）/ TypeScript（langgraphjs 独立仓）
+
+# 支持哪些模型 provider（本站第一决策点）
+providers:
+  - 模型无关：图执行引擎不绑定模型（本站判断，README 未列 provider 清单）
+  - 官方生态位是 LangChain 全家桶，接法通常经 LangChain 的模型集成层
+  - 具体零依赖直连哪些 provider，本次未核验
+
+pricing:
+  model: open-source
+  monthly_usd: null
+  monthly_label: 框架免费（MIT）；LangSmith（调试/评估/部署）是独立商业产品
+  note: >-
+    **框架 MIT 与 LangSmith 是两件事。**
+    README 里 LangSmith 出现 4 次，分别指向调试可视化、agent eval 与部署平台，
+    **README 首屏也放了一个 TIP 引导去用 LangSmith**（"For developing, debugging, and deploying
+    AI agents and LLM applications, see LangSmith"）。
+    ⚠ LangSmith 的定价、免费额度、以及不开它LangGraph 是否完整可用，本站未核验。
+    另有 LangSmith Deployment（官方描述里有"Discover, reuse, configure, and share agents
+    across teams"），属托管平台，本条不收录。
+pricing_pitfalls:
+  - 以为「装LangGraph 就够」—— 官方首屏就引导配 LangSmith 做调试与部署，那部分是商业产品
+  - 把 LangSmith Deployment 当成 LangGraph 的能力 —— 那是独立平台，官方在 README 里分开列
+  - 忽略持久化后端的选型 —— checkpoint 有多个子包，SQLite 与 Postgres 的可靠性与并发语义不同
+
+# 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
+layer_position: >-
+  **本站收录对象里对「状态」这个概念最认真回答的一个，也是 durable execution 的定义者。**
+  官方自述一句话："**Low-level orchestration framework for building stateful agents**"
+  （低层编排框架，注意low-level 这个词—— 它自认不是开箱即用的高层封装）。
+  与 [Google ADK](google-adk.md) 同属 orchestration 家族，但两者的答案不同：
+  ADK 用 Workflow Runtime 的图执行引擎 + state management；
+  LangGraph 用**每superstep 落盘的 checkpoint 机制**（见 axes.context 的官方原文）。
+  ⚠ **同厂关系必须记清，否则会重复计数**：
+  **LangGraph 与本站已收录的 Deep Agents 是同一家公司的两层产品**，
+  README 明确推荐关系："If you're looking to quickly build agents, check out **Deep Agents** —
+  a **higher-level package built on LangGraph** for agents that can plan, use subagents,
+  and leverage file systems for complex tasks."
+  **即：Deep Agents 是建在 LangGraph 上的高层包。**
+  两者的关系是「底座 vs 上层封装」，不是「两个可选竞品」——
+  ⚠ 但本站同时收录两者，因为 Deep Agents 的 batteries-included 抽象
+  与 LangGraph 的显式图抽象在选型上确实是两个不同的入口。
+  另有JS/TS 版 `langchain-ai/langgraphjs` 独立仓，本档只收录 Python 主体。
+
+axes:
+  model_access: >-
+    **LangGraph 本身不谈模型 —— 这是它作为低层框架的设计取向。**
+    README 的五项能力（durable execution / HITL / memory / LangSmith 调试 / 生产部署）
+    全部与模型无关，没有一处列出 provider。
+    官方生态位是 LangChain 全家桶：模型接入通常经 LangChain 的集成层
+    （这也意味着**你可能需要装 langchain 及其 provider 包才能接模型**，
+    ⚠ 但 LangGraph 官方明确说了"can be used without LangChain" —— README 末尾原文：
+    "LangGraph is built by LangChain Inc, the creators of LangChain, but **can be used without LangChain**"，
+    **这句是本站判断「不是强绑定」的关键依据**。零依赖直连哪些 provider 未核验。
+  runtime: >-
+    **纯库，没有运行时服务。** 安装就是 `pip install -U langgraph`，
+    没有 CLI 启服务、没有容器编排命令、没有 Web UI（Web UI 在 Deep Agents / LangSmith 那侧）。
+    官方把运行形态交给两处：**你自己跑**，或 **LangSmith Deployment**（独立商业平台）。
+    ⚠ **未核验**：LangGraph 应用在生产环境的推荐部署形态（官方指向 LangSmith，
+    而 LangSmith 是收费产品 —— 这意味着「怎么部署」这个问题的答案落在一个商业产品上）。
+  local_files: >-
+    **⚠ 不在 LangGraph 的职责范围内，这一点要说清。**
+    README 讲文件系统的唯一位置是把 Deep Agents 作为高层包推荐
+    （"leverage file systems for complex tasks"），
+    **即文件能力被归到上层封装，而不是底层图引擎**。
+    LangGraph 本身给的是**状态容器**（checkpoint 里存的是 graph state），
+    至于 agent 要不要读写磁盘、用什么工具读写，不归它管。
+    **本站判断（推断）**：想要文件系统，得自己接工具或走 Deep Agents 那一层。
+  background: >-
+    **这是它最强的一维，且有官方明文。**
+    README 特性列表第一条 **Durable execution**：
+    "Build agents that **persist through failures** and can run for extended periods,
+    **automatically resuming from exactly where they left off**."
+    配套是独立子包 `langgraph-checkpoint`（核验 `libs/checkpoint`）：
+    Checkpointers "provide a persistence layer for LangGraph: they **save graph state
+    at every superstep**, enabling human-in-the-loop, memory between interactions,
+    **durable execution**, and more."
+    ⚠ 这句话是本站见过**对「状态持久化」最明确的官方定义**——
+    落盘粒度是 superstep（图的一个步进），不是「会话结束时」也不是「每轮对话后」。
+    ⚠ 但要诚实：**跨机器 / 多进程并发下的恢复语义本站未核验**，
+    checkpoint 的并发写与冲突处理需要自己确认。
+  tools: >-
+    **⚠ 本维度也是 LangGraph 明确不负责的。**
+    README 五项能力里没有工具系统；工具接入经 LangChain 生态
+    （本站判断：LangGraph 负责图与状态，工具由LangChain 或你自己的函数提供）。
+    **本站不把它与本站 MCP 站的9 个 server 关联** —— 没有证据表明 LangGraph 自带 MCP 客户端。
+    ⚠ LangChain 生态是否有统一 MCP 接入层，本次未核验。
+  context: >-
+    **⚠ 这一维度是本站最想强调的一条：LangGraph 把「状态」和「记忆」分开给了两套机制。**
+    README 特性列表第三条 **Comprehensive memory** 原文：
+    "Create truly stateful agents with both **short-term working memory for ongoing reasoning**
+    and **long-term persistent memory across sessions**."
+    **这句话里两个时间尺度的区分，正是本站「状态 ≠ 上下文」主张的同构表达** ——
+    checkpoint 存的是流程状态（状态面），
+    而 memory 是另设的一层（记忆面），两者不是一个东西。
+    ⚠ **未核验**：memory 的短期部分具体如何裁剪上下文（是否就是压缩/摘要）、
+    长期记忆的存储后端与检索方式、本站所需的「大工具输出落盘」是否属其能力范围。
+    **但有一点可以确定**：它是本站收录对象里**唯一在README 首屏就明确区分
+    「working memory」与「persistent memory across sessions」** 的。
+  permissions: >-
+    **官方给的是 human-in-the-loop，且是「检查并修改状态」级别，不只是确认。**
+    README 特性列表第二条原文：
+    "Seamlessly incorporate human oversight by **inspecting and modifying agent state
+    at any point during execution**."
+    文档在 `langgraph/interrupts`。
+    **与其它对象对比，这一点有实质差别**（三者的介入层次递进，
+    此处用行内列举是因为本解析器不支持嵌套块内的列表写法）：
+    [OpenAI Agents SDK](openai-agents-sdk.md) 的 guardrail 是**校验内容**（输入/输出合不合规）、
+    [Google ADK](google-adk.md) 的 Tool Confirmation 是**拦执行**（这个工具要不要跑）、
+    **LangGraph 的 interrupts 是改状态**（在任意执行点检查并修改图的状态）。
+    ⚠ **但要说清：它明确给的不是沙箱或权限边界。**
+    README 未提及文件系统权限模型、网络访问控制、工具级白名单 ——
+    与本站收录的 OpenHands（明确的 Docker 沙箱 + API key 机制）、
+    Codex SDK（源码里三档 SandboxMode 枚举）形成对照，
+    **LangGraph 在这一维度上目前查不到官方机制**。
+  fit: >-
+    **适合**：agent 流程要跑很久且必须能从中断处精确恢复；
+    需要人工在流程中间介入并修改状态；要把「工作记忆」与「跨会话长期记忆」分开管理；
+    需要显式图结构（分支、循环、子图）；团队用 Python。
+    **不适合**：需要内建沙箱或文件级权限边界（本站未核验其机制）；
+    想要开箱即用的文件系统与子代理（走 Deep Agents，它是 LangGraph 上的高层包）；
+    不想额外依赖 LangChain 生态（模型接入通常要经它）。
+
+pitfalls:
+  - 把 Deep Agents 与 LangGraph 当两个竞品 —— **Deep Agents 是建在 LangGraph 上的高层包**（README 明确）
+  - 用 releases/latest 判版本 —— **monorepo 的 latest 不可靠**：本条实测 latest 返回
+    `cli==0.4.32.dev0`（子包 dev 版），主包版本需从 release 列表里挑（本次核验主包为 1.2.12）
+  - 把 checkpoint 持久化读成「上下文管理」—— checkpoint 存的是 **graph state**，
+    上下文压缩与记忆是 README 里另设的 memory 那一层
+  - 以为它自带文件系统或工具系统 —— 这两样它都不管，要么自己接，要么走 Deep Agents
+  - 以为 interrupts 是权限护栏 —— 它是「检查并修改状态」，不划文件/网络边界
+  - 以为装完 LangGraph 就够了 —— 官方首屏就引导用 LangSmith 做调试与部署，那是商业产品
+
+tags: [Python, 开源, MIT, 编排框架, 图执行, 持久化, 状态管理, checkpoint, superstep, durable-execution, HITL, interrupts, 长期记忆, LangChain]
+
+sources:
+  - label: langchain-ai/langgraph · 仓库（42,538★，MIT，核验 2026-10-01）
+    url: https://github.com/langchain-ai/langgraph
+    kind: repo
+  - label: 主 README（定位、Durable execution / HITL / memory 三项能力、Deep Agents 关系、Pregel 溯源）
+    url: https://github.com/langchain-ai/langgraph/blob/main/README.md
+    kind: docs
+  - label: libs/checkpoint/README.md（"save graph state at every superstep" 原文）
+    url: https://github.com/langchain-ai/langgraph/blob/main/libs/checkpoint/README.md
+    kind: docs
+  - label: 官方文档 · Durable execution
+    url: https://docs.langchain.com/oss/python/langgraph/durable-execution
+    kind: docs
+  - label: 官方文档 · Interrupts（HITL）
+    url: https://docs.langchain.com/oss/python/langgraph/interrupts
+    kind: docs
+  - label: 官方文档 · Memory（短期工作记忆 vs 跨会话长期记忆）
+    url: https://docs.langchain.com/oss/python/langgraph/memory
+    kind: docs
+  - label: 官方文档首页
+    url: https://docs.langchain.com/oss/python/langgraph/overview
+    kind: docs
+  - label: Deep Agents 文档（README 指向的「higher-level package built on LangGraph」）
+    url: https://docs.langchain.com/oss/python/deepagents/overview
+    kind: docs
+  - label: langchain-ai/langgraphjs · JS/TS 版独立仓
+    url: https://github.com/langchain-ai/langgraphjs
+    kind: repo
+  - label: Releases（主包 1.2.12 @ 2026-09-21；latest 为子包 cli==0.4.32.dev0）
+    url: https://github.com/langchain-ai/langgraph/releases
+    kind: changelog
+
+link:
+  url: https://docs.langchain.com/oss/python/langgraph/
+  kind: official
+
+related:
+  - id: deepagents
+    note: **同公司、上下层关系，不是竞品**：README 明示Deep Agents 是 built on LangGraph 的高层包（带规划、子代理、文件系统）。要开箱还是要底座，这是本站最该给用户看的一张对照表。
+  - id: google-adk
+    note: **编排家族内的对照**：同为图执行编排框架，ADK 给 Workflow Runtime + state management，LangGraph 给每superstep 落盘的 checkpoint。
+  - id: crewai
+    note: 同为编排框架，抽象中心不同（角色/任务 vs 图节点）。
+  - id: openai-agents-sdk
+    note: 形态相反：那个是单 agent 原语 + 内建 guardrail；本条是低层图引擎 + 状态持久化，不提供工具系统。
+
+last_verified: 2026-10-01
+last_updated: 2026-10-01
+lifecycle: active
+confidence: verified
+---
+
+## 一句话定位
+
+**「低层编排框架」** —— 官方自述用词很克制，注意那个 low-level：
+
+> Low-level orchestration framework for building **stateful** agents.
+
+它自认不是开箱即用的高层封装，而是给「长时间运行、有状态」这件事打地基的底层设施。
+
+## 对「状态」这个概念最认真的回答
+
+本站的核心主张是「**状态 ≠ 上下文**」，而 LangGraph 是本站收录对象里
+**唯一一个在 README 首屏就用两种时间尺度把这层区分讲明白的**。
+
+### Durable execution：落盘粒度是 superstep
+
+README 特性列表第一条原文：
+
+> **Durable execution** — Build agents that **persist through failures** and can run
+> for extended periods, **automatically resuming from exactly where they left off**.
+
+**「exactly where they left off」是关键** —— 不是从头重跑，是从中断的那个步进继续。
+
+落盘机制在独立子包 `langgraph-checkpoint`（核验 `libs/checkpoint/README.md`），原文：
+
+> Checkpointers provide a persistence layer for LangGraph: they **save graph state
+> at every superstep**, enabling human-in-the-loop, memory between interactions,
+> **durable execution**, and more.
+
+⚠ **这是本站见过对「状态持久化」最明确的官方定义** ——
+粒度是 **superstep（图的一个步进）**，不是「会话结束时」也不是「每轮对话后」。
+
+⚠ 但要诚实：跨机器 / 多进程并发下的恢复语义本站未核验，checkpointer 的并发写与冲突处理需自己确认。
+
+## 状态与记忆：它把这两件事分成两套机制
+
+README 特性列表第三条原文：
+
+> **Comprehensive memory** — Create truly stateful agents with both
+> **short-term working memory for ongoing reasoning** and
+> **long-term persistent memory across sessions**.
+
+**两个时间尺度的区分，正是本站主张的同构表达**：
+- checkpoint → 存**流程状态**（状态面）
+- memory → 另设一层，分**工作记忆**与**跨会话长期记忆**（记忆面）
+
+⚠ **本站最想强调的一条**：**别把 checkpoint 持久化读成「上下文管理」**。
+checkpoint 存的是 graph state，长上下文怎么裁剪是 memory 那一层的事。
+两者在本页被严格分开记录 —— 这也是 v3 铁律「状态 ≠ 上下文」的落地方式。
+
+⚠ 未核验：短期记忆具体如何裁剪上下文（是否即压缩/摘要）、
+长期记忆的存储后端与检索方式、本站关心的「大工具输出落盘」是否属其能力。
+
+## HITL 的层次不一样：它能改状态，不只是拦一下
+
+README 特性列表第二条原文：
+
+> **Human-in-the-loop** — Seamlessly incorporate human oversight by
+> **inspecting and modifying agent state at any point during execution**.
+
+把本站已收录的三种人工介入放在一起看，**层次是递进的**：
+
+| 对象 | 机制 | 介入点 |
+|---|---|---|
+| OpenAI Agents SDK | guardrails | 校验**内容**（输入/输出合不合规） |
+| Google ADK | Tool Confirmation | 拦**执行**（这个工具要不要跑） |
+| **LangGraph** | **interrupts** | **改状态**（在任意执行点检查并修改图的状态） |
+
+⚠ **但必须说清它明确不给什么**：README 未提及文件系统权限模型、网络访问控制、工具级白名单。
+对比本站收录的 OpenHands（明确的 Docker 沙箱 + API key 机制）、
+Codex SDK（源码里三档 `SandboxMode` 枚举）——
+**LangGraph 在权限边界这一维度上目前查不到官方机制。**
+
+## 选型必读：它和 Deep Agents 是上下层，不是两个选项
+
+这是本站必须替用户理清的一个关系（否则会重复计数）：
+
+README 首屏的 TIP 原文：
+
+> If you're looking to quickly build agents, check out **Deep Agents** — a
+> **higher-level package built on LangGraph** for agents that can plan, use subagents,
+> and leverage file systems for complex tasks.
+
+**即：Deep Agents 是建在 LangGraph 上的高层包。**
+
+| | LangGraph（本条） | Deep Agents（本站已收录） |
+|---|---|---|
+| 定位 | low-level 编排框架 | batteries-included harness |
+| 抽象 | 显式的图、superstep | agent + 预置工具 |
+| 文件系统 | **不管**（README 归到上层） | 核心卖点 |
+| 子代理 | 自己用图表达 | 预置 |
+| 记忆 | checkpoint + memory 两套 | persistent memory + summarize |
+| 适合 | 长流程、要精确恢复、要人工改状态 | 想快、想要功能齐全 |
+
+**一句口诀**：想自己画流程、要精确恢复 → LangGraph；
+想少写接线、要现成能力 → Deep Agents（它跑在 LangGraph 上）。
+
+## 两个工具与文件系统的边界：它明确不管
+
+- **文件系统**：README 里唯一相关的一句是把 Deep Agents 作为上层包推荐
+  （"leverage file systems for complex tasks"）—— **文件能力归上层，不归图引擎**。
+  LangGraph 给的是**状态容器**（checkpoint 里存的是 graph state）。
+- **工具系统**：五项能力里没有工具系统。工具接入经 LangChain 生态。
+
+⚠ 本站**不把它与本站 MCP 站的 9 个 server 关联** —— 没有证据表明 LangGraph 自带 MCP 客户端。
+
+## 溯源与生态：它借鉴了谁
+
+README 末尾的 Acknowledgements 有价值：
+
+> LangGraph is inspired by **[Pregel](https://research.google.com/pubs/pub37252/)**
+> and **[Apache Beam](https://beam.apache.org/)**.
+> The public interface draws inspiration from **[NetworkX](https://networkx.org/)**.
+> LangGraph is built by LangChain Inc, the creators of LangChain,
+> but **can be used without LangChain**.
+
+**「can be used without LangChain」这句是本站判断它不是强绑定的关键依据** ——
+模型接入通常经 LangChain，但不装也行。
+（Pregel 是 Google 的图计算论文，Bulkhead/Beam 那套大图计算思路的来源。）
+
+## 版本号：踩过一个坑，请注意
+
+⚠ **本站实测：`releases/latest` 对这个 monorepo 不可靠。**
+`gh api repos/langchain-ai/langgraph/releases/latest` 返回的是
+**`cli==0.4.32.dev0`（子包 dev 版）**，不是主包版本。
+
+正确做法是列最近几个 release 自己挑主包。本次核验（2026-10-01）：
+
+| tag | 发布日| 说明 |
+|---|---|---|
+| `cli==0.4.32.dev0` | 2026-09-23 | 子包 dev 版，**不是主包** |
+| `cli==0.4.32` | 2026-09-23 | 子包 |
+| **`1.2.12`** | **2026-09-21** | **← 主包，本条采用** |
+| `sdk==0.4.5` | 2026-09-21 | 子包 |
+
+monorepo 的子包命名是 `<子包>==<版本>`，无前缀那个才是主包。
+
+## 适合与不适合
+
+**适合**：agent 流程要跑很久且必须能从中断处精确恢复；要人工在流程中间介入并改状态；
+要分开管理工作记忆与跨会话记忆；需要显式图结构（分支、循环、子图）。
+**不适合**：需要内建沙箱或文件级权限边界（本站未核验其机制）；
+想要开箱即用的文件系统与子代理（走 Deep Agents）；不想额外依赖 LangChain 生态。
+
+## 核验说明
+
+`confidence: verified` 的依据：
+
+- ✅ 已核验：仓库存在与星数（42,538）、许可（MIT，经 license API）、
+  最近推送（2026-10-01，仍活跃）、README 全文（定位、三项核心能力、
+  Deep Agents 上下层关系、Pregel/Beam/NetworkX 溯源、can be used without LangChain）、
+  `libs/checkpoint/README.md` 的 "save graph state at every superstep" 原文、
+  `libs/` 下 9 个子包清单（`checkpoint`、`checkpoint-sqlite`、`checkpoint-postgres`、
+  `prebuilt`、`cli`、`sdk-py`、`sdk-js`、`checkpoint-conformance` 等）、
+  releases 列表 6 条（含 latest 不可靠的实测记录）
+- ⚠ 未核验但不影响 verified 判定的原因：这些维度**官方本身就未提供**，
+  本站已如实记为「不在其职责范围内」而非「未查到」——
+  工具系统、文件系统、模型 provider 清单、上下文压缩的具体实现
+
+## 实测记录
+
+本站尚未完成实测。测试协议见 [tasks/_protocol.md](../tasks/_protocol.md)。
+
+**实测建议**（按编排框架 + 持久化维度定制）：
+
+| # | 测什么 | 为什么值得测 |
+|:--:|---|---|
+| 1 | 长流程跑到一半kill 进程，恢复后是否真的从中断点继续 | 「exactly where they left off」是官方明文承诺，必须验证 |
+| 2 | **superstep 粒度落盘在长任务下的写入开销** | 官方说每个 superstep 都存，step 多时I/O 成本未知 |
+| 3 | Postgres checkpointer 在多进程并发下的冲突行为 | 本站最担心的点，未核验 |
+| 4 | interrupts 中途修改状态后，图的重入行为 | 官方说可 modify agent state，边界未核验 |
+| 5 | 短期记忆的裁剪策略（是否即压缩/摘要）与成本 | 补上 context 维度的缺口 |
+| 6 | 用 LangGraph 最小示例 vs Deep Agents 同等需求的代码量差 | 量化「低层」这个自评到底多低层 |
+
+## 未知项清单
+
+- checkpoint 在跨机器 / 多进程并发下的写冲突与恢复语义
+- superstep 级落盘的性能与写入量代价
+- 短期记忆的具体裁剪策略、长期记忆的后端与检索方式
+- 模型 provider 的零依赖接法（不经 LangChain 时）
+- LangChain 生态是否有统一 MCP 接入层
+- interrupts 修改状态后的重入边界
+- LangSmith 的定价、免费额度，以及不用它时 LangGraph 是否完整可用
+- Python 与 JS/TS 版的能力对齐度
+
+## 相关条目
+
+- [Deep Agents](./deepagents.md) — **同公司、上下层**：README 明示它是 built on LangGraph 的高层包
+- [Google ADK](./google-adk.md) — **编排家族内的对照**：Workflow Runtime + state management vs 每superstep checkpoint
+- [CrewAI](./crewai.md) — 同为编排框架，抽象中心不同（角色/任务 vs 图节点）
+- [OpenAI Agents SDK](./openai-agents-sdk.md) — 形态相反：单 agent 原语 + guardrail vs 低层图引擎 + 持久化
