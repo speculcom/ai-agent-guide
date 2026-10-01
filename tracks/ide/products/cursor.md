@@ -9,34 +9,44 @@ accent: "#111111"
 
 pricing:
   model: freemium
-  monthly_usd: null
-  monthly_label: 有免费 Hobby 层，付费档位见定价页
+  monthly_usd: 20
+  monthly_label: Pro $20 / Pro+ $60 / Ultra $200（个人三档），Hobby 免费
   annual_usd: null
-  annual_label: 未核验年付报价
+  annual_label: 官方帮助页说明年付通过 dashboard 的 Upgrade 切换，未取到统一折算价
   note: >-
-    官方定价页列出 5 档：
-    Hobby（免费，无需信用卡，有限的智能体请求与 Composer 访问权限）、
-    Pro+、Ultra、Teams、Enterprise。
-    **Pro+ 与 Ultra 的具体价格本次未核验**——
-    定价页的价格数字由 JS 动态渲染，本次浏览器采集未取到，
-    记为未知。**Teams 显示为按用户/月计费，单位价格未取到。**
+    官方定价页（cursor.com/pricing）与帮助页（cursor.com/help/account-and-billing/pricing）
+    列出个人 4 档 + 团队 3 档，**价格已按2026-10-01 官方页核实**：
+    Hobby 免费（无需信用卡，有限智能体请求 + Composer 访问）、
+    Pro $20/mo、Pro+ $60/mo、Ultra $200/mo；
+    Teams Standard $40/用户/mo、Teams Premium $120/用户/mo；Enterprise 定制。
+    **Pro+ / Ultra 不是「前沿模型专属」而是额度倍数**：
+    官方原文 Pro+ =「3x Pro limits on Agent」，Ultra =「20x Pro limits on Agent」，
+    三档都写「Access to frontier models」。Hobby 另有印度专属付费层₹649/mo（含税）。
+    所有价格**不含税**；超额用量按各模型标价后付费（on-demand billed in arrears）。
 pricing_pitfalls:
   - 以为只有个人档，实际有 Teams / Enterprise 两档团队形态
   - 把「有限制的 Hobby 层」当成完全不可用，它有 Composer 访问权限
+  - 以为 Pro+ / Ultra 才能用前沿模型 —— 官方三档都写了 frontier models 访问权，差别在**额度倍数**
 
 axes:
   model_access: >-
-    Pro+ 及以上档位官方标注为「访问前沿模型」（access to frontier models）。
-    **具体模型清单与切换方式本次未核验。**
-    值得注意的是 2026-09-22 起 Cursor 页面出现 **Grok** 品牌元素
-    （导航含 Grok / Grok Bot），Pro+ 档明确列出「Grok 的充足使用额度」
-    与「Grok Bot 访问权限」，说明模型供应方已不止一家。
+    **三档个人付费都标「Access to frontier models」，Pro / Pro+ / Ultra 的差别是额度倍数
+    而非模型可得性**（官方原文分别为 extended / 3x / 20x Pro limits on Agent）——
+    这一条与常见误解相反，值得单独记。
+    官方首页列出可选模型范围为**OpenAI / Anthropic / Gemini / SpaceXAI / Cursor 自研**，
+    Auto 模式的具体候选（2026-10-01 官网示例）：Grok 4.7、GPT-5.6 Sol、
+    Fable 5.1、Max Opus 5.5、Gemini 3.1 Pro、Composer 2.5。
+    **Cursor Router** 按 cost / balance / intelligence 三档在多模型间路由，
+    官方说明按被路由到的模型标价计费；Router 先在 Teams / Enterprise 推出，
+    个人档「数月后」跟进。Hobby 档仅可用 Auto 模型。
+    供应方已明确不止一家：导航含 Grok / Grok Bot，各档另列「Grok 使用额度」。
   runtime: >-
     **支持云端与自托管两种形态，这是本赛道最独特的架构**。
     2026-09-02 官方推出自托管支持：
     代码库、构建产物与密钥保留在你自己基础设施内运行的机器上，
     由智能体在本地处理工具调用。
     另有 My Machines 形态——把单台笔记本或 VM 连到账户用于个人工作流。
+    官方文档同时说明 Cursor Router 可在**编辑器 / CLI / Cursor SDK / iOS 应用**中使用。
   local_files: >-
     通过 VS Code 衍生的编辑器形态访问工作区文件。
     自托管形态下代码与产物不离开你的基础设施。
@@ -178,29 +188,32 @@ Cursor 现在提供了不交的路径。
 **职责边界很清楚**：
 > 代码风格和质量问题仍由 Bugbot 负责。
 
-## 定价结构（5 档）
+## 定价结构（6 档，2026-10-01 已取到价格数字）
 
-官方定价页结构（价格数字本次未取到，见 pitfalls）：
+官方定价页 + 帮助页逐档核实（美元，月付）：
 
-| 档位 | 定位 | 关键能力 |
+| 档位 | 价格 | 关键能力 |
 |---|---|---|
-| **Hobby** | 「适合爱折腾的人」，无需信用卡 | 有限的智能体请求、Composer 访问权限 |
-| **Pro+** | 「适合想尝试智能体的人」 | 更高额度、**Grok 充足额度**、前沿模型、Grok Bot 访问、**MCP + 技能 + 钩子**、云端智能体、按用量计费的 Bugbot |
-| **Ultra** | （Pro+ 的更高档） | — |
-| **Teams** | 「适合协作交付的团队」，按用户/月 | 集中计费管理、**团队应用市场**（内部规则/技能/插件）、**共享团队上下文的云端智能体与自动化**、Bugbot 代码审查、**用量分析**、团队级隐私模式、SAML/OIDC 单点登录 |
-| **Enterprise** | 「适合大型组织」 | 汇总用量、发票/采购订单结算、SCIM 管理席位 |
+| **Hobby** | $0 | 无需信用卡、有限的智能体请求、Composer 访问权限。**仅可用 Auto 模型** |
+| **Pro** | $20/mo | 扩展的 Agent 额度、Generous limits for Grok、前沿模型访问、Grok Bot 访问、**MCP + 技能 + 钩子**、云端智能体、按用量计费的 Bugbot |
+| **Pro+** | $60/mo | **3x Pro limits on Agent**，其余同 Pro，**Grok Bot 用量更高** |
+| **Ultra** | $200/mo | **20x Pro limits on Agent**，Grok Bot 用量最高，**新功能优先访问** |
+| **Teams** | $40/用户/mo | 集中计费、**团队应用市场**（内部规则/技能/插件）、**共享团队上下文的云端智能体与自动化**、Bugbot 代码审查、**用量分析**、团队级隐私模式、SAML/OIDC 单点登录 |
+| **Enterprise** | 洽谈 | 汇总用量、发票/采购订单结算、SCIM 管理席位 |
 
-**两个值得注意的设计**：
+**三个值得注意的设计**：
 - **Teams 档的「用量分析」**——「帮助您了解团队行为」，这类需求通常只有企业级工具才有
 - **Teams 档的「团队级隐私模式」**——与自托管能力呼应
+- **Pro / Pro+ / Ultra 的差别是额度倍数，不是模型可得性** —— 三档都写「Access to frontier models」
 
 ## 一个值得留意的商业信号
 
-2026-09-22 起 Cursor 官网出现 **Grok / Grok Bot** 品牌元素，
-且 Pro+ 档明确列出「Grok 的充足使用额度」。
+2026-09-22 起 Cursor 官网出现 **Grok / Grok Bot** 品牌元素，各档另列「Grok 使用额度」。
 
-**这说明模型供应方已不止一家**。
-但**具体模型清单与切换机制本次未核验**，记为未知。
+**这说明模型供应方已不止一家**。官方列出的可选范围是
+**OpenAI / Anthropic / Gemini / SpaceXAI / Cursor 自研**，
+Auto 模式候选含 Grok 4.7、GPT-5.6 Sol、Fable 5.1、Max Opus 5.5、Gemini 3.1 Pro、Composer 2.5。
+Cursor Router 按 cost / balance / intelligence 三档路由，**按被路由到的模型标价计费**。
 
 ## 适合与不适合
 
@@ -209,15 +222,16 @@ Cursor 现在提供了不交的路径。
 **代码不能离开自有基础设施的企业**（自托管形态）。
 
 **不适合**要求定价透明到可直接比较的人——
-本次未取到具体价格数字，须自行到官网确认。
+各档额度倍数（1x / 3x / 20x）官方未给出具体请求数或 token 量，只有倍数表述。
 
-## 采集限制（诚实说明）
+## 采集状态（2026-10-01 更新）
 
-**本次采集用浏览器渲染，取到了能力结构，但没取到价格数字。**
+**初次采集时价格数字因 JS 动态渲染未取到；本轮已通过官方帮助页补齐月付全档。**
 
 | 页面 | 状态 |
 |---|---|
-| 定价页 | ✅ 取到 5 档结构与能力清单，❌ 价格数字由 JS 动态加载未取到 |
+| 定价页 | ✅ 6 档结构与能力清单、✅ 月付价格已从帮助页补齐 |
+| 帮助页（account-and-billing/pricing） | ✅ 全档价格 + 年付切换说明 + 印度专属层 |
 | 文档页 | ✅ 取到文本 |
 | Changelog | ✅ 取到三条完整条目（09-23 / 09-10 / 09-02） |
 
