@@ -9,17 +9,24 @@ accent: "#3AB7FF"
 
 pricing:
   model: freemium
-  monthly_usd: null
-  monthly_label: 有 Zed-Hosted 模型计费路径，档位未核验
+  monthly_usd: 10
+  monthly_label: Personal $0 永久免费 / Pro $10 每月 / Business $30 每席位每月
   annual_usd: null
-  annual_label: 未核验年付报价
+  annual_label: 官方定价页只列月付；年付折扣未在页面列出，记为未知
   note: >-
-    模型接入有 **5 条路径**（官方文档列明）：Zed-Hosted Models（经 Zed 计费）、
+    **2026-10-01 渲染官方 pricing 页后逐档确认**：
+    Personal $0 **forever**（**2,000 次接受的编辑预测**，
+    且可**自带 API key 或接外部 agent 如 Claude Agent / Codex CLI**）、
+    Pro $10/月（含 $5 token额度，超出按用量计费）、Business $30/席位/月（**无免费试用**）。
+    Pro 有 Free Trial，官方注明试用期内**只有 GPT-6 Luna 这一个托管模型可用**。
+    **关键结论：编辑器本身的免费层与模型额度是解耦的** ——
+    Personal 免费版就能用你自己的 key 或外部 agent，不买 Pro 也能用 Agent 功能。
+    模型接入另有 **5 条路径**（官方文档列明）：Zed-Hosted Models（经 Zed 计费）、
     API Access、Existing Subscription（复用 ChatGPT / Claude / Copilot 订阅）、
     Gateway（OpenRouter / Bedrock / Vercel 等）、Local Model（本地或自托管）。
-    **编辑器的免费/付费分层与模型额度关系本次未核验。**
 pricing_pitfalls:
   - 以为必须用 Zed 的模型才能用它的 Agent，其实有 5 条接入路径
+  - 以为免费版是「阉割版」—— Personal 永久免费且支持自带 key，只是编辑预测有 2,000 次额度
   - 以为「Zed 定价」等于「模型费用」，二者是分开的计费口径
 
 axes:
