@@ -18,7 +18,10 @@ export const BRAND = {
   repo: 'https://github.com/speculcom/ai-coding-agent-atlas',
 };
 
-/** 全站导航（五项，顺序固定；各站自己那项由 current 高亮） */
+/** 全站导航（八项，顺序固定；各站自己那项由 current 高亮）
+ *  顺序依据 `_plan/v3-roadmap.md` §4（唯一真相源）：
+ *  首页 · 导航 · 规划中 · IDE · CLI · MCP · Harness · Models
+ *  Harness 插在 Models 前：它属于「产品/组件」层的延伸，Models 是最下游的模型供给层。 */
 export const NAV = [
   { key: 'www', href: 'https://specul.com/', zh: '首页', en: 'Home' },
   { key: 'nav', href: 'https://nav.specul.com/', zh: '导航', en: 'Directory' },
@@ -26,6 +29,8 @@ export const NAV = [
   { key: 'ide', href: 'https://ide.specul.com/', zh: 'IDE 图谱', en: 'IDE' },
   { key: 'cli', href: 'https://cli.specul.com/', zh: 'CLI 图谱', en: 'CLI' },
   { key: 'mcp', href: 'https://mcp.specul.com/', zh: 'MCP 图谱', en: 'MCP' },
+  { key: 'harness', href: 'https://harness.specul.com/', zh: 'Harness 图谱', en: 'Harness' },
+  { key: 'models', href: 'https://models.specul.com/', zh: 'Models 图谱', en: 'Models' },
 ];
 
 /** header —— current 为当前站的 key */
@@ -84,7 +89,7 @@ ${links}
 }
 
 /** 完整页面外壳 */
-export function shell({ current, title, desc, canonical, accent, body, repo, repoLabel, jsonLd, headExtra = '', langBridge = false }) {
+export function shell({ current, title, desc, canonical, accent, body, repo, repoLabel, jsonLd, headExtra = '', langBridge = false, assetPrefix = '' }) {
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -100,8 +105,8 @@ export function shell({ current, title, desc, canonical, accent, body, repo, rep
   <meta property="og:description" content="${esc(desc)}" />
   <meta name="theme-color" content="#05080f" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b7cf8'/%3E%3Cstop offset='1' stop-color='%2322d3c5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='48' height='48' rx='12' fill='%2305080f'/%3E%3Cpath d='M14 32 L24 12 L34 32' fill='none' stroke='url(%23g)' stroke-width='2.4' stroke-linejoin='round'/%3E%3Ccircle cx='24' cy='27' r='2.4' fill='%2322d3c5'/%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="${depth()}brand.css" />
-  <link rel="stylesheet" href="${depth()}site.css" />
+  <link rel="stylesheet" href="${depth(assetPrefix)}brand.css" />
+  <link rel="stylesheet" href="${depth(assetPrefix)}site.css" />
 ${accent ? `  <style>:root { --accent: ${accent}; }${headExtra ? '\n' + headExtra : ''}</style>\n` : ''}${jsonLd ? `  <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>\n` : ''}</head>
 <body class="brand-ambient"${accent ? ` style="--accent:${accent}"` : ''}>
   <a class="t-skip" href="#main">跳到主要内容</a>
@@ -110,15 +115,20 @@ ${header(current)}
 ${body}
   </main>
 ${footer(repo, repoLabel)}
-  <script src="${depth()}brand.js"></script>${BRIDGE}
+  <script src="${depth(assetPrefix)}brand.js"></script>${BRIDGE}
 </body>
 </html>
 `;
 }
 
-/** 相对 brand.css 的前缀：站点在子目录时用 ../ */
-function depth() {
-  return '';
+/**
+ * 相对 brand.css 的前缀：站点在子目录时用 ../。
+ * 全站大多数站点都部署在域名根目录，所以默认空串。
+ * 只有当页面被放在子目录（如 models.specul.com/series/gemma-4/）时，
+ * 调用方需传 assetPrefix: '../'，否则子页会 404 掉 brand.css / site.css / brand.js。
+ */
+function depth(assetPrefix) {
+  return assetPrefix || '';
 }
 
 /** 语言桥接：brand.js 只切 <html lang>，而 data-zh/data-en 显隐需要 html[data-lang] */
