@@ -9,18 +9,25 @@ accent: "#10A37F"
 
 pricing:
   model: freemium
-  monthly_usd: null
-  monthly_label: 随 ChatGPT 套餐，档位见定价页
+  monthly_usd: 20
+  monthly_label: 随 ChatGPT 套餐（Free 有限 / Plus $20 扩量 / Pro $100 起 最大任务量）
   annual_usd: null
-  annual_label: 未核验年付报价
+  annual_label: 官方定价页只列月付；年付价未列出，记为未知
   note: >-
-    README 确认「Using Codex with your ChatGPT plan」——
-    授权随 ChatGPT 订阅。
-    **API 计费与订阅授权不是同一额度**，
-    具体档位与 API 价格本次未核验，记为未知。
+    README 确认「Using Codex with your ChatGPT plan」—— 授权随 ChatGPT 订阅。
+    **2026-10-01 按 OpenAI 官方定价页逐档核实（美元口径）**：
+    Free $0（**Codex access limited**）、
+    Go $8、**Plus $20**（**Expanded Codex usage**）、
+    **Pro 起 $100**（**Maximum Codex tasks**，另标5x 或 20x 更多用量）。
+    Business / Enterprise 另计。
+    **关键结论：Codex 额度是随套餐分档的，不是「买了就有」**——
+    免费层只有有限额度，Plus 是「扩量」，Pro 才是「最大任务量」。
+    **API 计费与订阅授权不是同一额度**（原 pitfall 仍成立）：
+    API 走独立的按量计费，不消耗订阅内的 Codex 额度。
 pricing_pitfalls:
   - 以为买了 ChatGPT 订阅就能用 API，API 单独计费
   - 以为 CLI 和 IDE 扩展共享额度，实际配额跟随账户与套餐
+  - 以为免费层也能畅用 Codex —— 官方定价页 Free 档写的是 Codex access limited
 
 axes:
   model_access: >-
