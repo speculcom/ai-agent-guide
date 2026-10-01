@@ -147,7 +147,7 @@ function validateEntry(file) {
   for (const k of ['id', 'track', 'name', 'vendor', 'homepage']) {
     if (!fm[k]) fail(`缺必填字段: ${k}`);
   }
-  if (fm.track && !['ide', 'cli', 'mcp'].includes(fm.track)) fail(`track 枚举非法: ${fm.track}`);
+  if (fm.track && !['ide', 'cli', 'mcp', 'harness'].includes(fm.track)) fail(`track 枚举非法: ${fm.track}`);
 
   const p = fm.pricing || {};
   if (!p.model) fail('缺 pricing.model');
@@ -170,6 +170,33 @@ function validateEntry(file) {
   } else if (fm.mcp) {
     // 非 MCP 赛道的对象不是 server，不该有 mcp 字段
     fail(`track=${fm.track} 的条目不应有 mcp 字段（只有 track=mcp 的 server 才有）`);
+  }
+
+  if (fm.track === 'harness') {
+    // harness 站的四条硬约束（v3 计划 §7.1）：
+    //  1. family 必填且是四个分层之一 —— 它决定首页矩阵怎么分组
+    //  2. provider 必填 —— 「支持哪些模型」是本站第一决策点
+    //  3. sources 至少 1 条 official —— 竞品研究不可作数据来源（v3 §0.2）
+    //  4. 必须有 decide_how —— 「要不要自己搭」是本站存在理由
+    const FAMILIES = ['coding-base', 'general-harness', 'orchestration'];
+    if (!fm.family) fail('harness 条目缺 family');
+    else if (!FAMILIES.includes(fm.family)) {
+      fail(`harness family 非法: ${fm.family}（允许 ${FAMILIES.join(' / ')}）`);
+    }
+    if (!fm.providers) fail('harness 条目缺 providers（支持哪些模型 provider 是第一决策点）');
+    // sources 是 frontmatter 里的对象数组，YAML 子集解析器读不出嵌套结构
+    // （build.mjs 也是用正则单独解析的），所以这里复用同样的方式。
+    const rawText = fs.readFileSync(file, 'utf8');
+    const srcBlock = /sources:\n([\s\S]*?)(?=\n[a-z_]+:)/.exec(rawText);
+    const parsedSrc = [];
+    if (srcBlock) {
+      const sm = /-\s+label:\s*(.+)\n\s+url:\s*(.+)\n\s+kind:\s*(\S+)/g;
+      let mm;
+      while ((mm = sm.exec(srcBlock[1])) !== null) parsedSrc.push({ label: mm[1].trim(), url: mm[2].trim(), kind: mm[3].trim() });
+    }
+    if (!parsedSrc.some((s) => s.kind === 'repo' || s.kind === 'docs')) {
+      fail('harness 条目 sources 至少 1 条 kind: repo 或 docs（官方源）');
+    }
   }
 
   const pits = Array.isArray(fm.pitfalls) ? fm.pitfalls : [];
@@ -330,7 +357,7 @@ for (const a of AXES) {
   const f = `${AXES_FILE[a]}.md`;
   if (!fs.existsSync(path.join(ROOT, 'axes', f))) errors.push(`缺维度定义: axes/${f}`);
 }
-for (const t of ['ide', 'cli', 'mcp']) {
+for (const t of ['ide', 'cli', 'mcp', 'harness']) {
   if (!fs.existsSync(path.join(ROOT, 'tracks', t, '_track.md'))) errors.push(`缺赛道定义: tracks/${t}/_track.md`);
 }
 
