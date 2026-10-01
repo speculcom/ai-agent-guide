@@ -20,18 +20,36 @@ providers:
 
 pricing:
   model: open-source
-  monthly_usd: null
-  monthly_label: 框架免费（Apache-2.0）
+  monthly_usd: 0
+  monthly_label: 框架免费（Apache-2.0）；设 GOOGLE_GENAI_USE_ENTERPRISE 后走 Google Cloud 企业平台计费
   note: >-
-    **框架免费，部署与模型两处都可能产生费用**：
+    **框架免费，但部署与模型两处都可能产生费用**：
     （1）官方给的部署目标是 Cloud Run 与 Vertex AI Agent Engine，这两处都按云资源计费；
-    （2）用 Gemini 走 Google 侧计费，用其它模型走各自 provider；
-    （3）另有 `GOOGLE_GENAI_USE_ENTERPRISE=1` 环境变量（README 部署示例里出现），
-    对应 Google 的企业版 Gemini 接入，**该变量的具体含义与计费影响本站未核验**。
+    （2）用 Gemini 走 Google 侧计费，用其它模型走各自 provider。
+    **（3）`GOOGLE_GENAI_USE_ENTERPRISE` 的含义本轮已核验清楚 ——
+    它不是「解锁企业版功能」的开关，而是「把请求从 Gemini Developer API
+    切到 Google Cloud 企业平台（Gemini Enterprise Agent Platform / Vertex AI）」的
+    路由开关，计费口径随之改变。**
+    官方 codelab 对三个变量的说明原文（核验 2026-10-01）：
+    `GOOGLE_GENAI_USE_ENTERPRISE` = "This tells the ADK that you intend to use Google's
+    **Gemini Enterprise Agent Platform** service for your Generative AI operations."
+    `GOOGLE_CLOUD_PROJECT` = "ADK needs this to correctly associate your agent with your
+    cloud resources and **enable billing**."
+    `GOOGLE_CLOUD_LOCATION` = 地域，如 `global`。
+    **⚠ 最关键的一条：官方把「enable billing」明确挂在 `GOOGLE_CLOUD_PROJECT` 上。**
+    设了这三个变量，agent 就落进你的 Google Cloud 项目开始计费；
+    不设则走 Gemini Developer API 那条路（另有其免费层与配额）。
+    **且三个变量必须成组出现** —— 官方所有示例都是三个一起设，没有只设其一的写法。
+    ⚠ 官方示例里这个变量的取值不统一，有`1`（README / codelab .env）、`TRUE`、
+    `True`（Cloud 文档）三种写法，**按Python 布尔语义大小写皆真，但取值不一致这点本身值得注意**。
+    ⚠ 具体的 Gemini 单价与 Vertex AI Agent Engine / Cloud Run 的实际费率本站未逐项核验。
 pricing_pitfalls:
   - 以为「Apache-2.0 免费」等于零成本 —— Cloud Run / Vertex Agent Engine 的云资源费用自理
   - 以为 model-agnostic 就等于各模型表现一致 —— 官方明确说 optimized for Gemini
-  - 忽略 GOOGLE_GENAI_USE_ENTERPRISE 这个部署级开关 —— 切换企业版接入的计费与合规影响未核验
+  - **把 `GOOGLE_GENAI_USE_ENTERPRISE` 当成「解锁企业功能」的开关 —— 它实际是计费路径开关**。
+    官方原文把「enable billing」挂在 `GOOGLE_CLOUD_PROJECT` 上，
+    与它成组设置即意味着请求走 Google Cloud 企业平台并开始计费
+  - 只设 `GOOGLE_GENAI_USE_ENTERPRISE` 不设 project/location —— 官方所有示例都是三个成组出现
 
 # 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
@@ -148,6 +166,12 @@ sources:
   - label: 官方文档 · Agent Config（不写代码建agent）
     url: https://google.github.io/adk-docs/agents/config/
     kind: docs
+  - label: Google 官方 codelab · Building AI Agents with ADK: The Foundation（**`GOOGLE_GENAI_USE_ENTERPRISE` / `GOOGLE_CLOUD_PROJECT` / `GOOGLE_CLOUD_LOCATION` 三个变量的官方逐条说明，含 "enable billing" 表述**，核验 2026-10-01）
+    url: https://codelabs.developers.google.com/devsite/codelabs/build-agents-with-adk-foundation
+    kind: docs
+  - label: Google Cloud 文档 · Manage sessions with Agent Development Kit（同一组三变量的另一种取值写法 TRUE / True，核验 2026-10-01）
+    url: https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale/sessions/manage-with-adk
+    kind: docs
   - label: google/adk-js · TypeScript 版（1,426★，Apache-2.0）
     url: https://github.com/google/adk-js
     kind: repo
@@ -249,9 +273,33 @@ adk deploy cloud_run --with_ui <agent-folder>        # Cloud Run
 **这是本站已收录对象里唯一把「评估」做成框架内建命令的** ——
 对「不要实测」的铁律来说，这类能力值得记一笔：它让用户能自己跑评测。
 
-**② 有个部署级开关要注意。**
+**② 有个部署级开关要注意，而且它本质上是「计费路径开关」。**
 README 的 Cloud Run 示例里出现了 `GOOGLE_GENAI_USE_ENTERPRISE=1`。
-⚠ 这个环境变量的确切含义与计费/合规影响本站未核验，但**部署前值得先查清**。
+
+**本轮已核验清楚（2026-10-01，Google 官方 codelab 与 Cloud 文档）**：
+它**不是「解锁企业功能」的开关**，而是告诉 ADK
+「把生成式 AI 请求发到 Google 的 **Gemini Enterprise Agent Platform**
+（Vertex AI 侧）而不是 Gemini Developer API」。
+
+官方 codelab 对三个变量的说明原文：
+
+| 变量 | 官方含义 |
+|---|---|
+| `GOOGLE_GENAI_USE_ENTERPRISE` | "This tells the ADK that you intend to use Google's **Gemini Enterprise Agent Platform** service for your Generative AI operations." |
+| `GOOGLE_CLOUD_PROJECT` | "ADK needs this to correctly associate your agent with your cloud resources and **enable billing**." |
+| `GOOGLE_CLOUD_LOCATION` | 地域，如 `global` |
+
+**最关键的一条：官方把 "enable billing" 明确写在 `GOOGLE_CLOUD_PROJECT` 上。**
+也就是说，**这三个变量成组设上，agent 就落进你的 Google Cloud 项目并开始计费**；
+不设则走 Gemini Developer API 那条路（它有另一套免费层与配额）。
+
+**另外两点值得记**：
+- **三个变量必须成组出现** —— 官方所有示例（README、codelab、Cloud 文档的
+  Live API 指南）都是三个一起设，没有只设其一的写法。
+- **取值不统一**：README 与 codelab 的 `.env` 写 `1`，
+  Cloud 文档写 `TRUE` 或 `True`。按布尔语义皆真，但官方自己不一致这点值得注意。
+
+⚠ 仍未核验：Gemini 的具体单价、Vertex AI Agent Engine 与 Cloud Run 的实际费率。
 
 ## 本地文件与沙箱：本站最大的证据缺口
 
@@ -299,10 +347,15 @@ README 全文的六项特性列表与四类运行形态、两种 `adk deploy` �
 `GOOGLE_GENAI_USE_ENTERPRISE` 环境变量、`adk eval` 命令与 `.evalset.json` 格式、
 `google/adk-js`（1,426★ · Apache-2.0）与 `google/adk-recipes`（10,404★）两仓元数据
 
+**本轮（2026-10-01）补上的**：`GOOGLE_GENAI_USE_ENTERPRISE` 的确切含义
+—— 它是**计费路径开关**（切到 Gemini Enterprise Agent Platform / Vertex AI），
+不是企业功能开关；官方把 "enable billing" 挂在 `GOOGLE_CLOUD_PROJECT` 上，
+三个变量须成组设置。来源为 Google 官方 codelab 与 Cloud 文档。
+
 未核验：model-agnostic 的实现路径与实际对齐度、非 Gemini 模型下的工具调用可靠性、
 默认沙箱与文件权限模型、网络访问控制、上下文压缩与落盘策略、
 跨进程/跨机续跑语义、分布式状态存储、MCP 接入的实现层次（框架级依赖 vs 工具来源）、
-`GOOGLE_GENAI_USE_ENTERPRISE` 的确切含义与计费影响
+Gemini 单价与 Vertex AI Agent Engine / Cloud Run 的实际费率
 
 ## 实测记录
 
@@ -326,9 +379,10 @@ README 全文的六项特性列表与四类运行形态、两种 `adk deploy` �
 - 跨进程、跨机的任务续跑与恢复粒度
 - 分布式部署下的状态存储方案
 - MCP 接入的实现层次（框架级依赖 vs 工具来源）
-- `GOOGLE_GENAI_USE_ENTERPRISE` 的确切含义与计费影响
 - Python 与 TypeScript 版的能力对齐度
 - Vertex AI Agent Engine 部署时状态的托管方式
+- Gemini 单价与 Vertex AI Agent Engine / Cloud Run 的实际费率
+  （`GOOGLE_GENAI_USE_ENTERPRISE` 的**含义**已核验，**费率**未核验）
 
 ## 相关条目
 
