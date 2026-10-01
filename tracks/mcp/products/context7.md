@@ -9,17 +9,40 @@ accent: "#F97316"
 
 pricing:
   model: freemium
-  monthly_usd: null
-  monthly_label: 未核验定价方案
+  monthly_usd: 0
+  monthly_label: Free $0（1,000 次/月）；Pro $10 每席位/月（2,000 次/席位）；Enterprise 定制
   annual_usd: null
-  annual_label: 未核验年付报价
+  annual_label: 官方未列年付档（页面只有月付 per seat）
   note: >-
-    **README 明确写「API Key Recommended」并指向 context7.com/dashboard 获取免费 key 以获得更高额度。**
-    **本次未核验具体的额度档位与付费方案，记为未知。**
-    开源部分为 MIT，但服务端为托管形态。
+    **开源部分为 MIT，但索引/解析/服务端是Upstash 的私有托管服务** ——
+    官方 README 自己划了界：这个仓只托管 MCP server 的源码，
+    API 后端、解析引擎与爬取引擎均为私有。
+    **定价（2026-10-01 核验官方 context7.com/docs/plans-pricing.md，该页是 plans 页的 307 目标）**：
+    | 档 | 价格 | 含额度 | 超出计费 |
+    |---|---|---|---|
+    | **Free** | **$0** | **1,000 次/月**（Search API + Context API） | 阻塞 |
+    | **Pro** | **$10 每席位/月** | **2,000 次/席位** | **Unlimited（$5 / 1,000 次）** |
+    | **Enterprise** | **Custom** | Custom | Custom |
+    **另有一项独立计费项（易被漏看）**：
+    **Private Repo Parsing = $5 / 1M tokens** —— 私有库文档解析按token 单独计费，
+    与 API 调用额度是**两个独立的钱包**。
+    **Free 档的三项能力**（官方对比表）：Public Repos、Access Control、OAuth 2.0。
+    **Pro 解锁**：Private Repos、Team Collaboration、**Unlimited API Calls**。
+    **Enterprise 解锁**：SOC-2、SSO（SAML / OIDC）、**Self-Hosted（On-Premise）**，
+    且支持把额度与私有解析都按Custom 定制。
+    **⚠ 一条必须提醒的口径冲突**：多个第三方站（aicoolies / decodo 等，2026-09 前后）
+    称Pro 是「5,000 次/席位」，**与官方页面的 2,000 不一致**。
+    本档案按官方页面写**2,000**，第三方数字视为旧制或臆测。
+    ⚠ Free 档超出 1,000 次后的**具体行为**（完全阻塞 / 降速 / 每日 bonus）
+    官方页面只列了问题标题、未给答案正文，本档案不做推测。
 pricing_pitfalls:
   - 以为是纯本地工具，实际核心是远程服务，会把你的查询发到 Upstash
-  - 以为不配 key 就能无限用，官方推荐配 key 以获得更高额度，反过来说明有额度限制
+  - 以为不配 key 就能无限用 —— Free 档只有 1,000 次/月，且超出后行为官方未明示
+  - **以为 Pro 的「Unlimited API Calls」= 不限速不限量** —— 它是「不阻塞」，
+    超出 2,000 次/席位后按 **$5 / 1,000 次** 计费
+  - **漏看 Private Repo Parsing 是独立计费项**（$5 / 1M tokens）——
+    与 API 额度是两个钱包，Pro 的 $10 也不含它
+  - 拿第三方站（aicoolies 等）的 Pro「5,000 次/席位」做预算 —— **官方页面是 2,000**
 
 axes:
   model_access: >-
@@ -69,21 +92,32 @@ mcp:
   auth: >-
     **需 API Key**，通过 `Authorization: Bearer YOUR_API_KEY` 头传递。
     README 说明可经 OAuth 流程由安装器自动生成 key。
-    官方推荐配置 key 以获得更高额度，
-    **具体额度档位本次未核验，记为未知**。
+    **额度档位本轮已核验（2026-10-01，官方 plans 页）**：
+    Free **1,000 次/月**（Search API + Context API 合计）、
+    Pro **2,000 次/席位/月**、超出 **$5 / 1,000 次**不阻塞。
+    另Free 档本身就用 OAuth 2.0（官方对比表把 OAuth 2.0 列为 Free 的能力）。
+    ⚠ **Free 超出额度后的确切行为官方页面未给答案正文**，只列了问题标题。
   scope: >-
     **无本地权限风险，但有数据出境风险**：
     查询内容会发送到 Upstash 服务器。
     传入的库名与问题文本属于对外传输内容，
     涉密场景需评估。
+    **本轮补一条官方对隐私的明确承诺**（官方 FAQ 标题即
+    "How do you keep the privacy of my queries?"）：
+    查询只发**文档问题与库名/ID**，
+    不发完整 prompt、源代码与对话历史；
+    且官方要求agent 不要在查询里带凭据、个人数据或专有代码。
     服务端自身的文档索引范围由 Upstash 掌握，客户端不可见。
 
 tags: [检索, 网络, 远程]
 
 sources:
-  - label: Upstash · Context7 README（API Key 与远程端点说明）
+  - label: Upstash · Context7 README（API Key 与远程端点说明、**「本仓只托管 MCP server 源码，API 后端/解析/爬虫为私有」的自述**）
     url: https://github.com/upstash/context7
     kind: docs
+  - label: 官方 Pricing & Plans（核验 2026-10-01：Free $0/1,000 次每月、Pro $10 每席位每月/2,000 次每席位/超出 $5 每 1,000 次、Private Repo Parsing $5 每 1M tokens、Enterprise Custom 含 SOC-2/SSO/Self-Hosted；**与第三方「Pro 5,000 次」冲突，按官方 2,000**）
+    url: https://context7.com/docs/plans-pricing.md
+    kind: pricing
   - label: Upstash · Context7 Releases（ctx7@0.5.12）
     url: https://github.com/upstash/context7/releases
     kind: changelog
@@ -98,8 +132,8 @@ link:
   url: https://github.com/upstash/context7
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-01
+last_updated: 2026-10-01
 lifecycle: active
 confidence: partial
 ---
@@ -148,19 +182,45 @@ Context7 的风险是「你的查询会发到哪里去」。
 模型训练数据滞后是这类工具要解决的核心问题，
 如果不指定版本，很可能拿到的是新版本文档，行为却按老版本写。
 
-## 认证方式
+## 认证方式与额度：三档，两处容易看错
 
 ```
 手动配置：使用服务端点 https://mcp.context7.com/mcp
 并通过 Authorization: Bearer YOUR_API_KEY 头传递 key
 ```
 
-安装器支持 OAuth 流程自动生成 key。
+安装器支持 OAuth 流程自动生成 key。Free 档本身即支持 **OAuth 2.0**。
 
 **官方原话**：API Key Recommended —— 获取免费 key 以获得更高额度。
 
-**注意这句话的反面含义**：不配 key 时额度更低，说明**确实存在额度限制**，
-但具体限制是多少，README 未说明，本次未核验。
+### 额度档位（2026-10-01 核验官方 plans 页）
+
+| 档 | 价格 | 含额度 | 超出后 |
+|---|---|---|---|
+| **Free** | **$0** | **1,000 次/月** | 阻塞（具体行为官方未明示） |
+| **Pro** | **$10 / 席位 / 月** | **2,000 次 / 席位** | **不阻塞，$5 / 1,000 次** |
+| **Enterprise** | **Custom** | Custom | Custom |
+
+**两处最容易看错的地方**：
+
+**① Pro 的「Unlimited API Calls」不是「不限量免费」，是「不阻塞」。**
+官方对比表把 Pro 的 Additional API Calls 一栏写成
+"**Unlimited ($5 / 1,000)**" —— 前半句是不阻塞，后半句才是真实单价。
+
+**② Private Repo Parsing 是完全独立的计费项：$5 / 1M tokens。**
+它与 API 调用额度是**两个钱包**，Pro 的 $10 并不包含它。
+要把私有库文档接进来，这笔钱要单独算。
+
+### 第三方数字与官方不一致（已按官方为准）
+
+多个第三方站（2026-09 前后）称 Pro 是「**5,000 次/席位**」——
+**官方页面是 2,000**。本档案采官方，第三方数字视为旧制或臆测。
+
+### 开源的边界要划清
+
+官方 README 自己说明：**这个仓只托管 MCP server 的源码，
+API 后端、解析引擎、爬取引擎都是私有的。**
+所以「MIT」指的是那部分客户端代码，不是整个服务。
 
 ## 风险评估
 
@@ -168,12 +228,21 @@ Context7 的风险是「你的查询会发到哪里去」。
 |---|---|
 | 本地文件泄露 | **无** — 不碰本地文件 |
 | 内网探测 | **无** — 不访问任意 URL |
-| **数据出境** | **有** — 查询内容发到 Upstash |
-| 凭据风险 | 低 — 只用一个 API Key，无文件权限 |
+| **数据出境** | **有，但范围窄** — 只发**文档问题 + 库名/ID**；不发完整 prompt、源代码、对话历史（官方声明，见下方说明） |
+| 凭据风险 | 低 — 只用一个 API Key，无文件权限；官方还要求 agent 不要在查询里带凭据 |
 | 服务可用性 | 依赖 Upstash 服务，本仓库无 releases 可保证服务状态 |
+| **预算失控** | **有** — Free 超 1,000 次/月后行为不明；Pro 超出按 $5/1,000 次不阻塞；私有库解析另按 $5/1M tokens 计 |
 
 **涉密场景要评估的部分**：如果你查的库名、报错信息、代码片段本身敏感，
 这些会离开本机。
+
+**但本轮补到一条官方对隐私的明确承诺**（官方 FAQ 设了专题
+"How do you keep the privacy of my queries?"）：
+查询只发送**文档问题与库名/ID**，
+**不发送完整 prompt、源代码与对话历史**；
+官方并要求 agent 不要在查询里携带凭据、个人数据或专有代码。
+
+⚠ 这条声明是**官方自述**，本站未实测验证 —— 即没有抓包确认发出去的内容真如所述。
 
 ## 适合与不适合
 
@@ -193,10 +262,11 @@ Context7 的风险是「你的查询会发到哪里去」。
 
 ## 未知项清单
 
-- **额度档位与付费方案**（官方提到"更高额度"但未列具体数字）
-- 不配置 API Key 时的具体限制
-- 文档索引的覆盖范围与更新频率
+- **Free 档超出 1,000 次/月后的确切行为**（官方页面只列了问题标题，未给答案正文；不做推测）
+- Enterprise 的具体报价
+- 文档索引的覆盖范围与更新频率（官方有「Keeping Libraries Fresh」专题，本轮未取正文）
 - 服务端 SLA
+- 官方隐私声明（只发查询与库名、不发源码与对话历史）**未实测验证**
 
 ## 相关条目
 
