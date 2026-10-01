@@ -9,22 +9,26 @@ accent: "#0B9D8C"
 
 pricing:
   model: freemium
-  monthly_usd: null
-  monthly_label: 有 Free 层，Pro 按月计费
+  monthly_usd: 20
+  monthly_label: Free $0 / Pro $20 每月 / Max $200 每月 / Teams 席位 $40 每月
   annual_usd: null
-  annual_label: 未核验年付报价
+  annual_label: 官方定价页只列月付；年付价未列出，记为未知
   note: >-
-    官方定价页结构：Free（Light quota、有限模型可用性、
-    **无限 inline edits**、**无限 Tab 补全**）；
-    Pro（更高额度含 OpenAI / Claude / Gemini / SpaceXAI 的前沿模型
-    与领先开源模型、完整模型可用性、
-    **Devin Desktop 与 CLI 在 2026-10-10 前免费使用**、
-    可访问 Devin Cloud 云端智能体、
-    **可按 API 定价加购用量**）；
-    Teams（**团队方案月费 + 每个全职开发者席位 $40/月**，
-    支持最多 200 用户、协作、集中计费）。
-    **Free / Pro 的具体价格数字本次未核验**
-    ——定价页数字由 JS 动态渲染，记为未知。
+    **2026-10-01 官方定价页全文核实**：Free $0、Pro $20/月、**Max $200/月（新档）**、
+    Teams = **$80/月团队基础费 + 每全职开发者席位 $40/月**（上限 200 用户）、
+    Enterprise 洽谈。Pro 含 OpenAI / Claude / Gemini / SpaceXAI 前沿模型与领先开源模型、
+    完整模型可用性、可按 API 定价加购用量。
+    Free 层（官方原文口径）：Light quota（额度较紧）、有限模型可用性、
+    **无限 inline edits**、**无限 Tab 补全** —— 补全不限量但 agent 额度有限。
+    **Devin Desktop 与 CLI 在 2026-10-10 前免费**，可访问 Devin Cloud 云端智能体。
+    **两家官方来源数字不一致，不要当成已核实**：
+    ① 定价页写 Pro $20/mo、Max $200/mo；
+    ② 官方博客《An Update to Our Pricing》（pricing-v2）写 Pro $15/mo、Pro Ultimate $60/mo、
+    Teams $30/user/mo —— 该文是 2025 年的旧制（明确说「消除 flow action credits、
+    只按 user prompt 计费」），**现行定价页的 $20 / $200 应视为当前口径**，
+    但本站未能确认博客是否已完全失效，故保留两条。
+    另：Windsurf 品牌已并入 Devin —— 定价页标题现为「Plans and Pricing | Devin」，
+    页脚法律实体为 Exafunction, Inc.
 pricing_pitfalls:
   - 以为 Teams 只是 Per seat，官方是「方案月费 + 全职席位 $40/月」两层收费
   - 以为加购用量有折扣，官方说明按 API 定价加购（即无折扣）
