@@ -111,7 +111,7 @@ const SITES = {
     short: 'IDE',
     accent: '#f5c542',
     tagline: 'AI 编程 IDE / 编码工具对比',
-    desc: 'Cursor、Claude Code、Copilot、Windsurf、Zed、Cline、Aider、Codex 的能力边界、运行位置与价格。',
+    desc: 'AI 编程 IDE 的能力边界、运行位置与价格。收录标准：提供 AI 辅助编码的图形化 IDE 或桌面客户端、有官方文档可回溯、近 30 天有实质更新。',
     repo: 'https://github.com/speculcom/ai-coding-agent-atlas',
   },
   cli: {
@@ -121,7 +121,7 @@ const SITES = {
     short: 'CLI',
     accent: '#22d3c5',
     tagline: '终端 AI 编码工具对比',
-    desc: 'Claude Code CLI、Codex CLI、Gemini CLI、OpenCode、Aider、Crush 的能力边界、Git 集成与自动化程度。',
+    desc: '终端 AI 编码工具的能力边界、Git 集成与自动化程度。收录标准：主要形态是终端 / 命令行、有官方文档可回溯、近 30 天有实质更新。',
     repo: 'https://github.com/speculcom/ai-coding-agent-atlas',
   },
   mcp: {
@@ -131,7 +131,7 @@ const SITES = {
     short: 'MCP',
     accent: '#8b7cf8',
     tagline: 'MCP 服务器 / 工具生态对比',
-    desc: 'filesystem、git、memory、fetch、playwright、context7 等 MCP server 的权限范围、传输方式与输出可用性。',
+    desc: 'MCP 服务器的权限范围、传输方式与输出可用性。收录标准：已发布为可安装的 MCP server、有官方仓库或文档可回溯、近 30 天有实质更新。',
     repo: 'https://github.com/speculcom/ai-coding-agent-atlas',
   },
   harness: {
@@ -141,7 +141,9 @@ const SITES = {
     short: 'Harness',
     accent: '#3b82f6',
     tagline: 'Agent 运行时 / 编排框架 / SDK 对比',
-    desc: 'Codex SDK、Claude Agent SDK、Deep Agents、Hermes Agent、LangGraph、CrewAI、Google ADK、LlamaIndex、OpenHands、OpenAI Agents SDK 的责任边界、状态持久化能力与权限模型。',
+    // desc 只说「本站比较什么维度」，不逐个列对象名——
+    // 逐个列会在档案分期补齐时与实际数量不一致（曾出现「3 个对象」却列了 10 个名字）
+    desc: 'Agent 运行时 / 编排框架 / SDK 的责任边界、状态持久化能力与权限模型。收录标准：提供 Agent 运行时或编排层、有官方文档可回溯、近 30 天有实质更新。',
     repo: 'https://github.com/speculcom/ai-coding-agent-atlas',
   },
 };
@@ -295,6 +297,7 @@ function loadTrack(track) {
       pitfalls: fm.pitfalls || [],
       lastVerified: fm.last_verified, lastUpdated: fm.last_updated,
       lifecycle: fm.lifecycle, confidence: fm.confidence,
+      family: fm.family || '',  // harness 分层；validate 强制必填，页面需按它分组呈现
       body,
       sec: {
         oneline: section('一句话定位'),
@@ -356,6 +359,91 @@ function renderList(items, cls = '') {
   return `<ul class="${cls}">${items.map(i => `<li>${mdInline(i)}</li>`).join('')}</ul>`;
 }
 
+// ── 「从这里开始」引导区 ─────────────────────────────────────────────
+// 为什么要它：访客落地后第一眼看到的是一张 8~11 行的密集表格，
+// 没有任何「我该从哪看起」的指引 —— 数据再准，读者不知道用途就等于没用。
+// 每站回答该赛道客户最关心的那个问题，并给出明确的下一跳。
+// 分赛道写，因为「客户来这个站要解决什么」本来就不同。
+const GUIDE = {
+  ide: {
+    // 分类轴选「形态」（runtime 维度，每个对象都有官方原文可核验），
+    // 不选「模型是否可换」——那份数据里 Zed 有 5 条接入路径、Windsurf 列了
+    // 4 家供应商、Copilot 还能委派 Claude/Codex，「闭源自带」这一类根本不成立。
+    title: '先回答一件事：你要的是一个编辑器，还是一个装进编辑器的 Agent',
+    lede: '这一站 8 个对象里，只有一部分是<strong>独立编辑器</strong>；其余是 VS Code 系扩展、后台常驻进程，甚至只是「在 GitHub 上打 @ 提及」。形态不同，装法与成本完全不同。',
+    steps: [
+      ['我要一个自己能开的编辑器', '看<strong>独立编辑器</strong>那一类', 'Zed（Rust 本地应用）、Cursor 与已改称 Devin Desktop 的 Windsurf 都在这一类。'],
+      ['我已经在用 VS Code / Cursor 了', '看<strong>扩展形态</strong>那一类', 'Claude Code、Codex、Copilot、Cline 都是在既有编辑器里装；注意这四者都还各有 CLI 形态。'],
+      ['我不想换编辑器，也不想装插件', '看 Aider', '它不是编辑器插件而是后台常驻进程，你在任意编辑器里加 AI 注释它就响应。'],
+      ['我要它跑在 CI 里，或者自动提交', '<strong>这一站没有合适的</strong>', '这属于无人值守任务或嵌入式 SDK，去 <a href="https://cli.specul.com/">CLI 图谱</a> 或 <a href="https://harness.specul.com/">Harness 图谱</a>。'],
+    ],
+    foot: '⚠ 一个常见误解：<strong>「AI 原生编辑器」不等于「模型可自选」</strong>。本赛道里两个维度是分开的——形态看 <code>runtime</code>，模型接入看 <code>model_access</code>，详情页里都逐条给原文。',
+  },
+  cli: {
+    // 分类轴刻意选「权限确认粒度」而不是「自动化程度」——
+    // 前者每个对象都有档案原文可核验（permissions 维度），后者会诱导读者
+    // 把「未核验审批模式」的对象当成「全自动」，那是本站最不该犯的错。
+    title: '先回答一件事：你要它跑多快，就得自己看多紧',
+    lede: '这六个工具差的不在模型能力，而在<strong>它动手前会不会停下来问你</strong>。问得多 = 控制感强但打断频繁；不问 = 跑得顺但你得事后查。',
+    steps: [
+      ['我要它每一步都问我', '看<strong>默认逐次确认</strong>的那几个', 'Aider 有自动提交但沙箱机制未核验；Crush 默认每次工具调用都问，官方措辞是「谨慎使用」免确认模式。'],
+      ['我要它在指定范围内自己跑', '看<strong>有明确沙箱/可信目录</strong>的那几个', 'Gemini CLI 的沙箱与 Trusted Folders 都有独立官方文档；Claude Code CLI 的权限粒度最细，还有「允许这一次」。'],
+      ['我要它能塞进 CI / 脚本里跑', '<strong>有两个有官方证据的落点</strong>', 'Gemini CLI 明确支持非交互模式；Codex CLI 的 `docs/exec.md` 标题即 Non-interactive mode（正文为外链）。其余四个未核验。'],
+      ['我要一个常驻在旁边的搭子', '这一站没有 → 去 <a href="https://ide.specul.com/">IDE 图谱</a>', '六个对象的 background 维度一致写着「不支持终端形态的后台长任务」。'],
+    ],
+    foot: '⚠ 一个反直觉的事实：<strong>Codex CLI 的审批模式与沙箱档位，在 CLI 文档里查不到，但在它 SDK 的源码里有</strong>——四种审批（never / on-request / on-failure / untrusted）× 三档沙箱（read-only / workspace-write / danger-full-access），还能按路径 deny 掉读 .env。跨平台差异仍未核验。',
+  },
+  mcp: {
+    title: '先回答一件事：你到底需不需要 MCP',
+    lede: 'MCP 不是「让 AI 更聪明」，是<strong>给 AI 接上它本来够不到的东西</strong>。如果你要的只是聊天和写代码，你不需要它。这一站 9 个条目全是官方 reference server，不含第三方。',
+    steps: [
+      ['我要读写本地文件 / 操作 Git', 'filesystem、git', '两个都是读写权限，git 那一类值得先看 scope 里能限制到哪些目录。'],
+      ['我要它记住东西、跨会话召回', 'memory', '这是最容易被误解的一类——<strong>它不是「模型记忆」</strong>，是外部知识图谱存储。'],
+      ['我要让 AI 上网拿资料', 'context7、fetch', '风险最高的一类是 fetch：档案里引了官方警告——<strong>可访问本地与内网 IP，无地址白名单、无审批机制</strong>。'],
+      ['我要控制真实浏览器', 'playwright', '注意官方<strong>明确声明来源限制不是安全边界</strong>，需要真隔离得用 --isolated 或容器化网络策略。'],
+      ['我要点时间 / 拆解推理 / 跨平台搜文件', 'time、sequential-thinking、everything', '三个都是只读，风险最低。'],
+    ],
+    foot: '⚠ 一个容易忽略的维度：<strong>数据出境</strong>。Context7 是本赛道唯一以远程服务为默认形态的条目，查询内容会发到 Upstash 服务器；其余八个都是本地 stdio 进程。每个 server 的传输、认证、权限范围都逐条标在详情页里。',
+  },
+  harness: {
+    title: '先回答一件事：你要不要自己搭',
+    lede: '这是本站存在的唯一理由。<strong>如果现成产品已经够用，正确答案是「不要搭」</strong>——那就去 <a href="https://ide.specul.com/">IDE 图谱</a> 或 <a href="https://cli.specul.com/">CLI 图谱</a>，不用往下看。真要自己搭，第一步是认清你要的抽象层。',
+    steps: [
+      ['我要最细的控制权，文件系统我自己管', '<strong>原语型</strong>（primitives-only）', '只给你 agent loop 的原语，不替你决定文件系统 / 规划 / 记忆怎么做 —— OpenAI Agents SDK 是这一类。'],
+      ['我要一个成熟 CLI 直接变成 API 对象', '<strong>包装既有 CLI</strong>', 'Claude Agent SDK 捆绑完整 CLI，默认给全工具无沙箱 —— 你省了造轮子，但权限模型是继承来的。'],
+      ['我要开箱即跑的通用长任务助手', '<strong>batteries-included</strong>', 'Deep Agents 官方自述 opinionated：预置更多东西，也替你做了更多决定。'],
+      ['流程要图、要能中断恢复、要多 Agent 协作', '<strong>编排框架</strong>：LangGraph / Google ADK / CrewAI', 'LangGraph 的落盘粒度最明确（每superstep 存一次图状态），ADK 的图执行引擎最完整，CrewAI 用「角色分工 + 事件流程」两套抽象。'],
+      ['我要它常驻、跨平台、能定时跑', '<strong>平台型/ 常驻型</strong>：OpenHands / Hermes Agent', 'OpenHands 是带 Web UI 的自托管控制中心；Hermes 更进一步——能挂Telegram/Discord/Slack/WhatsApp/Signal/Email 六平台，还能 cron 无人值守。'],
+      ['我只想要个工具用，不想维护', '不该来这个站', '这属于「不自建」那一侧，见 <a href="https://ide.specul.com/">IDE 图谱</a>。'],
+    ],
+    foot: '⚠ 三个最容易踩的坑：<strong>「状态」和「上下文」不是一回事</strong>——压缩上下文会丢信息，状态持久化才是长期可靠运行的前提（各家在这两层的完备程度差别很大）；<strong>「provider 无关」不等于「本地模型可用」</strong>（Claude Agent SDK 只支持 Claude，CrewAI 则点名支持 Ollama）；<strong>编排框架不给沙箱</strong>——权限边界要自己确认。',
+  },
+};
+
+function guideSection(track, site, entries) {
+  const g = GUIDE[track];
+  if (!g) return '';
+  const n = entries.length;
+  return `
+    <section class="section guide-band">
+      <div class="container">
+        <h2>${g.title}</h2>
+        <p class="section-desc">${g.lede}</p>
+        <ol class="guide-list">
+${g.steps
+  .map(
+    ([when, what, why], i) => `          <li class="guide-step">
+            <div class="guide-q"><span class="guide-n">${i + 1}</span>${when}</div>
+            <div class="guide-a"><strong>${what}</strong><span class="guide-why">${why}</span></div>
+          </li>`,
+  )
+  .join('\n')}
+        </ol>
+        <p class="guide-foot">${g.foot}</p>
+      </div>
+    </section>`;
+}
+
 // ── 品牌壳（严格照 brand.css 约定的结构，见 brand.css 头部注释）───────────
 // 品牌标识：全站唯一来源（brand.css 头部注释已说明这里是唯一定义处）。
 // 中文「投机取巧」是品牌名；正文里的「投机策略」是产品理念表述，两者不要混。
@@ -373,11 +461,17 @@ function renderIndex(site, track, entries) {
   const axisKeys = track === 'mcp' ? [...AXES, ...MCP_AXES] : AXES;
   const axisNames = axisKeys.map(x => x[1]);
   const verified = entries.filter(e => e.confidence === 'verified').length;
+  // 「最后核验日」从数据算出，不能硬编码 —— 硬编码会在每次核验后变成过期信息
+  const latestVerified = entries
+    .map(e => e.lastVerified)
+    .filter(Boolean)
+    .sort()
+    .pop() || '未标注';
 
   // 卡片信息刻意精简：标识 + 名称/厂商 + 一句定位 + 状态 + 入口。
   // 原设计有 tagline / summary / 标签 / 状态 / 链接 五块，视觉上糊成一片；
   // 标签信息价值低（详情页有完整标签），首页不需要重复。
-  const cards = entries.map(e => {
+  const cardFor = (e) => {
     const line = plain(e.tagline || e.sec.oneline || '', 62);
     return `        <article class="card" style="--card-accent:${esc(e.accent || site.accent)}">
           <div class="card-top">
@@ -393,7 +487,54 @@ function renderIndex(site, track, entries) {
             <a class="more" href="./${esc(e.id)}.html" aria-label="${esc(e.name)} 详情">详情 →</a>
           </div>
         </article>`;
-  }).join('\n');
+  };
+  const cards = entries.map(cardFor).join('\n');
+
+  // harness 站按 family 分组呈现 —— validate 把 family 列为必填枚举，
+  // 注释里写明「它决定首页矩阵怎么分组」。不渲染就等于这个字段只活在数据层。
+  const FAMILY_META = {
+    'coding-base': {
+      name: '编程底座',
+      desc: '给你 agent loop 或现成 CLI 的编程接口。这层的差别不在功能多少，而在<strong>它替你做多少决定</strong> —— 一个只给原语，一个把整套 CLI 连权限模型一起打包给你。',
+    },
+    'orchestration': {
+      name: '编排框架',
+      desc: '把多步骤、多 Agent、要中断恢复的流程显式建成图。给的是控制力，代价是接线与状态管理都归你。',
+    },
+    'general-harness': {
+      name: '通用 Harness',
+      desc: '预置了规划、文件系统、记忆等一整套，面向通用长任务。开箱程度最高，可改性最低。',
+    },
+  };
+  const familyGroups = (list) => {
+    const order = ['coding-base', 'orchestration', 'general-harness'];
+    const seen = new Set();
+    const blocks = [];
+    for (const key of order) {
+      const inFam = list.filter(e => e.family === key);
+      if (!inFam.length) continue;
+      seen.add(key);
+      const meta = FAMILY_META[key];
+      blocks.push(`        <div class="fam-block">
+          <div class="fam-head">
+            <h3>${meta.name} <span class="fam-n">${inFam.length}</span></h3>
+            <p>${meta.desc}</p>
+          </div>
+          <div class="grid">
+${inFam.map(cardFor).join('\n')}
+          </div>
+        </div>`);
+    }
+    const noFam = list.filter(e => !seen.has(e.family));
+    if (noFam.length) {
+      blocks.push(`        <div class="fam-block">
+          <div class="grid">
+${noFam.map(cardFor).join('\n')}
+          </div>
+        </div>`);
+    }
+    return blocks.join('\n');
+  };
 
   const body = `    <section class="hero">
       <div class="container">
@@ -404,18 +545,22 @@ function renderIndex(site, track, entries) {
           <span><b>${entries.length}</b> 个对象</span>
           <span><b>${axisNames.length}</b> 个固定维度</span>
           <span><b>${verified}</b> 个已完整核验</span>
-          <span>最后核验 <b>2026-09-28</b></span>
+          <span>最后核验 <b>${latestVerified}</b></span>
         </div>
       </div>
     </section>
 
+    ${guideSection(track, site, entries)}
+
     <section class="section">
       <div class="container">
-        <h2>全部对象</h2>
-        <p class="section-desc">按统一坐标系排列。点开任一对象可看到 ${axisNames.join(' / ')} 的完整记录、证据链接与未知项清单。</p>
-        <div class="grid">
+        <h2>${track === 'harness' ? '按抽象层分组' : '全部对象'}</h2>
+        <p class="section-desc">${track === 'harness'
+          ? '同一层里也能差很远 —— 两个「编程底座」一个是纯原语、一个是全托管包装 CLI，所以先按抽象层分，再看具体对象。'
+          : `按统一坐标系排列。点开任一对象可看到 ${axisNames.join(' / ')} 的完整记录、证据链接与未知项清单。`}</p>
+${track === 'harness' ? familyGroups(entries, cards) : `<div class="grid">
 ${cards}
-        </div>
+        </div>`}
       </div>
     </section>
 
@@ -840,10 +985,10 @@ ${entries.map(e => `| [${e.name}](./${e.id}.html) | ${e.vendor} | ${e.confidence
 
 | 站点 | 主题 |
 |---|---|
-| [ide.specul.com](https://ide.specul.com/) | AI 编程 IDE / 编码工具 |
-| [cli.specul.com](https://cli.specul.com/) | 终端 AI 编码工具 |
-| [mcp.specul.com](https://mcp.specul.com/) | MCP 服务器 / 工具生态 |
-| [specul.com](https://specul.com/) | 品牌站 |
+${[...Object.values(SITES), { domain: 'nav.specul.com', tagline: 'AI 站点导航' }]
+  .map(s => `| [${s.domain}](https://${s.domain}/) | ${s.tagline}${s.domain === site.domain ? '（本站）' : ''} |`)
+  .join('\n')}
+| [specul.com](https://specul.com/) | 品牌站（投机 · 推演） |
 
 ---
 
