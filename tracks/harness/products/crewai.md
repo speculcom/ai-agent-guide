@@ -20,19 +20,37 @@ providers:
 
 pricing:
   model: open-source
-  monthly_usd: null
-  monthly_label: 框架免费（MIT）；企业线为 CrewAI AMP（商业控制面，报价未核验）
+  monthly_usd: 0
+  monthly_label: OSS 框架免费（MIT，自托管不限次数）；AMP 托管平台 Basic $0 / Enterprise 定制
   note: >-
     **开源部分与商业部分要分清。**
-    核验依据：仓库 MIT（经 license API）、README 的 pip 安装路径。
-    商业线是 README 单列一节的 **Crew Control Plane**（对外称 CrewAI AMP），
-    官方描述里含"Advanced Security: Built-in robust security and compliance measures"、
-    "24/7 Support"、"On-premise and Cloud Deployment Options" —— 这三项都是商业产品特征。
-    **AMP 的定价、是否可自托管、是否必须联网授权，本站均未核验。**
+    核验依据：仓库 MIT（经license API）、README 的 pip 安装路径、官方定价页（核验 2026-10-01）。
+    商业线是 README 单列一节的 **Crew Control Plane**（对外称 CrewAI AMP）。
+    **⚠ 官方定价页当前只列两档，且这一条本身就是个坑**：
+    **Basic $0**（Visual editor + AI copilot、GitHub 集成、
+    **每月 50 次 workflow executions**，且**上限就是 50 次**，
+    官方对比表里 Basic 的「Additional executions」一栏写的是「—」，
+    **即没有自助加购通道**）与**Enterprise 定制**（SSO / RBAC / workload identity /
+    PII redaction / policies；部署可选 CrewAI 云、你的自有 VPC、或你自己的基础设施；
+    45 天 onboarding；forward deployed engineering 与培训按需另购）。
+    Enterprise 的执行次数是 "Sized to workflow" + **Flexible overage**，即按实际用量谈。
+    **⚠ 第三方定价站上的数字与官方页不一致，本站不采信**：抓取时多个来源分别给出
+    Professional ~$25/mo、Basic $99/mo、Standard $6K/yr、Ultra $120K/yr 等，
+    **官方定价页上不存在这些档位**（只有 Basic 与 Enterprise 两档），
+    应属旧制或臆测。**本站只写官方页面上能读到的两档。**
+    **另一条要读出来的事实**：Enterprise 明确写部署可落在
+    **CrewAI 云 / 客户自有 VPC / 客户自有基础设施** ——
+    即 README 说的 "On-premise and Cloud Deployment Options" 在商业侧确实兑现，
+    也**没有强制必须联网授权的表述**。
 pricing_pitfalls:
   - 把 Crew Control Plane 的能力当成开源版自带 —— tracing/可观测/集中管控/企业安全/24×7 支持是 AMP 的卖点
   - 以为「框架 MIT 免费」等于零成本 —— 默认接OpenAI API，推理费用自理
   - 以为本地模型要走改代码 —— 官方点名Ollama 与 LM Studio 工具，属配置项
+  - 以为 AMP 有中间付费档可以按量买 —— **官方定价页只有 Basic（免费，执行次数硬上限 50）
+    与 Enterprise（定制）两档**，Basic 的加购一栏是「—」。
+    超过 50 次/月的自助出路基本只有走Enterprise 洽谈
+  - 拿第三方定价站（trystackd / promptgalaxy 等）的六档报价做预算 —— 那些档位
+    在官方页面上不存在，属旧制或臆测（2026-10-01 核验时官方页只有两档）
 
 # 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
@@ -154,6 +172,11 @@ sources:
   - label: CrewAI AMP（商业控制面，本次未取到页面）
     url: https://crewai.com
     kind: docs
+  - label: CrewAI 官方定价页（核验 2026-10-01：**只有 Basic $0 与 Enterprise 定制两档**、
+    Basic 50 次/月硬上限且加购栏为「—」、Enterprise 可部署在客户自有 VPC/基础设施、
+    45 天 onboarding、SSO/RBAC/PII redaction 等 Enterprise 专属项；第三方站的六档报价均不存在）
+    url: https://crewai.com/pricing
+    kind: pricing
   - label: Releases（1.15.23 @ 2026-09-28）
     url: https://github.com/crewAIInc/crewAI/releases
     kind: changelog
@@ -321,10 +344,42 @@ README 单列一节 Crew Control Plane Key Features，七项全是商业产品�
 - 24/7 Support（专属企业支持）
 - **On-premise and Cloud Deployment Options**（CrewAI AMP 两种部署形态）
 
-⚠ 未核验：AMP 的定价、是否可完全自托管、是否必须联网授权。
-
 **注意其中「Advanced Security」这一条** ——
 如果你用 CrewAI 的理由之一是权限边界，**开源版并没有这一项**。
+
+### AMP 定价：官方页只有两档，且这本身是个坑
+
+2026-10-01 核验官方定价页，**只有两档**：
+
+| 档位 | 价格 | 执行次数 | 席位 |
+|---|---|---|---|
+| **Basic** | **$0** | **50 次/月，上限就是 50** | 1 |
+| **Enterprise** | **定制** | "Sized to workflow" + Flexible overage | 不限 |
+
+Basic 包含：Visual editor + AI copilot、GitHub 集成、
+**Export as MCP server**、Export as UI component、Guardrails、
+Human-in-the-loop input、Cron scheduling、Tracing、OpenTelemetry、
+LLM testing、AI agent training、Usage dashboard、Token count、自动扩缩、社区支持。
+
+Enterprise 才解锁的：**SSO（MS Entra / Okta）、RBAC、workload identity、
+PII redaction、policies、企业连接器、专属 VPC / NAT、专属支持、
+Slack/Teams 支持、on-site 支持与培训、部署与 onboarding、每月开发工时**。
+Enterprise 的 onboarding 是 **45 天**，forward deployed engineering 与培训**按需另购**。
+
+**三个必须读出来的结论**：
+
+1. **Basic 的加购一栏写的是「—」，即没有自助加购通道。**
+   官方对比表 Basic 行「Maximum executions = 50」「Additional executions = —」。
+   **超过 50 次/月的自助出路基本只有去找 Enterprise 谈。**
+2. **部署形态在商业侧确实兑现了** —— Enterprise 明确写可部署在
+   CrewAI 云 / **你自己的 VPC** / **你自己的基础设施**。
+   README 那句 "On-premise and Cloud Deployment Options" 不是空话。
+   **官方页也没有任何强制联网授权的表述。**
+3. **第三方定价站的数字一律不可信。** 核验时多个来源分别给出
+   Professional ~$25/mo、Basic $99/mo、Standard $6K/yr、Pro $12K/yr、
+   Enterprise $60K/yr、Ultra $120K/yr —— **官方定价页上根本没有这些档位**。
+   有一个来源自己就标注了「$25 那档来自第三方聚合站，不在官方页上」。
+   **本站只采官方页面读得到的数字。**
 
 ## 适合与不适合
 
@@ -350,7 +405,12 @@ When to Use CrewAI 五条、MarketState 结构化状态示例、Telemetry 与 Li
 未核验：guardrails 的类型与强度、沙箱与文件/网络访问控制、
 memory 的作用域与存储后端、knowledge 与 memory 的关系、
 checkpointing 的落盘粒度与后端、完整 provider 清单、MCP 是否为核心依赖、
-A2A 规范、CrewAI AMP 的定价与部署形态
+A2A 规范、AMP Enterprise 的具体报价
+
+**本轮（2026-10-01）补上的**：CrewAI AMP 定价（官方页两档，已写进正文表格）、
+Enterprise 的部署形态（客户自有 VPC / 自有基础设施）、无强制联网授权表述。
+**核验方法**：先试 `_audit/fetch-pricing.mjs` 渲染 `crewai.com/pricing` 超时，
+改用 WebFetch 直接取官方页正文。
 
 ## 实测记录
 
@@ -377,7 +437,8 @@ A2A 规范、CrewAI AMP 的定价与部署形态
 - 完整 provider 清单与换provider 的能力对齐度
 - MCP 是核心依赖还是可选 extra
 - A2A（Agent-to-Agent）规范与生态现状
-- CrewAI AMP 的定价、部署形态与授权方式
+- AMP Enterprise 的具体报价（官方仅标 Custom）
+- Basic 档50 次/月上限之后，除Enterprise 洽谈外是否有自助加购路径（官方对比表该栏为「—」）
 - MCP/A2A 接入的实际使用门槛
 
 ## 相关条目
