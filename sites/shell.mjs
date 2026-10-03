@@ -13,24 +13,23 @@
 /** 品牌唯一真相源（改这里等于改全站） */
 export const BRAND = {
   zh: '投机取巧',
-  en: 'Speculation · Craft',
+  en: 'Speculative Speculation',
   short: '投机取巧',
   repo: 'https://github.com/speculcom/ai-coding-agent-atlas',
 };
 
-/** 全站导航（八项，顺序固定；各站自己那项由 current 高亮）
- *  顺序依据 `_plan/v3-roadmap.md` §4（唯一真相源）：
- *  首页 · 导航 · 规划中 · IDE · CLI · MCP · Harness · Models
- *  Harness 插在 Models 前：它属于「产品/组件」层的延伸，Models 是最下游的模型供给层。 */
+/** 全站导航（五项，顺序固定；各站自己那项由 current 高亮）
+ *  顺序依据 `_plan/v4-三站架构.md` §2（唯一真相源）：
+ *  首页 · 学 AI · Agent · 本地模型 · 导航
+ *  导航放在末位：它是「去别的站」的兜底出口，不是内容层。
+ *  2026-10-02 从八项改来：原IDE/CLI/MCP/Harness 四项合成 Agent 一个站，
+ *  「规划中」keel 已从导航移除（站还活着，只是不再作为导航项）。 */
 export const NAV = [
   { key: 'www', href: 'https://specul.com/', zh: '首页', en: 'Home' },
+  { key: 'learn', href: 'https://learn.specul.com/', zh: '学 AI', en: 'Learn' },
+  { key: 'agent', href: 'https://agent.specul.com/', zh: 'Agent', en: 'Agent' },
+  { key: 'models', href: 'https://models.specul.com/', zh: '本地模型', en: 'Models' },
   { key: 'nav', href: 'https://nav.specul.com/', zh: '导航', en: 'Directory' },
-  { key: 'keel', href: 'https://keel.specul.com/', zh: '规划中', en: 'Plan' },
-  { key: 'ide', href: 'https://ide.specul.com/', zh: 'IDE 图谱', en: 'IDE' },
-  { key: 'cli', href: 'https://cli.specul.com/', zh: 'CLI 图谱', en: 'CLI' },
-  { key: 'mcp', href: 'https://mcp.specul.com/', zh: 'MCP 图谱', en: 'MCP' },
-  { key: 'harness', href: 'https://harness.specul.com/', zh: 'Harness 图谱', en: 'Harness' },
-  { key: 'models', href: 'https://models.specul.com/', zh: 'Models 图谱', en: 'Models' },
 ];
 
 /** header —— current 为当前站的 key */
@@ -45,8 +44,7 @@ export function header(current) {
       <a class="brand" href="https://specul.com/" title="${BRAND.zh}">
         <span class="brand-dot" aria-hidden="true"></span>
         <span class="brand-text">
-          <span class="brand-name">${BRAND.short}</span>
-          <span class="brand-sub" id="markSub" data-zh-sub="${BRAND.zh}" data-en-sub="${BRAND.en}">${BRAND.zh}</span>
+          <span class="brand-name" id="markName" data-zh-name="${BRAND.zh}" data-en-name="${BRAND.en}">${BRAND.zh}</span>
         </span>
       </a>
       <nav class="nav-links" aria-label="站点导航">
