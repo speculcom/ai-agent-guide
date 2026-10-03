@@ -147,7 +147,11 @@ function validateEntry(file) {
   for (const k of ['id', 'track', 'name', 'vendor', 'homepage']) {
     if (!fm[k]) fail(`缺必填字段: ${k}`);
   }
-  if (fm.track && !['ide', 'cli', 'mcp', 'harness'].includes(fm.track)) fail(`track 枚举非法: ${fm.track}`);
+  // cloud = 厂商云形态（2026-10-03 新增）：OpenAI Dot / Meta Muse / xAI Grok Bot 这类
+  // 本机不装任何东西、在厂商云上持续工作的成品 agent。
+  // 它归agents 分区（不是新分区）—— 与 ide/cli 共享同一套八维坐标系，
+  // 拆到新分区会让「八维对比」跨站分裂。
+  if (fm.track && !['ide', 'cli', 'cloud', 'mcp', 'harness'].includes(fm.track)) fail(`track 枚举非法: ${fm.track}`);
 
   const p = fm.pricing || {};
   if (!p.model) fail('缺 pricing.model');
@@ -357,8 +361,17 @@ for (const a of AXES) {
   const f = `${AXES_FILE[a]}.md`;
   if (!fs.existsSync(path.join(ROOT, 'axes', f))) errors.push(`缺维度定义: axes/${f}`);
 }
-for (const t of ['ide', 'cli', 'mcp', 'harness']) {
-  if (!fs.existsSync(path.join(ROOT, 'tracks', t, '_track.md'))) errors.push(`缺赛道定义: tracks/${t}/_track.md`);
+/* 赛道目录 → 赛道定义的映射。
+ * 2026-10-02 重构：ide + cli 合并为 agents 赛道（档案仍按 track: ide/cli 分类，
+ * **不合并档案**——三组产品各有两份，runtime/permissions 等维度取值不同）。
+ * 所以「目录」是三个（agents/harness/tools），而「track 枚举」仍是四个。 */
+const TRACK_DIRS = {
+  agents: '_track.md',
+  harness: '_track.md',
+  tools: '_track.md',
+};
+for (const [d, f] of Object.entries(TRACK_DIRS)) {
+  if (!fs.existsSync(path.join(ROOT, 'tracks', d, f))) errors.push(`缺赛道定义: tracks/${d}/${f}`);
 }
 
 console.log('=== ai-compare schema 校验 ===');
