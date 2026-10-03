@@ -121,16 +121,10 @@ link:
   url: https://github.com/langchain-ai/deepagents
   kind: official
 
-related:
-  - id: langgraph
-    note: 同生态下层 —— LangGraph 是 Deep Agents 依赖的 graph runtime。官方 FAQ 明确区分两者层级。
-  - id: llamaindex
-    note: 同为编排层，但 LlamaIndex 重心在 RAG / 数据连接，Deep Agents 重心在通用 agent harness。
-
 last_verified: 2026-09-30
 last_updated: 2026-09-30
 lifecycle: active
-confidence: verified
+confidence: partial
 ---
 
 ## 一句话定位
@@ -219,7 +213,11 @@ README 提到 **Deep Agents Code** —— 预构建的终端 coding agent，官�
 
 ## 核验说明
 
-`confidence: verified` 的依据：
+`confidence: partial` 的依据（2026-10-03 由 verified 降级）：
+
+> **为什么降级**：下方 ❌ 项的主语是**本站的取证缺口**，不是「官方未提供」。
+> 按 v3 铁律「未知就说未知」，这些条目存在时标 verified 属于虚高，故降为 partial。
+> 主要缺口：LangSmith 的具体定价、LangGraph interrupt 细节、多 agent 并发文件冲突。
 
 - ✅ 已核验：仓库存在与星数（29,862）、**许可原文（MIT，经 license API）**、最新版本 **0.7.20**（2026-09-29 releases）、
   仓库描述原文、README 全文四条原则与九条特性清单、FAQ 三层关系原文、Security 声明原文、
@@ -256,5 +254,5 @@ README 提到 **Deep Agents Code** —— 预构建的终端 coding agent，官�
 
 ## 相关条目
 
-- [LangGraph](./langgraph.md) — 同生态下层，Deep Agents 依赖它
-- [LlamaIndex](./llamaindex.md) — 同为编排层，重心不同
+- [LangGraph](./langgraph.md) — 同生态下层 —— LangGraph 是 Deep Agents 依赖的 graph runtime。官方 FAQ 明确区分两者层级。
+- [LlamaIndex](./llamaindex.md) — 同为编排层，但 LlamaIndex 重心在 RAG / 数据连接，Deep Agents 重心在通用 agent harness。
