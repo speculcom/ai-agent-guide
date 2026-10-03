@@ -134,7 +134,7 @@ pitfalls:
   - 把 `sandbox_workspace_write.network_access` 与 SDK 的 `networkAccessEnabled` 当成两套东西 —— 后者才是 SDK 层入口，前者是 config透传的写法
   - 把 OpenAI Agents SDK（纯 Python 库）当成本 SDK 的同类替代 —— 形态不同，见 layer_position
 
-tags: [TypeScript, Python, Rust, 开源, Apache-2.0, 编程底座, CLI包装, 非交互执行, 沙箱, 审批模式, 代码x]
+tags: [TypeScript, Python, Rust, 开源, Apache-2.0, 编程底座, CLI包装, 非交互执行, 沙箱, 审批模式]
 
 sources:
   - label: openai/codex · 仓库（monorepo，SDK 在 sdk/ 子目录）
