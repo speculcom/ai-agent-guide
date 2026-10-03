@@ -8,7 +8,9 @@ const AXES = ['model_access','runtime','local_files','background','tools','conte
 const MCP_AXES = ['transport','auth','scope'];
 const PAT = /(未核验|未知|未声明|未逐条|本次未能|未能逐)/;
 
-const only = process.argv.slice(2).length ? process.argv.slice(2) : ['ide','cli','mcp'];
+// v4 赛道目录（此前写死 ['ide','cli','mcp']，v4 合成 agent 分区后那三个目录已删）
+const TRACKS = ['agents', 'harness', 'tools'];
+const only = process.argv.slice(2).length ? process.argv.slice(2) : TRACKS;
 
 console.log('\n（未知维度 = 该维度正文里仍有「未核验/未知/未声明」字样；已补齐 = 该维度内容完整）\n');
 
