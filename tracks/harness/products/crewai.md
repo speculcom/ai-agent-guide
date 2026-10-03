@@ -191,16 +191,6 @@ link:
   url: https://crewai.com
   kind: official
 
-related:
-  - id: google-adk
-    note: **编排家族对照**：同为图/流程编排，ADK 用 Workflow Runtime 的节点与路由，CrewAI 用 Crew（角色协作）+ Flow（事件驱动）两套抽象。CrewAI 另给了 MCP/A2A 支持。
-  - id: langgraph
-    note: **状态持久化路线的差别最大的一条**：LangGraph 明确给出「每 superstep 落盘 checkpoint」，CrewAI 把 checkpointing 定位成「随系统成长再加」的进阶项，粒度与后端均未核验。
-  - id: deepagents
-    note: 同属「快速起步」一侧，但抽象不同：Deep Agents 是 batteries-included harness，CrewAI 是 Crew/Flow 双抽象的编排框架。
-  - id: openai-agents-sdk
-    note: 反面对照：那个是单 agent 原语 + 明确的 guardrail 机制；CrewAI 的权限维度目前只有 guardrails 一个未说明机制的名词。
-
 last_verified: 2026-10-01
 last_updated: 2026-10-01
 lifecycle: active
@@ -443,7 +433,7 @@ Enterprise 的部署形态（客户自有 VPC / 自有基础设施）、无强�
 
 ## 相关条目
 
-- [Google ADK](./google-adk.md) — 编排家族对照：Workflow Runtime 节点路由 vs Crew/Flow 双抽象
-- [LangGraph](./langgraph.md) — **状态持久化路线差别最大的一条**：每 superstep checkpoint vs 按需添加
-- [Deep Agents](./deepagents.md) — 同属快速起步一侧，但它是 batteries-included harness
-- [OpenAI Agents SDK](./openai-agents-sdk.md) — 反面对照：那个的权限机制是明确写出来的
+- [Google ADK](./google-adk.md) — **编排家族对照**：同为图/流程编排，ADK 用 Workflow Runtime 的节点与路由，CrewAI 用 Crew（角色协作）+ Flow（事件驱动）两套抽象。CrewAI 另给了 MCP/A2A 支持。
+- [LangGraph](./langgraph.md) — **状态持久化路线的差别最大的一条**：LangGraph 明确给出「每 superstep 落盘 checkpoint」，CrewAI 把 checkpointing 定位成「随系统成长再加」的进阶项，粒度与后端均未核验。
+- [Deep Agents](./deepagents.md) — 同属「快速起步」一侧，但抽象不同：Deep Agents 是 batteries-included harness，CrewAI 是 Crew/Flow 双抽象的编排框架。
+- [OpenAI Agents SDK](./openai-agents-sdk.md) — 反面对照：那个是单 agent 原语 + 明确的 guardrail 机制；CrewAI 的权限维度目前只有 guardrails 一个未说明机制的名词。
