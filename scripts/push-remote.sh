@@ -37,9 +37,13 @@ if [ $# -gt 0 ]; then
 else
   FILES=()
   # 用 find 收集（不用 git ls-files：本地不是 git 仓库；也不用进程替换）
-  for f in $(find tracks scripts -type f \
-             \( -name '*.md' -o -name '*.mjs' -o -name '*.json' -o -name '*.sh' \) \
-             2>/dev/null | sed 's|\\|/|g' | sort); do
+  # ⚠ 范围必须覆盖 **sites/ 与根级 md** —— 2026-10-03 只扫 tracks/ + scripts/，
+  # 结果 sites/build.mjs 没推上去，CI 跑的还是 v3 版（扫tracks/ide 等已删目录）而失败。
+  # 「推送范围」与「构建实际读取的路径」不一致 = 远程与本地悄悄脱钩。
+  for f in $(find tracks scripts sites .github -type f \
+             \( -name '*.md' -o -name '*.mjs' -o -name '*.json' -o -name '*.sh' -o -name '*.yml' \) \
+             2>/dev/null | sed 's|\\|/|g' | sort) \
+           $(find . -maxdepth 1 -type f -name '*.md' | sed 's|^\./||' | sort); do
     FILES+=("$f")
   done
 fi
