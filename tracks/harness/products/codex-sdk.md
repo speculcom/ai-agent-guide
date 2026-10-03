@@ -169,20 +169,10 @@ link:
   url: https://developers.openai.com/codex/
   kind: official
 
-related:
-  - id: claude-agent-sdk
-    note: **本站最该对照的一对**：同样是 CLI 包装型（捆绑 / spawn CLI + 进程通信），但Claude 侧 README 明说只支持 Claude、没有 provider 旁路，而本 SDK 有 `baseUrl` 与 `model_providers`。
-  - id: openai-agents-sdk
-    note: 同一家厂商的两种形态：那个是纯 Python 库（primitives-only），这个是 Node + CLI 子进程包装。选型第一问就是「要不要多背一个 CLI 进程」。
-  - id: deepagents
-    note: batteries-included 的对照面：本 SDK 不预置任何东西，工具与沙箱全由 CLI 版本决定。
-  - id: langgraph
-    note: 若要「非交互 + 有图结构 + 多Agent 协作」，编排框架才是对应层；本 SDK 只给单线程执行。
-
 last_verified: 2026-10-01
 last_updated: 2026-10-01
 lifecycle: active
-confidence: verified
+confidence: partial
 ---
 
 ## 一句话定位
@@ -306,7 +296,11 @@ SDK README 全文没有出现 MCP，主仓 `docs/` 目录里也没有 `mcp.md`�
 
 ## 核验说明
 
-`confidence: verified` 的依据：
+`confidence: partial` 的依据（2026-10-03 由 verified 降级）：
+
+> **为什么降级**：下方 ❌ 项的主语是**本站的取证缺口**，不是「官方未提供」。
+> 按 v3 铁律「未知就说未知」，这些条目存在时标 verified 属于虚高，故降为 partial。
+> 主要缺口：三档沙箱的跨平台实现差异、MCP 支持情况、第三方 provider 能力对齐、权限审计规则语法。
 
 - ✅ 已核验：仓库存在与星数（127,448）、许可（Apache-2.0）、最近推送（2026-10-01，仍活跃）、
   最新稳定版 **0.159.3**（releases @ 2026-09-30）与预发布 0.161.0-alpha.7、
@@ -350,7 +344,7 @@ SDK 是它的 `sdk/typescript` 子目录。
 
 ## 相关条目
 
-- [Claude Agent SDK](./claude-agent-sdk.md) — **本站最该对照的一对**：同为 CLI 包装型，但 provider 策略完全相反
-- [OpenAI Agents SDK](./openai-agents-sdk.md) — 同厂商的另一种形态：纯库 vs CLI 子进程
-- [Deep Agents](./deepagents.md) — batteries-included 的对照面
-- [LangGraph](./langgraph.md) — 若需要图结构与多 Agent 协作，编排框架才是对应层
+- [Claude Agent SDK](./claude-agent-sdk.md) — **本站最该对照的一对**：同样是 CLI 包装型（捆绑 / spawn CLI + 进程通信），但Claude 侧 README 明说只支持 Claude、没有 provider 旁路，而本 SDK 有 `baseUrl` 与 `model_providers`。
+- [OpenAI Agents SDK](./openai-agents-sdk.md) — 同一家厂商的两种形态：那个是纯 Python 库（primitives-only），这个是 Node + CLI 子进程包装。选型第一问就是「要不要多背一个 CLI 进程」。
+- [Deep Agents](./deepagents.md) — batteries-included 的对照面：本 SDK 不预置任何东西，工具与沙箱全由 CLI 版本决定。
+- [LangGraph](./langgraph.md) — 若要「非交互 + 有图结构 + 多Agent 协作」，编排框架才是对应层；本 SDK 只给单线程执行。
