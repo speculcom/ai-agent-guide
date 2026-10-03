@@ -9,11 +9,22 @@ const R = (p) => path.join(ROOT, p);
 const AXES = ['model_access','runtime','local_files','background','tools','context','permissions','fit'];
 const MCP_AXES = ['transport','auth','scope'];
 
+// v4 赛道目录（此前写死 ['ide','cli','mcp']，v4 合成 agent 分区后那三个目录已删）
+const TRACKS = ['agents', 'harness', 'tools'];
+
 const files = [];
-for (const t of ['ide','cli','mcp']) {
+for (const t of TRACKS) {
   const d = R(`tracks/${t}/products`);
   if (!fs.existsSync(d)) continue;
   for (const f of fs.readdirSync(d).filter(x => x.endsWith('.md'))) files.push({ track: t, name: f });
+}
+
+// ⚠ **扫到 0 份档案时必须报错** —— 这是最危险的静默失效：
+// 2026-10-03 实测本脚本扫 0 个文件，却输出「有问题条目: 0 / 0」并以 0 退出，
+// 看起来一切正常，实际**什么都没检查**。目录名一变就静默失效。
+if (files.length === 0) {
+  console.error(`❌ 扫到 0 份档案（TRACKS = ${TRACKS.join(', ')}）—— 路径已失效，本脚本等于没运行`);
+  process.exit(1);
 }
 
 console.log('条目数:', files.length);
@@ -57,7 +68,7 @@ for (const { track, name } of files) {
     dimLens[d] = chunk.replace(/\s+/g, '').length;
   }
 
-  const allDims = track === 'mcp' ? [...AXES, ...MCP_AXES] : AXES;
+  const allDims = track === 'tools' ? MCP_AXES : AXES;  // v4: tools 分区用 MCP 三维（块名仍是 mcp:）
   const missing = allDims.filter(d => dimLens[d] === undefined);
   const minLens = Math.min(...Object.values(dimLens).filter(v => v > 0));
   
@@ -100,7 +111,11 @@ for (const { track, name } of files) {
   if (thinPartial.length) flags.push(`部分核验(ok):${thinPartial.join(',')}`);
 
   if (pitList.length === 0) flags.push('无pitfalls');
-  if (pitList.some(p => p.length > 70)) flags.push('pitfall超长');
+  // 上限从 70 放宽到 130（2026-10-03）。理由：pitfalls 里价值最高的一类是
+  // 「以为 X —— 其实是 Y（官方原话）」这种单行纠偏，天然带出处引用，
+  // 70 字会把它们全判成超长。判据该问「是否说清一件事」，不是问字数。
+  // 真正的啰嗦（同一句里反复铺陈）仍会超130 被抓到。
+  if (pitList.some(p => p.length > 130)) flags.push('pitfall超长');
   if (bodyLen < 300) flags.push(`正文过短(${bodyLen})`);
   if (conf === 'verified' && life !== 'active') flags.push(`verified+${life}`);
   // 正文必须有的小节（与 SCHEMA 第三节一致；旧「适合」/「注意」已废弃）
