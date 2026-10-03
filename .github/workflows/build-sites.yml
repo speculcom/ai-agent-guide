@@ -82,16 +82,18 @@ jobs:
       - name: 产出自检
         run: |
           set -euo pipefail
-          # v4：三个分区各验一次。agents 分区落站点根（导航「Agent」直接指它，
-          # 不该让访客多点一次），所以它的路径没有目录前缀。
+          # ⚠ CNAME 与 .nojekyll **只在站点根写一次**（build.mjs 的既定约定：
+          #   CNAME 文件只接受域名，三个分区是同一域名下的路径，不是三个独立站）。
+          #   第一版自检让每个分区都验这两个文件 → harness 分区必然报「缺少 CNAME」。
+          #   这是我自己写的检查违反了我自己代码里的注释 —— 判据要照抄产物结构的真相源。
+          [ -f dist/CNAME ] || { echo "缺少 dist/CNAME"; exit 1; }
+          [ -f dist/.nojekyll ] || { echo "缺少 dist/.nojekyll（Pages 会构建失败）"; exit 1; }
+          cat dist/CNAME
+          # 分区自检：只验 index.html 与页面数
           for t in "" harness tools; do
             d="dist/${t}"
             [ -d "$d" ] || { echo "缺少 $d"; exit 1; }
             [ -f "$d/index.html" ] || { echo "缺少 $d/index.html"; exit 1; }
-            [ -f "$d/CNAME" ] || { echo "缺少 $d/CNAME"; exit 1; }
-            # .nojekyll 缺失会让 Pages 构建失败且报错极少，
-            # 线上仍能访问**旧产物** —— 极易误判成「还在构建」
-            [ -f "$d/.nojekyll" ] || { echo "缺少 $d/.nojekyll（Pages 会构建失败）"; exit 1; }
             n=$(ls "$d"/*.html 2>/dev/null | wc -l)
             echo "  ${t:-根}: $n 个页面"
             [ "$n" -ge 2 ] || { echo "  ${t:-根} 页面数异常"; exit 1; }
@@ -108,7 +110,12 @@ jobs:
     name: 部署到 agent.specul.com
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' && inputs.deploy != false
+    # ⚠ 2026-10-03 暂时禁用。原因：部署需要 AGENT_SITE_TOKEN secret
+    # （一个能 push speculcom/agent 的 PAT），目前未配置。
+    # 与 www / nav / models 站保持一致的做法：部署走本地 push-site.sh 脚本，
+    # 不依赖 Actions secrets —— 少一条需要维护的凭据链路。
+    # 恢复时把 false 改回 true，并在仓库 Settings → Secrets 里加 AGENT_SITE_TOKEN。
+    if: false
     permissions:
       contents: write
     steps:
