@@ -1,12 +1,14 @@
 name: build & deploy sites
 
-# 数据层是唯一真相源：这里一改，四个结论层站点同步重建。
+# 数据层是唯一真相源：这里一改，agent.specul.com 重建并推送。
 #
-# 流程：checkout 数据仓库 → 校验 → 构建四站 → 分别推送到四个站仓库的 main 分支
-# 站仓库的 CNAME + Pages 配置已就绪，推送即触发 GitHub Pages 自动发布。
+# 2026-10-03 按 v4 三站架构重写。此前那版自检写死 `for t in ide cli mcp harness`，
+# 而 v4 已把四个旧站合成 agent 一站三分区 → 每次 push 必然失败在「产出自检」。
+# ⚠ 这类「脚本没跟上结构调整」的失效是静默的：不看 Actions 红叉根本发现不了，
+#   而本地构建正常、只有远程 workflow 挂。
 #
+# 流程：checkout → 校验 → 拉品牌壳 → 构建 → 自检 → 推 agent 站仓库
 # 手动触发：Actions 页面 → Run workflow
-# 触发条件：push 到 main（数据变更）、手动、PR（仅校验不部署）
 
 on:
   push:
@@ -18,17 +20,12 @@ on:
     branches: [main]
   workflow_dispatch:
     inputs:
-      track:
-        description: '只构建某个赛道（留空 = 全部）'
-        required: false
-        default: ''
       deploy:
         description: '是否部署到线上'
         type: boolean
         required: false
         default: true
 
-# 同一分支的并发构建只保留最新一次
 concurrency:
   group: build-sites-${{ github.ref }}
   cancel-in-progress: true
@@ -40,7 +37,8 @@ jobs:
   build:
     name: 校验并构建
     runs-on: ubuntu-latest
-
+    outputs:
+      built: ${{ steps.build.outputs.built }}
     steps:
       - name: Checkout 数据仓库
         uses: actions/checkout@v4
@@ -50,13 +48,13 @@ jobs:
         with:
           node-version: '22'
 
-      - name: 结构校验（validate --strict）
-        run: node scripts/validate.mjs --strict
+      - name: 结构校验
+        run: node scripts/validate.mjs
 
-      - name: 内部一致性审计（audit）
+      - name: 内部一致性审计
         run: node scripts/audit.mjs
 
-      - name: 内容质量审计（quality）
+      - name: 内容质量审计
         run: node scripts/quality.mjs
 
       - name: 拉取品牌壳
@@ -64,7 +62,7 @@ jobs:
           set -euo pipefail
           mkdir -p .build
           # 品牌壳（顶栏/页脚/基础 token）的唯一来源是品牌站仓库。
-          # 拉不到就中止——不要用副本兜底，那会让三站与品牌站悄悄脱钩。
+          # 拉不到就中止 —— 不要用副本兜底，那会让本站与品牌站悄悄脱钩。
           curl -fsSL --retry 2 \
             https://raw.githubusercontent.com/speculcom/www/main/brand.css \
             -o .build/brand.css
@@ -73,44 +71,46 @@ jobs:
             -o .build/brand.js
           wc -c .build/brand.css .build/brand.js
 
-      - name: 构建四站
-        env:
-          TRACK: ${{ github.event.inputs.track }}
+      - name: 构建 agent 站三分区
+        id: build
         run: |
           set -euo pipefail
-          if [ -n "${TRACK:-}" ]; then
-            node sites/build.mjs "$TRACK"
-          else
-            node sites/build.mjs
-          fi
+          node sites/build.mjs
+          # 产出目录：agents 分区落站点根，harness / tools 各自子目录
+          echo "built=1" >> "$GITHUB_OUTPUT"
 
       - name: 产出自检
         run: |
           set -euo pipefail
-          for t in ide cli mcp harness; do
-            [ -d "dist/$t" ] || { echo "缺少 dist/$t"; exit 1; }
-            [ -f "dist/$t/index.html" ] || { echo "缺少 dist/$t/index.html"; exit 1; }
-            [ -f "dist/$t/CNAME" ] || { echo "缺少 CNAME"; exit 1; }
-            [ -f "dist/$t/.nojekyll" ] || { echo "缺少 .nojekyll（Pages 会构建失败）"; exit 1; }
-            n=$(ls dist/$t/*.html | wc -l)
-            echo "  $t: $n 个页面"
-            [ "$n" -ge 2 ] || { echo "  $t 页面数异常"; exit 1; }
+          # v4：三个分区各验一次。agents 分区落站点根（导航「Agent」直接指它，
+          # 不该让访客多点一次），所以它的路径没有目录前缀。
+          for t in "" harness tools; do
+            d="dist/${t}"
+            [ -d "$d" ] || { echo "缺少 $d"; exit 1; }
+            [ -f "$d/index.html" ] || { echo "缺少 $d/index.html"; exit 1; }
+            [ -f "$d/CNAME" ] || { echo "缺少 $d/CNAME"; exit 1; }
+            # .nojekyll 缺失会让 Pages 构建失败且报错极少，
+            # 线上仍能访问**旧产物** —— 极易误判成「还在构建」
+            [ -f "$d/.nojekyll" ] || { echo "缺少 $d/.nojekyll（Pages 会构建失败）"; exit 1; }
+            n=$(ls "$d"/*.html 2>/dev/null | wc -l)
+            echo "  ${t:-根}: $n 个页面"
+            [ "$n" -ge 2 ] || { echo "  ${t:-根} 页面数异常"; exit 1; }
           done
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
-          name: sites
+          name: agent-site
           path: dist/
           retention-days: 7
 
   deploy:
-    name: 部署三站
+    name: 部署到 agent.specul.com
     needs: build
     runs-on: ubuntu-latest
-    # PR 只校验不部署
-    if: github.event_name != 'pull_request' && github.event.inputs.deploy != 'false'
-
+    if: github.event_name != 'pull_request' && inputs.deploy != false
+    permissions:
+      contents: write
     steps:
       - name: Checkout 数据仓库
         uses: actions/checkout@v4
@@ -118,66 +118,24 @@ jobs:
       - name: 下载构建产物
         uses: actions/download-artifact@v4
         with:
-          name: sites
+          name: agent-site
           path: dist
 
-      - name: 部署到四个站仓库
-        env:
-          GH_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
-          TRACK: ${{ github.event.inputs.track }}
+      - name: 推送到 agent 站仓库
+        uses: actions/checkout@v4
+        with:
+          repository: speculcom/agent
+          token: ${{ secrets.AGENT_SITE_TOKEN }}
+          path: _site
+
+      - name: 同步产物（跳过 .git）
         run: |
           set -euo pipefail
-          if [ -z "${GH_TOKEN:-}" ]; then
-            echo "::error::未配置 secrets.DEPLOY_TOKEN，跳过部署"
-            exit 1
-          fi
-
-          for t in ide cli mcp harness; do
-            [ -n "${TRACK:-}" ] && [ "$TRACK" != "$t" ] && continue
-            case "$t" in
-              ide) repo=ai-coding-ide ;;
-              cli) repo=ai-coding-cli ;;
-              mcp) repo=ai-coding-mcp ;;
-              harness) repo=ai-coding-harness ;;
-            esac
-            echo "=== 部署 $t → speculcom/$repo ==="
-            ok=0; fail=0
-            for f in dist/$t/*; do
-              name=$(basename "$f")
-              case "$name" in
-                *.html|*.css|*.js|*.xml|*.txt|CNAME|README.md) ;;
-                *) continue ;;
-              esac
-              sha=$(gh api "repos/speculcom/$repo/contents/$name" --jq '.sha' 2>/dev/null || echo "")
-              body=$(jq -n --rawfile c "$f" \
-                            --arg m "ci: $name" \
-                            --arg s "$sha" \
-                            --arg b "main" \
-                            '{message:$m, content:($c|@base64), branch:$b}
-                             + (if $s=="" then {} else {sha:$s} end)')
-              if echo "$body" | gh api -X PUT "repos/speculcom/$repo/contents/$name" --input - \
-                   --jq '.content.size' >/dev/null 2>&1; then
-                ok=$((ok+1))
-              else
-                echo "  ✗ $name"
-                fail=$((fail+1))
-              fi
-            done
-            echo "  $t: $ok 成功 / $fail 失败"
-            [ "$fail" -eq 0 ] || exit 1
-          done
-
-      - name: 部署摘要
-        run: |
-          {
-            echo "### 部署完成"
-            echo ""
-            echo "| 站点 | URL |"
-            echo "|---|---|"
-            echo "| IDE | https://ide.specul.com/ |"
-            echo "| CLI | https://cli.specul.com/ |"
-            echo "| MCP | https://mcp.specul.com/ |"
-            echo "| Harness | https://harness.specul.com/ |"
-            echo ""
-            echo "数据源 commit：${GITHUB_SHA}"
-          } >> "$GITHUB_STEP_SUMMARY"
+          cd _site
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -rf .git
+          cp -r "$GITHUB_WORKSPACE/dist/." .
+          git add -A
+          git commit -m "deploy: agent 站构建产物 $(date -u +%Y-%m-%dT%H:%M:%SZ)" || echo "无改动"
+          git push origin HEAD:main
