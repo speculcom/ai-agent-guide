@@ -9,14 +9,39 @@ const PLAN_MODE = process.argv.includes('--plan');
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const R = (p) => path.join(ROOT, p);
 
+// v4 赛道目录（2026-10-03）。此前写死 ['ide','cli','mcp']，而那三个目录已在
+// v4 合成 agent 分区时被删 —— 脚本直接崩在 readFileSync，读不到文件就抛异常。
+// 注意：赛道**目录**是 agents/harness/tools，而档案里的 `track:` 字段仍是
+// ide/cli/cloud/harness/mcp（那是「形态」标记，build.mjs 用 owns 映射到分区），
+// 两者刻意不同，改任何一边都要同步另一边。
+const TRACKS = ['agents', 'harness', 'tools'];
+
+// 赛道目录必须能读到档案 —— 扫到 0 个文件时**必须报错而不是通过**。
+// 2026-10-03 实测：quality.mjs 扫 0 个文件却输出「有问题条目: 0 / 0」并退出 0，
+// 看起来一切正常，实际什么都没检查。这是最危险的一种失效。
+function requireArchives(track, dir) {
+  const n = fs.existsSync(dir)
+    ? fs.readdirSync(dir).filter((f) => f.endsWith('.md')).length
+    : 0;
+  if (n === 0) {
+    console.error(`  ❌ ${track}: products 目录里 0 份档案 —— 检查路径是否变了（本脚本扫不到东西等于没检查）`);
+    process.exitCode = 1;
+  }
+  return n;
+}
+
 console.log('=== 1. 赛道声明 vs 实际文件 ===');
-for (const t of ['ide', 'cli', 'mcp']) {
+for (const t of TRACKS) {
   const txt = fs.readFileSync(R(`tracks/${t}/_track.md`), 'utf8');
-  const ids = [...txt.matchAll(/^\| `([a-z0-9-]+)`/gm)].map((m) => m[1]);
+  // 只认「至少 3 列」的表格行才算档案声明 —— `tracks/agents/_track.md` 里有一张
+  // 2 列的「形态判据表」（| `ide` | 主要交互在图形界面… |），那是 track 取值的说明，
+  // 不是档案。第一版不过滤列数，于是把 ide / cli 当成两个「声明但缺文件」的档案。
+  const ids = [...txt.matchAll(/^\| `([a-z0-9-]+)`\s*\|[^|]*\|[^|]*\|/gm)].map((m) => m[1]);
   const dir = R(`tracks/${t}/products`);
   const have = fs.existsSync(dir)
     ? fs.readdirSync(dir).filter((f) => f.endsWith('.md')).map((f) => f.replace('.md', ''))
     : [];
+  requireArchives(t, dir);
   const missing = ids.filter((i) => !have.includes(i));
   const extra = have.filter((h) => !ids.includes(h));
   console.log(`\n[${t}] 声明 ${ids.length} / 现有 ${have.length}`);
@@ -53,7 +78,7 @@ if (allPoolTags.size === 0) {
 }
 
 const tagIssues = [];
-for (const t of ['ide', 'cli', 'mcp']) {
+for (const t of TRACKS) {
   const dir = R(`tracks/${t}/products`);
   if (!fs.existsSync(dir)) continue;
   for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.md'))) {
@@ -73,9 +98,11 @@ if (tagIssues.length) {
 }
 
 console.log('\n=== 3. 赛道文件引用的 taxonomy 路径 ===');
-const mcpTrack = fs.readFileSync(R('tracks/mcp/_track.md'), 'utf8');
+// v4：MCP 维度定义随赛道改名 mcp → tools，所以这里扫 tracks/tools/_track.md。
+// 保留 track 变量名 mcpTrack 只是历史叫法，实际读的是 tools。
+const mcpTrack = fs.readFileSync(R('tracks/tools/_track.md'), 'utf8');
 for (const m of mcpTrack.matchAll(/\]\((\.\/[^)]+)\)/g)) {
-  const tp = path.join(R('tracks/mcp'), m[1]);
+  const tp = path.join(R('tracks/tools'), m[1]);
   console.log(`  ${fs.existsSync(tp) ? 'OK  ' : 'MISS'} ${m[1]}`);
 }
 
@@ -85,7 +112,7 @@ const doms = [...new Set([...src.matchAll(/https:\/\/([a-z0-9.-]+)\//g)].map((m)
 console.log('  ' + doms.join('\n  '));
 
 console.log('\n=== 5. 各条目 sources 域名 ===');
-for (const t of ['ide', 'cli', 'mcp']) {
+for (const t of TRACKS) {
   const dir = R(`tracks/${t}/products`);
   if (!fs.existsSync(dir)) continue;
   for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.md'))) {
