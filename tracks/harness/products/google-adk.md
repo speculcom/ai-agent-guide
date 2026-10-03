@@ -186,16 +186,6 @@ link:
   url: https://google.github.io/adk-docs/
   kind: official
 
-related:
-  - id: langgraph
-    note: **本站最该对照的一对**：同为图执行编排框架，且langgraph 的 checkpointer / interrupt 机制与 ADK 的 state management + HITL 是同类问题的两种答案。收录后者后本站才能给出编排框架内部的对照。
-  - id: crewai
-    note: 同为编排框架，但 crewai 以「角色/任务/流程」的抽象为中心，ADK 以「图节点」为中心 —— 抽象层次不同。
-  - id: openai-agents-sdk
-    note: 同为厂商系框架但形态相反：那个是单 agent 原语（primitives-only），ADK 是多 agent 编排。
-  - id: openhands
-    note: 反面对照：OpenHands 是带 Web UI 的调度平台、也可接第三方 agent；ADK 是 code-first 的库。两者都能编排，但一个面向界面、一个面向代码。
-
 last_verified: 2026-10-01
 last_updated: 2026-10-01
 lifecycle: active
@@ -386,7 +376,7 @@ Gemini 单价与 Vertex AI Agent Engine / Cloud Run 的实际费率
 
 ## 相关条目
 
-- [LangGraph](./langgraph.md) — **本站最该对照的一对**：同为图执行编排框架，等它收录后可给编排框架内部的对照
-- [CrewAI](./crewai.md) — 同为编排框架但抽象中心不同（角色/任务 vs 图节点）
-- [OpenAI Agents SDK](./openai-agents-sdk.md) — 同为厂商系，形态相反：那个是单 agent 原语
-- [OpenHands](./openhands.md) — 反面对照：带 Web UI 的调度平台 vs code-first 的库
+- [LangGraph](./langgraph.md) — **本站最该对照的一对**：同为图执行编排框架，且langgraph 的 checkpointer / interrupt 机制与 ADK 的 state management + HITL 是同类问题的两种答案。收录后者后本站才能给出编排框架内部的对照。
+- [CrewAI](./crewai.md) — 同为编排框架，但 crewai 以「角色/任务/流程」的抽象为中心，ADK 以「图节点」为中心 —— 抽象层次不同。
+- [OpenAI Agents SDK](./openai-agents-sdk.md) — 同为厂商系框架但形态相反：那个是单 agent 原语（primitives-only），ADK 是多 agent 编排。
+- [OpenHands](./openhands.md) — 反面对照：OpenHands 是带 Web UI 的调度平台、也可接第三方 agent；ADK 是 code-first 的库。两者都能编排，但一个面向界面、一个面向代码。
