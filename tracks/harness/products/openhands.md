@@ -201,16 +201,6 @@ link:
   url: https://openhands.dev
   kind: official
 
-related:
-  - id: codex-sdk
-    note: **调度关系，不是竞争关系**：README 明确 Agent Canvas 能跑 Codex。本档案讲的是「谁给你调度」，codex-sdk 讲的是「被调度的是什么」。
-  - id: claude-agent-sdk
-    note: 同上，Claude Code 也是它声明可调度的 agent 之一。
-  - id: deepagents
-    note: 都是batteries-included 那一档，但 deepagents 是一个库、OpenHands 是一整套带Web UI 的栈。
-  - id: langgraph
-    note: 若要的是「用代码定义流程」而非「用界面调度 agent」，编排框架才是对应层。
-
 last_verified: 2026-10-01
 last_updated: 2026-10-01
 lifecycle: active
@@ -424,7 +414,7 @@ Enterprise 的具体报价与「零加价」的实际单价表仍未核验。
 
 ## 相关条目
 
-- [Codex SDK](./codex-sdk.md) — **调度关系**：README 明确 Agent Canvas 能跑 Codex
-- [Claude Agent SDK](./claude-agent-sdk.md) — 同上，Claude Code 也是它声明可调度的 agent
-- [Deep Agents](./deepagents.md) — 同为 batteries-included 那一档，但它是库、这个是整套栈
-- [LangGraph](./langgraph.md) — 要「用代码定义流程」而非「用界面调度 agent」时的对应层
+- [Codex SDK](./codex-sdk.md) — **调度关系，不是竞争关系**：README 明确 Agent Canvas 能跑 Codex。本档案讲的是「谁给你调度」，codex-sdk 讲的是「被调度的是什么」。
+- [Claude Agent SDK](./claude-agent-sdk.md) — 同上，Claude Code 也是它声明可调度的 agent 之一。
+- [Deep Agents](./deepagents.md) — 都是batteries-included 那一档，但 deepagents 是一个库、OpenHands 是一整套带Web UI 的栈。
+- [LangGraph](./langgraph.md) — 若要的是「用代码定义流程」而非「用界面调度 agent」，编排框架才是对应层。
