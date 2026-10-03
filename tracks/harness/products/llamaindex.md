@@ -192,16 +192,6 @@ link:
   url: https://developers.llamaindex.ai/
   kind: official
 
-related:
-  - id: langgraph
-    note: **编排家族对照，且最能说明转向问题**：LangGraph 把状态持久化做在核心（每 superstep checkpoint）且完全 OSS；LlamaIndex 的编排（Workflows）已被官方放进商业平台。
-  - id: google-adk
-    note: 同为编排家族但重心不同：ADK 给的是 agent 工作流的图执行引擎 + 三种部署命令；LlamaIndex 给的是数据接入与检索。两者都不是「谁能接 300+ 集成」这一格。
-  - id: crewai
-    note: 同为编排框架，抽象中心不同（Crew 角色协作 / Flow 事件驱动 vs 数据管线与检索）。
-  - id: deepagents
-    note: **最需要区分的一对**：Deep Agents 的 filesystem 是 agent 工作区文件操作，LlamaIndex 的 data connectors 是数据源接入与解析 —— 常被混为一谈。
-
 last_verified: 2026-10-01
 last_updated: 2026-10-01
 lifecycle: active
@@ -363,7 +353,7 @@ LlamaParse 商业段七条、Proposed Solution 四条、Overview 段、
 
 ## 相关条目
 
-- [LangGraph](./langgraph.md) — **最能说明转向问题的一对**：状态持久化做在核心且全 OSS vs 编排已进商业平台
-- [Google ADK](./google-adk.md) — 同为编排家族但重心不同：图执行引擎 + 三种部署命令 vs 数据接入与检索
-- [CrewAI](./crewai.md) — 同为编排框架，抽象中心不同
-- [Deep Agents](./deepagents.md) — **最需要区分的一对**：filesystem 是工作区文件操作，data connectors 是数据源接入
+- [LangGraph](./langgraph.md) — **编排家族对照，且最能说明转向问题**：LangGraph 把状态持久化做在核心（每 superstep checkpoint）且完全 OSS；LlamaIndex 的编排（Workflows）已被官方放进商业平台。
+- [Google ADK](./google-adk.md) — 同为编排家族但重心不同：ADK 给的是 agent 工作流的图执行引擎 + 三种部署命令；LlamaIndex 给的是数据接入与检索。两者都不是「谁能接 300+ 集成」这一格。
+- [CrewAI](./crewai.md) — 同为编排框架，抽象中心不同（Crew 角色协作 / Flow 事件驱动 vs 数据管线与检索）。
+- [Deep Agents](./deepagents.md) — **最需要区分的一对**：Deep Agents 的 filesystem 是 agent 工作区文件操作，LlamaIndex 的 data connectors 是数据源接入与解析 —— 常被混为一谈。
