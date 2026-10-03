@@ -246,14 +246,6 @@ link:
   url: https://hermes-agent.nousresearch.com/
   kind: official
 
-related:
-  - id: openhands
-    note: **常驻诉求的同类，但形态不同**：两者都主打「关掉笔记本后agent 仍在跑」。OpenHands 是带 Web UI 的控制中心 + 定时/webhook 触发；本对象是 TUI + 六个消息平台 + 内建 cron，且定位是通用助手而非纯编程。
-  - id: deepagents
-    note: 同为 general-harness 家族，但 Deep Agents 面向编程任务（filesystem + 子代理是卖点），本对象面向跨平台常驻的个人助手。
-  - id: langgraph
-    note: **记忆与状态的分野对照**：LangGraph 明确区分 working memory 与 persistent memory、checkpoint 每 superstep 落盘；本对象机制更丰富但官方未按这两层分，且记忆是明文 markdown 文件。
-
 last_verified: 2026-10-01
 last_updated: 2026-10-01
 lifecycle: active
@@ -511,6 +503,6 @@ Hermes 与 OpenClaw 的确切关系
 
 ## 相关条目
 
-- [OpenHands](./openhands.md) — 常驻诉求的同类：Web UI 控制中心 + 定时/webhook vs TUI + 六平台 + 内建 cron
-- [Deep Agents](./deepagents.md) — 同为 general-harness，但它面向编程任务
-- [LangGraph](./langgraph.md) — 记忆与状态的分野对照：明确分两层 vs 机制丰富但未分层
+- [OpenHands](./openhands.md) — **常驻诉求的同类，但形态不同**：两者都主打「关掉笔记本后agent 仍在跑」。OpenHands 是带 Web UI 的控制中心 + 定时/webhook 触发；本对象是 TUI + 六个消息平台 + 内建 cron，且定位是通用助手而非纯编程。
+- [Deep Agents](./deepagents.md) — 同为 general-harness 家族，但 Deep Agents 面向编程任务（filesystem + 子代理是卖点），本对象面向跨平台常驻的个人助手。
+- [LangGraph](./langgraph.md) — **记忆与状态的分野对照**：LangGraph 明确区分 working memory 与 persistent memory、checkpoint 每 superstep 落盘；本对象机制更丰富但官方未按这两层分，且记忆是明文 markdown 文件。
