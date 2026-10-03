@@ -53,7 +53,7 @@
 | `openai-agents-sdk` | OpenAI Agents SDK | OpenAI | `openai/openai-agents-python` | 29.8k | MIT | v0.22.3 |
 | `claude-agent-sdk` | Claude Agent SDK | Anthropic | `anthropics/claude-agent-sdk-python` | 8.2k | MIT | v0.2.163 |
 | `codex-sdk` | Codex SDK | OpenAI | `openai/codex` | 127k | Apache-2.0 | rust-v0.159.2 |
-| `openhands-sdk` | OpenHands | All-Hands-AI | `OpenHands/OpenHands` | 89.6k | MIT | v1.24.0 |
+| `openhands` | OpenHands | All-Hands-AI | `OpenHands/OpenHands` | 89.6k | MIT | v1.24.0 |
 
 ### 通用 Harness（4）
 
