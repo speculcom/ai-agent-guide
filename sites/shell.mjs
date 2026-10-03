@@ -107,7 +107,7 @@ export function shell({ current, title, desc, canonical, accent, body, repo, rep
   <link rel="stylesheet" href="${depth(assetPrefix)}site.css" />
 ${accent ? `  <style>:root { --accent: ${accent}; }${headExtra ? '\n' + headExtra : ''}</style>\n` : ''}${jsonLd ? `  <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>\n` : ''}</head>
 <body class="brand-ambient"${accent ? ` style="--accent:${accent}"` : ''}>
-  <a class="t-skip" href="#main">跳到主要内容</a>
+  <a class="t-skip" href="#main"><span data-zh>跳到主要内容</span><span data-en>Skip to main content</span></a>
 ${header(current)}
   <main id="main">
 ${body}
