@@ -658,9 +658,15 @@ ${entries.map(cardFor).join('\n')}
     for (const m of meta) {
       const inG = entries.filter(e => pick(e) === m.key);
       if (!inG.length) continue;
-      blocks.push(`        <div class="fam-block">
+      // data-family 驱动 CSS 里的分组配色（--fam-c / --fam-soft）。
+      // 2026-10-03：原先分组只靠 margin 一道留白区分，色彩不承担识别 ——
+      // 「留白多 + 颜色只用于站点」的组合就是空间浪费的直接原因。
+      // m.key 本身就是 validate 定的枚举（primitive / orchestration / turnkey / ide / cli / cloud），
+      // 所以直接透传即可，不要另造映射表。
+      blocks.push(`        <div class="fam-block" data-family="${m.key}">
           <div class="fam-head">
             <h3>${m.name} <span class="fam-n">${inG.length}</span></h3>
+            <span class="fam-badge">${m.short || m.name}</span>
             <p>${m.desc}</p>
           </div>
           <div class="grid">
