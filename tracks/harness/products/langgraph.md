@@ -181,20 +181,10 @@ link:
   url: https://docs.langchain.com/oss/python/langgraph/
   kind: official
 
-related:
-  - id: deepagents
-    note: **同公司、上下层关系，不是竞品**：README 明示Deep Agents 是 built on LangGraph 的高层包（带规划、子代理、文件系统）。要开箱还是要底座，这是本站最该给用户看的一张对照表。
-  - id: google-adk
-    note: **编排家族内的对照**：同为图执行编排框架，ADK 给 Workflow Runtime + state management，LangGraph 给每superstep 落盘的 checkpoint。
-  - id: crewai
-    note: 同为编排框架，抽象中心不同（角色/任务 vs 图节点）。
-  - id: openai-agents-sdk
-    note: 形态相反：那个是单 agent 原语 + 内建 guardrail；本条是低层图引擎 + 状态持久化，不提供工具系统。
-
 last_verified: 2026-10-01
 last_updated: 2026-10-01
 lifecycle: active
-confidence: verified
+confidence: partial
 ---
 
 ## 一句话定位
@@ -342,7 +332,12 @@ monorepo 的子包命名是 `<子包>==<版本>`，无前缀那个才是主包�
 
 ## 核验说明
 
-`confidence: verified` 的依据：
+`confidence: partial` 的依据（2026-10-03 由 verified 降级）：
+
+> **为什么降级**：正文「未知项清单」里有 6 条主语是**本站**的取证缺口
+> （如「Postgres checkpointer 多进程并发冲突」「interrupts 重入边界」
+> 「换 provider 的零依赖接法」），已不是「官方未提供」那一类。
+> 按 v3 铁律「未知就说未知」，标 verified 属于虚高 —— 降为 partial。
 
 - ✅ 已核验：仓库存在与星数（42,538）、许可（MIT，经 license API）、
   最近推送（2026-10-01，仍活跃）、README 全文（定位、三项核心能力、
@@ -351,9 +346,13 @@ monorepo 的子包命名是 `<子包>==<版本>`，无前缀那个才是主包�
   `libs/` 下 9 个子包清单（`checkpoint`、`checkpoint-sqlite`、`checkpoint-postgres`、
   `prebuilt`、`cli`、`sdk-py`、`sdk-js`、`checkpoint-conformance` 等）、
   releases 列表 6 条（含 latest 不可靠的实测记录）
-- ⚠ 未核验但不影响 verified 判定的原因：这些维度**官方本身就未提供**，
-  本站已如实记为「不在其职责范围内」而非「未查到」——
-  工具系统、文件系统、模型 provider 清单、上下文压缩的具体实现
+- ⚠ 未核验且**属于官方未提供**（不属于本站缺口）：工具系统、文件系统、
+  模型 provider 清单、上下文压缩的具体实现 —— 本站已如实记为
+  「不在其职责范围内」而非「未查到」
+- ⚠ 未核验且**是本站缺口**（这 6 条构成降为 partial 的直接依据）：
+  checkpoint 跨机器/多进程写冲突与恢复语义、superstep 落盘性能代价、
+  短期记忆裁剪与长期记忆后端、provider 零依赖接法、
+  LangChain 生态是否有统一 MCP 接入层、interrupts 重入边界
 
 ## 实测记录
 
@@ -383,7 +382,7 @@ monorepo 的子包命名是 `<子包>==<版本>`，无前缀那个才是主包�
 
 ## 相关条目
 
-- [Deep Agents](./deepagents.md) — **同公司、上下层**：README 明示它是 built on LangGraph 的高层包
-- [Google ADK](./google-adk.md) — **编排家族内的对照**：Workflow Runtime + state management vs 每superstep checkpoint
-- [CrewAI](./crewai.md) — 同为编排框架，抽象中心不同（角色/任务 vs 图节点）
-- [OpenAI Agents SDK](./openai-agents-sdk.md) — 形态相反：单 agent 原语 + guardrail vs 低层图引擎 + 持久化
+- [Deep Agents](./deepagents.md) — **同公司、上下层关系，不是竞品**：README 明示Deep Agents 是 built on LangGraph 的高层包（带规划、子代理、文件系统）。要开箱还是要底座，这是本站最该给用户看的一张对照表。
+- [Google ADK](./google-adk.md) — **编排家族内的对照**：同为图执行编排框架，ADK 给 Workflow Runtime + state management，LangGraph 给每superstep 落盘的 checkpoint。
+- [CrewAI](./crewai.md) — 同为编排框架，抽象中心不同（角色/任务 vs 图节点）。
+- [OpenAI Agents SDK](./openai-agents-sdk.md) — 形态相反：那个是单 agent 原语 + 内建 guardrail；本条是低层图引擎 + 状态持久化，不提供工具系统。
