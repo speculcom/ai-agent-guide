@@ -142,18 +142,10 @@ link:
   url: https://platform.claude.com/docs/en/agent-sdk/python
   kind: official
 
-related:
-  - id: openai-agents-sdk
-    note: **本站最该对照的一对**：同样是模型厂商出品、同为「编程底座」档。OpenAI 侧是自建 loop 的框架 + provider-agnostic；Anthropic 侧是 CLI 的 SDK + 仅 Claude。
-  - id: codex-sdk
-    note: 第三家厂商的同档选择。**三家是同一个问题的三种答案**：自建框架 / 包装 CLI / 包装 CLI。
-  - id: hermes-agent
-    note: 同为 Nous Research 出品但路线相反 —— 那个是自托管优先的通用 harness。
-
 last_verified: 2026-09-30
 last_updated: 2026-09-30
 lifecycle: active
-confidence: verified
+confidence: partial
 ---
 
 ## 一句话定位
@@ -297,7 +289,11 @@ Python 版是 MIT + 商业条款；TS 版**无文件可查**。选型时若要�
 
 ## 核验说明
 
-`confidence: verified` 的依据：
+`confidence: partial` 的依据（2026-10-03 由 verified 降级）：
+
+> **为什么降级**：下方 ❌ 项的主语是**本站的取证缺口**，不是「官方未提供」。
+> 按 v3 铁律「未知就说未知」，这些条目存在时标 verified 属于虚高，故降为 partial。
+> 主要缺口：Anthropic 商业条款的具体条款内容、TS 版许可状态、hooks 生命周期边界。
 - ✅ 已核验：仓库存在与星数（8,197）、**许可（license API 返回 MIT）**、最近推送（2026-09-30 22:29）、
   最新版本 **0.2.163**（**2026-09-30 19:47 发布**）、捆绑 CLI 版本 **2.1.286**（`_cli_version.py` 原文）、
   README 全文（权限求值链、custom tools 为进程内 MCP server、hooks 定位、system prompt snapshot 语义、
@@ -336,6 +332,7 @@ Python 版是 MIT + 商业条款；TS 版**无文件可查**。选型时若要�
 
 ## 相关条目
 
-- [OpenAI Agents SDK](./openai-agents-sdk.md) — **本站最该对照的一对**：框架 vs CLI 包装，通用 vs 仅 Claude
-- [Codex SDK](./codex-sdk.md) — 第三家厂商的同档答案
+- [OpenAI Agents SDK](./openai-agents-sdk.md) — **本站最该对照的一对**：同样是模型厂商出品、同为「编程底座」档。OpenAI 侧是自建 loop 的框架 + provider-agnostic；Anthropic 侧是 CLI 的 SDK + 仅 Claude。
+- [Codex SDK](./codex-sdk.md) — 第三家厂商的同档选择。**三家是同一个问题的三种答案**：自建框架 / 包装 CLI / 包装 CLI。
 - [Deep Agents](./deepagents.md) — 权限哲学的对照：「信任 LLM」vs「应用层确定性拦截」
+- [Hermes Agent](./hermes-agent.md) — 路线相反、厂商不同（本站前者 Anthropic、后者 Nous Research）：那个是自托管优先的通用 harness，本条只包 Anthropic 自家的 CLI。
