@@ -134,18 +134,10 @@ link:
   url: https://openai.github.io/openai-agents-python/
   kind: official
 
-related:
-  - id: claude-agent-sdk
-    note: 同为「编程底座」档，且同样出自模型厂商。OpenAI 侧走 primitives-only + guardrails 内建，Anthropic 侧的主场是 Claude Code。
-  - id: deepagents
-    note: **本站最值得对照的一对**：Deep Agents 是 batteries-included（含 filesystem + 子代理 + 上下文管理），本 SDK 是 primitives-only。同一决策树的两个分支。
-  - id: langgraph
-    note: LangGraph 是 graph runtime，OpenAI Agents SDK 是 agent harness —— 可组合（把图当工具/子代理），但层级不同。
-
 last_verified: 2026-09-30
 last_updated: 2026-09-30
 lifecycle: active
-confidence: verified
+confidence: partial
 ---
 
 ## 一句话定位
@@ -257,7 +249,11 @@ README 里明确指向 `openai/openai-agents-js`（核验 2026-09-30：MIT，3,8
 
 ## 核验说明
 
-`confidence: verified` 的依据：
+`confidence: partial` 的依据（2026-10-03 由 verified 降级）：
+
+> **为什么降级**：下方 ❌ 项的主语是**本站的取证缺口**，不是「官方未提供」。
+> 按 v3 铁律「未知就说未知」，这些条目存在时标 verified 属于虚高，故降为 partial。
+> 主要缺口：100+ provider 的实际能力对齐度、guardrail 对文件/网络越权的拦截强度。
 - ✅ 已核验：仓库存在与星数（29,792）、许可（MIT，经 license API）、最近推送（2026-10-01，仍活跃）、
   最新版本 **0.22.3**（releases @ 2026-09-17）、`pyproject.toml` 全文关键项（`requires-python >=3.10`、
   `mcp>=1.19.0,<3` 是核心依赖、litellm/any-llm/sqlalchemy 均为可选 extra）、README 全文十项核心概念、
@@ -289,6 +285,6 @@ README 里明确指向 `openai/openai-agents-js`（核验 2026-09-30：MIT，3,8
 
 ## 相关条目
 
-- [Deep Agents](./deepagents.md) — **本站最该对照的一对**：厚 vs 薄两种风格
-- [Claude Agent SDK](./claude-agent-sdk.md) — 同为编程底座、同为模型厂商出品
-- [LangGraph](./langgraph.md) — graph runtime，可与本 SDK 组合但不属同一层
+- [Deep Agents](./deepagents.md) — **本站最值得对照的一对**：Deep Agents 是 batteries-included（含 filesystem + 子代理 + 上下文管理），本 SDK 是 primitives-only。同一决策树的两个分支。
+- [Claude Agent SDK](./claude-agent-sdk.md) — 同为「编程底座」档，且同样出自模型厂商。OpenAI 侧走 primitives-only + guardrails 内建，Anthropic 侧的主场是 Claude Code。
+- [LangGraph](./langgraph.md) — LangGraph 是 graph runtime，OpenAI Agents SDK 是 agent harness —— 可组合（把图当工具/子代理），但层级不同。
