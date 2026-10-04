@@ -60,12 +60,13 @@ ${items}
 
 /** footer —— repo 参数让图谱站链自己的数据仓库（默认图谱仓库，不再链 keel3d） */
 export function footer(repo = 'https://github.com/speculcom/ai-coding-agent-atlas', repoLabel = 'GitHub') {
-  const links = NAV.map((n) => {
-    const label = n.key === 'nav' || n.key === 'www' ? '' : n.zh;
-    return label
-      ? `          <a href="${n.href}">${label}</a>`
-      : `          <a href="${n.href}"><span data-zh>${n.zh}</span><span data-en>${n.en}</span></a>`;
-  }).join('\n');
+  // 2026-10-04 修：与 _sites/_template/shell.mjs 同一个问题 ——
+  // 原先对 nav / www 特殊处理，输出纯中文 `${n.zh}`（无 data-en），
+  // 结果英文态的页脚露出「学 AI」「本地模型」等中文（实测 2 处/页 × 42 页）。
+  // 现在统一走双节点。**两个 shell 都要改** —— agent 用的是这个文件，不是模板。
+  const links = NAV.map((n) =>
+    `          <a href="${n.href}"><span data-zh>${n.zh}</span><span data-en>${n.en}</span></a>`
+  ).join('\n');
 
   return `  <footer class="site-footer">
     <div class="container foot-row">
