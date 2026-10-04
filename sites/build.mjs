@@ -151,11 +151,26 @@ const AXIS_DESC = {
  * 写 `agent.specul.com/harness/` 会让 Pages 绑定失败。
  * 分区路径由 `dir` 单独表达（'' 表示落在根）。
  */
+/* 双语节点。
+ * ⚠ **不做 HTML 转义** —— GUIDE 的 title/lede/steps/foot 里含<strong> 与 <a> 等
+ *   标记（强调位置 = 哪些是判断，是原文的一部分），转义会把它们变成字面文本。
+ *   这些字符串是**构建期写死在源码里的常量**，不是外部输入，没有注入风险。
+ *   需要转义的地方（产品名等外部数据）仍走 esc()。*/
+const bi = (zh, en) => `<span data-zh>${zh}</span><span data-en>${en}</span>`;
+
+function biLabel(pair, fallback) {
+  return Array.isArray(pair) ? bi(pair[0], pair[1]) : esc(pair || fallback);
+}
+
 const SITE = {
   domain: 'agent.specul.com',
   name: 'Agent 图谱',
+  /* 站名与 desc 的英文（2026-10-04）—— 首页 kicker 走 t-site.name、hero 走 desc，
+   * 之前都是纯中文，英文态下这两处露中文。desc 改成双节点字符串。 */
+  nameEn: 'Agent Atlas',
   tagline: '让 AI 替你干活 —— 装在哪、连什么、边界在哪',
-  desc: '按角色分三层：自己跑的成品 agent、自己搭的运行时与 SDK、给 agent 装的 MCP 工具。三层的坐标系不同，不做横向排名。',
+  desc: bi('按角色分三层：自己跑的成品 agent、自己搭的运行时与 SDK、给 agent 装的 MCP 工具。三层的坐标系不同，不做横向排名。',
+    'Three layers by role: finished agents you run yourself, runtimes and SDKs you assemble yourself, and MCP tools you install for an agent. The three layers use different coordinate systems, so this site does not rank across them.'),
   repo: 'https://github.com/speculcom/ai-agent-guide',
   // 站内分区导航（跨站导航在 shell.mjs 的 NAV 里，那是全站唯一定义处）
   partitions: ['agents', 'harness', 'tools'],
@@ -178,16 +193,6 @@ function plainTagline(node) {
 
 const FORM_LABEL_MD = (track, family) =>
   (FORM_LABEL[track] || FAMILY_SHORT[family] || [track])[0];
-/* 双语节点。
- * ⚠ **不做 HTML 转义** —— GUIDE 的 title/lede/steps/foot 里含<strong> 与 <a> 等
- *   标记（强调位置 = 哪些是判断，是原文的一部分），转义会把它们变成字面文本。
- *   这些字符串是**构建期写死在源码里的常量**，不是外部输入，没有注入风险。
- *   需要转义的地方（产品名等外部数据）仍走 esc()。*/
-const bi = (zh, en) => `<span data-zh>${zh}</span><span data-en>${en}</span>`;
-
-function biLabel(pair, fallback) {
-  return Array.isArray(pair) ? bi(pair[0], pair[1]) : esc(pair || fallback);
-}
 
 const SITES = {
   agents: {
@@ -196,6 +201,7 @@ const SITES = {
     dir: '',              // 落站点根：导航「Agent」指的就是它，不该让访客多点一次
     domain: SITE.domain,
     name: '成品 Agent',
+    nameEn: 'Finished agents',
     short: 'Agents',
     accent: '#8b7cf8',
     tagline: bi('装在编辑器、终端，或厂商云里','Installed in an editor, a terminal, or a vendor cloud'),
@@ -323,8 +329,8 @@ const COVERAGE = { done: 120, total: 211 };
  * harness 分区没有 COVERAGE 快照（audit-gaps 脚本当时只覆盖了前三类）。
  * 别把这里当成分区清单读—— 那样会把harness 漏掉。*/
 const COVERAGE_BY_TRACK = {
-  mcp: { done: 69, total: 99, note: '官方 README 信息充分，70% 维度已核验' },
-  cli: { done: 22, total: 48, note: '部分对象的官方文档不完整' },
+  mcp: { done: 69, total: 99, note: bi('官方 README 信息充分，70% 维度已核验', 'the official README covers most of it; 70% of dimensions verified') },
+  cli: { done: 22, total: 48, note: bi('部分对象的官方文档不完整', 'official docs are incomplete for some entries') },
   ide: { done: 29, total: 64, note: bi('多为闭源产品，索引策略等细节官方不公开', 'Mostly closed-source; details like indexing strategy are not disclosed') },
 };
 // 分区 → 该分区要展示的 track 行
@@ -426,6 +432,17 @@ function loadTrack(partKey) {
 /* ↓ 翻译数据必须在**解析档案之前**加载 —— 顺序错了不报错，只是取到空值。
  *2026-10-04：ONELINES_EN / FIT_EN 曾加载在解析之后（444 行解析 vs 529 行加载），
  * 所有 onelineEn / fitEn 都是空字符串，翻译「看起来没生效」且零报错。 */
+/* 档案正文首段的英文（2026-10-04）—— 键 = 档案 id。
+ * 加载**必须在 sec 解析之前**：否则解析时拿到空对象，所有 leadEn 为空字符串，
+ * 翻译「看起来没生效」且零报错（这个坑踩过一次）。 */
+let LEADS_EN = {};
+try {
+  LEADS_EN = JSON.parse(fs.readFileSync(path.join(HERE, '..', '..', '..', '_audit', '_leads.en.json'), 'utf8'));
+} catch (e) {
+  throw new Error('档案首段英文读不到：' + e.message);
+}
+console.log(`  · 档案首段英文：${Object.keys(LEADS_EN).filter(k => !k.startsWith('_')).length} 条已加载`);
+
 /* 36 份产品档案的「一句话定位」英文。人工翻译（原文含定位判断与比较级）。
  * 同样**加载失败抛错**。*/
 const ONELINES_EN_PATH = path.join(HERE, '..', '..', '..', '_audit', '_onelines.en.json');
@@ -472,6 +489,9 @@ try {
         /* onelineEn / fitEn 来自 _onelines.en.json（键 = 档案 id）—— 2026-10-04。
          * 缺键时回退中文（可接受降级），不报错。 */
         oneline: section('一句话定位'),
+        /* leadEn：正文首段的英文（来自 _leads.en.json）。页面渲染详情页顶部的
+         * panel-lead 时用它；缺键时回退中文（可接受降级）。*/
+        leadEn: LEADS_EN[id] || '',
         onelineEn: ONELINES_EN[id] || '',
         fit: section('适合与不适合'),
         fitEn: (FIT_EN[id] || ''),
@@ -884,9 +904,9 @@ ${covRows.map(t => {
 
   const body = `    <section class="hero">
       <div class="container">
-        <p class="kicker">${esc(SITE.name)} · ${esc(site.short)}</p>
-        <h1 class="t-hero">${esc(site.name)}</h1>
-        <p class="lede">${esc(site.desc)}</p>
+        <p class="kicker">${bi(esc(SITE.name), esc(SITE.nameEn || SITE.name))} · ${esc(site.short)}</p>
+        <h1 class="t-hero">${bi(esc(site.name), esc(site.nameEn || site.name))}</h1>
+        <p class="lede">${site.desc}</p>
         <div class="hero-meta">
           <span><b>${entries.length}</b> ${bi('个对象','objects')}</span>
           <span><b>${axisNames.length}</b> ${bi('个固定维度','fixed dimensions')}</span>
@@ -1162,7 +1182,7 @@ ${crumb}
         <span class="badge">${bi('核验','Checked')} ${esc(e.lastVerified)}</span>
       </div>
 
-      ${e.sec.oneline ? `      <p class="panel-lead">${mdLinks(e.sec.oneline)}<span data-en>${mdLinks(e.sec.onelineEn || e.sec.oneline)}</span></p>\n` : ''}
+      ${e.sec.oneline ? `      <p class="panel-lead">${bi(mdLinks(e.sec.leadEn || e.sec.oneline), mdLinks(e.sec.onelineEn || e.sec.oneline))}</p>\n` : ''}
       ${e.sec.fit ? (() => {
         /* 「适合与不适合」双语（2026-10-04）。
          * ⚠ 这段是全站最敏感的内容 —— 直接告诉用户什么该用、什么不该用。
