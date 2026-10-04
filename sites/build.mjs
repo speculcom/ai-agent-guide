@@ -358,6 +358,26 @@ const TRACK_LABEL = {
  *   harness 分区 ← tracks/harness（track:harness 10 份）
  *   tools  分区 ← tracks/tools（track:mcp 9 份）
  */
+/* 档案 pitfalls（头号误解）的英文 —— 键 = 档案 id，值为字符串数组。
+ * ⚠ 这是全站最敏感的一段：每条都在纠正对产品的**错误理解**，
+ *   很多直接关系到会不会误用（权限、沙箱、默认行为）。翻译时判断强度必须完全保留，
+ *   未核验标记也保留。
+ * ⚠ 必须声明在**顶层**（这里，loadTrack() 之前）：之前它被插进 loadTrack() 函数体内部，
+ *   结果 renderDetail() 访问不到（ReferenceError: PITFALLS_EN is not defined）。
+ *   「插到某个锚点前」不可靠 —— 必须确认插入点不在任何块作用域内。 */
+const PITFALLS_EN = {};
+try {
+  for (const f of ['_pitfalls-a.en.json', '_pitfalls-b.en.json']) {
+    Object.assign(PITFALLS_EN, JSON.parse(fs.readFileSync(path.join(HERE, '..', '..', '..', '_audit', f), 'utf8')));
+  }
+} catch (e) {
+  throw new Error('pitfalls 英文读不到：' + e.message);
+}
+{
+  const ks = Object.keys(PITFALLS_EN).filter(k => !k.startsWith('_'));
+  console.log(`  · 头号误解英文：${ks.length} 份档案、${ks.reduce((n, k) => n + PITFALLS_EN[k].length, 0)} 条已加载`);
+}
+
 const TRACK_DIRS = { agents: 'agents', harness: 'harness', tools: 'tools' };
 
 function loadTrack(partKey) {
@@ -1010,14 +1030,14 @@ ${entries.map(e => `              <tr>
           <ul>
             <li>${bi('<strong>缺统一实测，就不给分。</strong>跨工具的跑分口径不同——题目、预算、执行环境都不一样，A 的 90 分和 B 的 88 分不可比。', '<strong>No shared measurement, no score.</strong> Benchmarks across tools use different rules — different questions, budgets and environments. A 90 and a B 88 are not comparable.')}</li>
             <li>${bi('<strong>「未知」是合法答案。</strong>','<strong>"Unknown" is a legitimate answer.</strong>')}查不到就写「未知」并说明为什么，不用推测填充。缺信息本身也是信息。</li>
-            <li>${bi('<strong>每条判断挂官方源。</strong>','<strong>Every judgement links to an official source.</strong>')}来源链接、类型与核验日都在详情页里，可以逐条回去复核。</li>
-            <li><strong>lifecycle 单独标注。</strong>核验日新不等于数据有效——上游归档后数据会失效，所以单独标 <code>active</code> / <code>maintenance</code> / <code>archived</code>。</li>
-            <li><strong>不同层不混排。</strong>成品 agent、自己搭的底座、给 agent 装的工具是三种角色，坐标系不同；硬合成一张 33 行的表只会制造假的可比性。</li>
+            <li>${bi('来源链接、类型与核验日都在详情页里，可以逐条回去复核。', 'The source link, its kind and the checked date are all on the detail page, so you can walk any of them back and re-check.')}</li>
+            <li>${bi('<strong>lifecycle 单独标注。</strong>核验日新不等于数据有效——上游归档后数据会失效，所以单独标 <code>active</code> / <code>maintenance</code> / <code>archived</code>。', '<strong>lifecycle is marked separately.</strong> A recent check date does not mean the data is still valid — it goes stale when upstream archives the repo, so <code>active</code> / <code>maintenance</code> / <code>archived</code> are tracked separately.')}</li>
+            <li>${bi('<strong>不同层不混排。</strong>成品 agent、自己搭的底座、给 agent 装的工具是三种角色，坐标系不同；硬合成一张 33 行的表只会制造假的可比性。', '<strong>Layers are not mixed.</strong> Finished agents, bases you assemble yourself, and tools you install for an agent are three different roles with different coordinate systems; forcing them into one 33-row table would manufacture false comparability.')}</li>
           </ul>
         </div>
         <div class="panel">
           <h2>${bi('可信度标记怎么读','How to read the confidence marks')}</h2>
-          <p class="t-sm mb-3">详情页与上表都带 <code>confidence</code>，它反映<strong>本站数据的完整度</strong>，不是对产品的评价。</p>
+          <p class="t-sm mb-3">${bi('详情页与上表都带','Both the detail pages and the table above carry')} <code>confidence</code>${bi('，它反映',', which reflects')} <strong>${bi('本站数据的完整度',"how complete this site's data is")}</strong>${bi('，不是对产品的评价。',', not a judgement of the product.')}</p>
           <table class="src is-flush">
             <tbody>
               <tr><th class="w-24"><span class="td-conf verified">verified</span></th><td>${bi(`${axisNames.length} 个维度均有官方源支撑，且核验日在 90 天内`, `all ${axisNames.length} dimensions have official sources and were checked within 90 days`)}</td></tr>
@@ -1219,7 +1239,14 @@ ${axesHtml}
       ${e.pitfalls.length ? `      <div class="panel warn">
         <h2 class="warn">${bi('头号误解','Top misconception')}</h2>
         <ul>
-${e.pitfalls.map(p => `          <li>${mdLinks(p)}</li>`).join('\n')}
+${/* pitfalls 的英文按索引对齐；数量不一致时整段回退中文（宁可不译不错配）*/ ''}
+${(() => {
+            const en = PITFALLS_EN[e.id];
+            if (!en || en.length !== e.pitfalls.length) {
+              return e.pitfalls.map(p => `          <li>${mdLinks(p)}</li>`).join('\n');
+            }
+            return e.pitfalls.map((p, i) => `          <li>${bi(mdLinks(p), mdLinks(en[i]))}</li>`).join('\n');
+          })()}
         </ul>
       </div>\n` : ''}
 
