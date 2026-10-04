@@ -78,6 +78,13 @@ const BRAND_DIR = findBrandDir();
 const BRAND = path.join(BRAND_DIR, 'brand.css');
 const BRANDJS = path.join(BRAND_DIR, 'brand.js');
 
+/* 维度 = [key, 中文名, 英文名]（2026-10-04 加第三项）。
+ * ⚠ **key 不可改** —— 它参与数据索引（e.axes[k]），改了全盘失效。
+ * 渲染处用 bi(name, nameEn) 输出双节点。*/
+/* 维度 = [key, 中文名]（2026-10-04 改回二元组）。
+ * 英文名**不在这里取** —— AXES_EN 的加载在文件更下方，而 const 有暂时性死区（TDZ），
+ * 在这里引用会 ReferenceError。改为渲染处按 key 查 AXES_EN。
+ * ⚠ **key 不可改** —— 它参与数据索引（e.axes[k]）。*/
 const AXES = [
   ['model_access', '模型与开放条件'],
   ['runtime', '运行位置'],
@@ -95,6 +102,22 @@ const MCP_AXES = [
 ];
 
 // 每个维度「问的是什么」—— 首页展示用，让读者一眼理解坐标系
+/* 维度提问 —— 2026-10-04 补英文侧（*En 键）。
+ * 原键保留中文（渲染处按语言选），新增 En 键存英文。
+ * 这些提问含判断（「远程控制不等于云端执行」），翻译要保留这种语气。*/
+const AXIS_DESC_EN = {
+  model_access: 'Whose model does it use? Can you switch to a third party? How is multi-model routing configured?',
+  runtime: 'Local, cloud or hybrid? Is the index local or remote? Remote control is not the same as cloud execution.',
+  local_files: 'How wide an area can it reach? How does it read large files you have not opened? How capable is it at the symbol level?',
+  background: 'Does it keep running once the computer is off? This is the most common misconception about local forms.',
+  tools: 'How wide is the toolchain: MCP · LSP · plugins · hooks · custom instructions?',
+  context: 'Indexing algorithm, context window, session resume and fork, and the boundary of cross-session memory.',
+  permissions: 'Sandbox and approval boundaries, credential handling, whether data leaves your machine, and how quota is charged.',
+  fit: 'What tasks is it best at? When should you not use it?',
+  transport: 'How the client connects to it: stdio / SSE / Streamable HTTP / remote.',
+  auth: 'How identity is proved. Note that authentication is not authorisation: the former is who you are, the latter is what you may do.',
+  scope: 'How much can it reach? Can it modify? Delete? Be tightened? This is the first priority in the MCP track.',
+};
 const AXIS_DESC = {
   model_access: '用谁的模型？能不能换第三方？多模型路由怎么配？',
   runtime: '本地 / 云端 / 混合？索引在本地还是云端？远程控制不等于云端执行。',
@@ -138,6 +161,34 @@ const SITE = {
   partitions: ['agents', 'harness', 'tools'],
 };
 
+/* ── 双语辅助（2026-10-04）────────────────────────────────────────
+ * 必须声明在 SITES 之前 —— SITES 的 tagline 直接调用 bi()，
+ * 而 const 有暂时性死区（TDZ），定义在使用点之后会 ReferenceError。
+ * ⚠ bi() 不做 HTML 转义：GUIDE 与 lede 里含 <strong>/<a> 标记，
+ *   转义会把它们变成字面文本。这些是源码里的常量，无注入风险。
+ * ────────────────────────────────────────────────────────────── */
+/* README 是 Markdown（不是 HTML）→ 只能用纯文本，取中文侧。*/
+/* 取双节点里的纯文本（用于 <title> / meta description）。
+ * tagline 现在是 bi() 的产物（带标签），直接塞进 title 会变成源码。*/
+function plainTagline(node) {
+  const s = String(node || '');
+  const m = s.match(/<span data-zh>([\s\S]*?)<\/span>/);
+  return (m ? m[1] : s).replace(/<[^>]+>/g, '');
+}
+
+const FORM_LABEL_MD = (track, family) =>
+  (FORM_LABEL[track] || FAMILY_SHORT[family] || [track])[0];
+/* 双语节点。
+ * ⚠ **不做 HTML 转义** —— GUIDE 的 title/lede/steps/foot 里含<strong> 与 <a> 等
+ *   标记（强调位置 = 哪些是判断，是原文的一部分），转义会把它们变成字面文本。
+ *   这些字符串是**构建期写死在源码里的常量**，不是外部输入，没有注入风险。
+ *   需要转义的地方（产品名等外部数据）仍走 esc()。*/
+const bi = (zh, en) => `<span data-zh>${zh}</span><span data-en>${en}</span>`;
+
+function biLabel(pair, fallback) {
+  return Array.isArray(pair) ? bi(pair[0], pair[1]) : esc(pair || fallback);
+}
+
 const SITES = {
   agents: {
     key: 'agents',
@@ -147,10 +198,11 @@ const SITES = {
     name: '成品 Agent',
     short: 'Agents',
     accent: '#8b7cf8',
-    tagline: '装在编辑器、终端，或厂商云里',
+    tagline: bi('装在编辑器、终端，或厂商云里','Installed in an editor, a terminal, or a vendor cloud'),
     // desc 只说「本分区比较什么维度」，不逐个列对象名——
     // 逐个列会在档案分期补齐时与实际数量不一致（曾出现「3 个对象」却列了 10 个名字）
-    desc: '自己能跑的成品 AI agent，共用八维（模型接入 / 运行位置 / 本地文件 / 关机后任务 / 工具扩展 / 上下文 / 权限 / 适合场景）。按形态分三列——IDE 形态、CLI 形态、厂商云形态。前两者是同一产品的不同装法、不是竞争关系；厂商云形态则是另一个方向：不需要自己装，工作在别人的机器上做。',
+    desc: bi('自己能跑的成品 AI agent，共用八维（模型接入 / 运行位置 / 本地文件 / 关机后任务 / 工具扩展 / 上下文 / 权限 / 适合场景）。按形态分三列——IDE 形态、CLI 形态、厂商云形态。前两者是同一产品的不同装法、不是竞争关系；厂商云形态则是另一个方向：不需要自己装，工作在别人的机器上做。',
+      'Finished AI agents you can run yourself, compared on eight shared dimensions (model access / where it runs / local files / tasks after shutdown / tools and extensions / context / permissions / best fit). Grouped into three forms — IDE, CLI and vendor cloud. The first two are different install forms of the same product, not competitors; vendor cloud is a different direction entirely: nothing to install, the work happens on someone else\'s machine.'),
     // cloud 是 2026-10-03 新增的第三种形态（OpenAI Dot / Meta Muse / xAI Grok Bot）。
     // 它们既不是 IDE 也不是终端 CLI —— 装在厂商的云上，本机不装任何东西。
     // 归agents 分区是因为它们和 ide/cli 共享同一套八维坐标系；
@@ -167,7 +219,7 @@ const SITES = {
     name: '自己搭的底座',
     short: 'Harness',
     accent: '#3b82f6',
-    tagline: '运行时、编排框架、SDK',
+    tagline: bi('运行时、编排框架、SDK','Runtimes, orchestration frameworks, SDKs'),
     desc: 'Agent 运行时 / 编排框架 / SDK 的责任边界、状态持久化能力与权限模型。收录标准：提供 Agent 运行时或编排层、有官方文档可回溯、近 30 天有实质更新。',
     owns: ['harness'],
     splitBy: 'family',   // 按抽象层分组：原语型 / 编排型 / 开箱型
@@ -181,7 +233,7 @@ const SITES = {
     short: 'Tools',
     accent: '#22d3c5',
     // 「你装，它调」——用户动作是装不是调，这是这站正确的表述
-    tagline: '缺什么，装什么 —— 给 agent 装的 MCP 工具',
+    tagline: bi('缺什么，装什么 —— 给 agent 装的 MCP 工具','Fill the gap — MCP tools an agent can install'),
     desc: 'MCP server 的权限范围、传输方式与输出可用性。收录标准：已发布为可安装的 MCP server、有官方仓库或文档可回溯、近 30 天有实质更新。这里是能力缺口查表，不是选型对比。',
     owns: ['mcp'],
     splitBy: null,
@@ -273,11 +325,22 @@ const COVERAGE = { done: 120, total: 211 };
 const COVERAGE_BY_TRACK = {
   mcp: { done: 69, total: 99, note: '官方 README 信息充分，70% 维度已核验' },
   cli: { done: 22, total: 48, note: '部分对象的官方文档不完整' },
-  ide: { done: 29, total: 64, note: '多为闭源产品，索引策略等细节官方不公开' },
+  ide: { done: 29, total: 64, note: bi('多为闭源产品，索引策略等细节官方不公开', 'Mostly closed-source; details like indexing strategy are not disclosed') },
 };
 // 分区 → 该分区要展示的 track 行
 const COVERAGE_ROWS = { agents: ['ide', 'cli'], harness: [], tools: ['mcp'] };
-const TRACK_LABEL = { mcp: 'MCP 服务器', cli: 'CLI 形态', ide: 'IDE 形态' };
+/* TRACK_LABEL 现在是 [zh, en] 数组，取用时包一层双节点。
+ * agent 是静态站点 → 双节点由 CSS 按 [data-lang] 选显。*/
+function TRACK_LABEL_BI(track) {
+  const p = TRACK_LABEL[track];
+  return Array.isArray(p) ? bi(p[0], p[1]) : esc(p || track);
+}
+
+const TRACK_LABEL = {
+  mcp: ['MCP 服务器', 'MCP server'],
+  cli: ['CLI 形态', 'CLI form'],
+  ide: ['IDE 形态', 'IDE form'],
+};
 
 // ── 读取一个赛道 ───────────────────────────────────────────────────────────
 /* 站点 → 赛道目录的映射。
@@ -360,6 +423,32 @@ function loadTrack(partKey) {
      * 说明这个 bug 存在整个仓库生命周期，只是没人核对章节完整性
      * （2026-10-03 补云上agent 档案、核对渲染结果时才发现）。
      * EOF 用「后面什么都没有」的否定前瞻 `(?!\s*\z)` 才准确。 */
+/* ↓ 翻译数据必须在**解析档案之前**加载 —— 顺序错了不报错，只是取到空值。
+ *2026-10-04：ONELINES_EN / FIT_EN 曾加载在解析之后（444 行解析 vs 529 行加载），
+ * 所有 onelineEn / fitEn 都是空字符串，翻译「看起来没生效」且零报错。 */
+/* 36 份产品档案的「一句话定位」英文。人工翻译（原文含定位判断与比较级）。
+ * 同样**加载失败抛错**。*/
+const ONELINES_EN_PATH = path.join(HERE, '..', '..', '..', '_audit', '_onelines.en.json');
+let ONELINES_EN = {};
+try {
+  ONELINES_EN = JSON.parse(fs.readFileSync(ONELINES_EN_PATH, 'utf8'));
+} catch (e) {
+  throw new Error('一句话定位英文读不到：' + ONELINES_EN_PATH + ' —— ' + e.message);
+}
+console.log(`  · 一句话定位英文：${Object.keys(ONELINES_EN).filter(k => !k.startsWith('_')).length} 条已加载`);
+
+/* 「适合与不适合」的英文（36 条选型判断）—— 单独一份，与 oneline 分开。
+ * 这批是**核心选型判断**（什么适合 / 什么不适合），译错会直接误导用户，
+ * 所以单独成文件便于逐条校对。键= 档案 id。*/
+let FIT_EN = {};
+try {
+  FIT_EN = JSON.parse(fs.readFileSync(path.join(HERE, '..', '..', '..', '_audit', '_fits.en.json'), 'utf8'));
+} catch (e) {
+  /* 不抛错：fit 缺英文时回退中文仍可用（oneline 已覆盖主要阅读需求）。
+   * 与 ONELINES_EN 的差别：oneline 是「这是什么」，缺了就完全读不到对象；
+   * fit 是「何时用」，缺了主体内容仍在。*/
+  console.warn('  ! _fits.en.json 读不到，「适合与不适合」保持中文：' + e.message);
+}
     const section = (name) => {
       const m = new RegExp(`^##\\s+${name}\\s*\\r?\\n([\\s\\S]*?)(?=\\r?\\n##\\s|$(?![\\s\\S]))`, 'm').exec(body);
       return m ? m[1].trim() : '';
@@ -380,8 +469,12 @@ function loadTrack(partKey) {
       axesKeys: [...AXES.map(x => x[0]), ...mcpKeys],
       body,
       sec: {
+        /* onelineEn / fitEn 来自 _onelines.en.json（键 = 档案 id）—— 2026-10-04。
+         * 缺键时回退中文（可接受降级），不报错。 */
         oneline: section('一句话定位'),
+        onelineEn: ONELINES_EN[id] || '',
         fit: section('适合与不适合'),
+        fitEn: (FIT_EN[id] || ''),
         runs: section('实测记录'),
         unknowns: section('未知项清单'),
         related: section('相关条目'),
@@ -415,6 +508,40 @@ function validate(partKey, entries, errors) {
 const esc = (s) => String(s ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+/* 双语节点（2026-10-04）。
+ * agent 是静态站点：语言切换只切 <html lang> / data-lang，**DOM 不重渲染**
+ * → 构建期不能判断语言，必须同时给出中英，由 brand.css 的 [data-lang] 选显。
+ * 与 nav 同一套路；learn 是 JS 运行时渲染，用的是 IS_EN()，别混。 */
+/* 分区引导英文（2026-10-04）。人工翻译（原文含判断与安全警告，不用机译）。
+ * 路径要点：**用 HERE**（由 fileURLToPath(import.meta.url) 得到）——
+ * 本文件是 ESM（.mjs），**__dirname 不存在**，用它会静默走 catch。
+ * HERE = <root>/_data/agent-guide/sites → 到 <root>/_audit 需要三级 ..。
+ * ⚠ 加载失败**抛错而不是 warn**：静默降级会让「英文页面全是中文」看起来像
+ *   「翻译没做」，而真实原因是文件读不到 —— 这个 bug 藏了很久就是这么来的。*/
+const GUIDE_EN_PATH = path.join(HERE, '..', '..', '..', '_audit', '_guide.en.json');
+let GUIDE_EN = {};
+try {
+  GUIDE_EN = JSON.parse(fs.readFileSync(GUIDE_EN_PATH, 'utf8'));
+} catch (e) {
+  throw new Error('分区引导英文读不到：' + GUIDE_EN_PATH + ' —— ' + e.message);
+}
+console.log(`  · 分区引导英文：${Object.keys(GUIDE_EN).length} 个分区已加载`);
+
+/* 11 个维度的英文（名称 + 提问）。同样**加载失败抛错** —— 维度名缺失会让
+ * 表头露出中文，而页面照常生成。*/
+const AXES_EN_PATH = path.join(HERE, '..', '..', '..', '_audit', '_axes.en.json');
+let AXES_EN = {};
+try {
+  AXES_EN = JSON.parse(fs.readFileSync(AXES_EN_PATH, 'utf8'));
+} catch (e) {
+  throw new Error('维度英文读不到：' + AXES_EN_PATH + ' —— ' + e.message);
+}
+console.log(`  · 维度英文：${Object.keys(AXES_EN).length} 个维度已加载`);
+
+
+
+
 
 // 保留 Markdown 里的 **加粗** 与 `代码`
 function mdInline(s) {
@@ -520,13 +647,25 @@ const GUIDE = {
 function guideSection(partKey, site, entries) {
   const g = GUIDE[partKey];
   if (!g) return '';
+  /* 英文版（2026-10-04）。缺键时 gEn 为空对象 → 回退中文。
+   * ⚠ steps 是数组，英文版可能条数不同（不该发生，但要防御）——
+   *   长度不一致时按中文的长度取英文，越界则退中文项。*/
+  const gEn = GUIDE_EN[partKey] || {};
+  const steps = g.steps.map((s, i) => {
+    const en = (gEn.steps && gEn.steps[i]) || s;
+    return [
+      bi(s[0], en[0]),
+      bi(s[1], en[1]),
+      bi(s[2], en[2]),
+    ];
+  });
   return `
     <section class="section guide-band">
       <div class="container">
-        <h2>${g.title}</h2>
-        <p class="section-desc">${g.lede}</p>
+        <h2>${bi(g.title, gEn.title || g.title)}</h2>
+        <p class="section-desc">${bi(g.lede, gEn.lede || g.lede)}</p>
         <ol class="guide-list">
-${g.steps
+${steps
   .map(
     ([when, what, why], i) => `          <li class="guide-step">
             <div class="guide-q"><span class="guide-n">${i + 1}</span>${when}</div>
@@ -535,7 +674,7 @@ ${g.steps
   )
   .join('\n')}
         </ol>
-        <p class="guide-foot">${g.foot}</p>
+        <p class="guide-foot">${bi(g.foot, gEn.foot || g.foot)}</p>
       </div>
     </section>`;
 }
@@ -563,7 +702,10 @@ function partitionBar(current) {
 ${SITE.partitions.map(k => {
     const s = SITES[k];
     const cur = k === current ? ' aria-current="page"' : '';
-    return `        <a href="/${pfx(s)}"${cur} style="--pa:${s.accent}"><b>${esc(s.short)}</b><span>${esc(s.tagline)}</span></a>`;
+    /* tagline 已是 bi() 产出的双节点（<span data-zh>/<span data-en>），
+     * **不能走 esc** —— 转义会把标签变成字面文本，实测英文态显示
+     * 「<span data-zh>装在编辑器…</span>」这种源码。 */
+    return `        <a href="/${pfx(s)}"${cur} style="--pa:${s.accent}"><b>${esc(s.short)}</b><span>${s.tagline}</span></a>`;
   }).join('\n')}
       </div>
     </nav>`;
@@ -573,8 +715,20 @@ ${SITE.partitions.map(k => {
 function pfx(site) { return site.dir ? site.dir + '/' : ''; }
 
 // 横向表里的「形态」列：agents 分区用 track 值，harness 用 family 值，tools 无形态概念
-const FORM_LABEL = { ide: 'IDE 形态', cli: 'CLI 形态', cloud: '厂商云形态', mcp: 'MCP' };
-const FAMILY_SHORT = { 'coding-base': '编程底座', orchestration: '编排框架', 'general-harness': '通用 Harness' };
+/* 形态与家族标签（2026-10-04 改双语）。
+ * 英文态实测露出「CLI 形态」等中文（19 处）。agent 是静态站点
+ * → 用 bi() 输出双节点，不要在构建期判断语言。*/
+const FORM_LABEL = {
+  ide:   ['IDE 形态', 'IDE form'],
+  cli:   ['CLI 形态', 'CLI form'],
+  cloud: ['厂商云形态', 'Vendor cloud'],
+  mcp:   ['MCP', 'MCP'],
+};
+const FAMILY_SHORT = {
+  'coding-base':     ['编程底座', 'Coding base'],
+  orchestration:    ['编排框架', 'Orchestration'],
+  'general-harness': ['通用 Harness', 'General harness'],
+};
 
 function renderIndex(site, partKey, entries) {
   const base = pfx(site);
@@ -593,7 +747,12 @@ function renderIndex(site, partKey, entries) {
   // 原设计有 tagline / summary / 标签 / 状态 / 链接 五块，视觉上糊成一片；
   // 标签信息价值低（详情页有完整标签），首页不需要重复。
   const cardFor = (e) => {
-    const line = plain(e.tagline || e.sec.oneline || '', 62);
+    /* 定位句（.tagline）—— 2026-10-04 接英文。
+     * 用 bi() 输出双语节点而不是构建期选值：agent 是静态站点，
+     * 语言切换只切<html lang>，DOM 不重渲染。
+     * 截断沿用 plain() 的 62 字上限，中英同限。*/
+    const lineRaw = e.tagline || e.sec.oneline || '';
+    const line = bi(plain(lineRaw, 62), plain(e.sec.onelineEn || lineRaw, 62));
     return `        <article class="card" style="--card-accent:${esc(e.accent || site.accent)}">
           <div class="card-top">
             <div class="mark" aria-hidden="true">${esc(e.mark || e.name.slice(0,2))}</div>
@@ -602,10 +761,10 @@ function renderIndex(site, partKey, entries) {
               <div class="vendor">${esc(e.vendor)}</div>
             </div>
           </div>
-          <p class="tagline">${esc(line)}</p>
+          <p class="tagline">${line}</p>   // line 已是双节点，勿走 esc -->
           <div class="card-foot">
-            <span class="t-state ${e.confidence === 'verified' ? 'is-ok' : e.confidence === 'stale' ? 'is-stop' : 'is-warn'}">${esc(e.confidence === 'verified' ? '已核验' : e.confidence === 'stale' ? '待复核' : '部分核验')}</span>
-            <a class="more" href="./${esc(e.id)}.html" aria-label="${esc(e.name)} 详情">详情 →</a>
+            <span class="t-state ${e.confidence === 'verified' ? 'is-ok' : e.confidence === 'stale' ? 'is-stop' : 'is-warn'}">${bi(e.confidence === 'verified' ? '已核验' : e.confidence === 'stale' ? '待复核' : '部分核验', e.confidence === 'verified' ? 'Verified' : e.confidence === 'stale' ? 'Needs review' : 'Partly verified')}</span>
+            <a class="more" href="./${esc(e.id)}.html" aria-label="${esc(e.name)} 详情">${bi('详情 →', 'Details →')}</a>
           </div>
         </article>`;
   };
@@ -617,30 +776,45 @@ function renderIndex(site, partKey, entries) {
    *   harness→ 按抽象层（family）分，validate 把它列为必填枚举，
    *            不渲染就等于这个字段只活在数据层。
    *   tools  → 不分组。9 份是能力缺口查表，再切一层反而增加认知成本。 */
+  /* SPLIT_META（分组说明）—— 2026-10-04 改双语。
+   * 每条补 nameEn / descEn，渲染处走 bi()。这些是人写的判断
+   * （含<strong> 强调哪些是差别），逐条人工翻译。*/
   const SPLIT_META = {
     form: [
-      { key: 'ide', name: 'IDE 形态', desc: '装进编辑器，或本身就是独立编辑器。看得见界面，权限多在对话里给。' },
-      { key: 'cli', name: 'CLI 形态', desc: '在终端里跑。能进脚本与 CI，权限确认粒度是最细的一层。' },
+      { key: 'ide', name: 'IDE 形态', nameEn: 'IDE form',
+        desc: '装进编辑器，或本身就是独立编辑器。看得见界面，权限多在对话里给。',
+        descEn: 'Installed into an editor, or an editor in its own right. You see a UI, and permissions are mostly granted in conversation.' },
+      { key: 'cli', name: 'CLI 形态', nameEn: 'CLI form',
+        desc: '在终端里跑。能进脚本与 CI，权限确认粒度是最细的一层。',
+        descEn: 'Runs in the terminal. Drops into scripts and CI, with the finest granularity of permission confirmation.' },
       // cloud 组是 2026-10-03 新增。第三组必须写清「与前两组的差别在装在哪」——
       // 前两组你本机装东西，这一组你什么都不装、工作在厂商的机器上做，
       // 这个差别直接决定了 permissions 维度的可比性。
-      { key: 'cloud', name: '厂商云形态', desc: '本机不装任何东西，在厂商的云端机器上持续工作（OpenAI Dot / Meta Muse / xAI Grok Bot）。差别不在功能多寡，而在<strong>机器归谁</strong> —— 代价是本地文件与离线能力基本让出，收益是关机后仍在跑。' },
+      { key: 'cloud', name: '厂商云形态', nameEn: 'Vendor cloud',
+        desc: '本机不装任何东西，在厂商的云端机器上持续工作（OpenAI Dot / Meta Muse / xAI Grok Bot）。差别不在功能多寡，而在<strong>机器归谁</strong> —— 代价是本地文件与离线能力基本让出，收益是关机后仍在跑。',
+        descEn: 'Nothing installs locally; the work happens on the vendor\'s cloud machine (OpenAI Dot / Meta Muse / xAI Grok Bot). The difference is not how many features you get but <strong>whose machine it runs on</strong> — the cost is giving up local files and offline capability, the benefit is that it keeps running after shutdown.' },
     ],
     family: [
       {
         key: 'coding-base',
         name: '编程底座',
+        nameEn: 'Coding base',
         desc: '给你 agent loop 或现成 CLI 的编程接口。这层的差别不在功能多少，而在<strong>它替你做多少决定</strong> —— 一个只给原语，一个把整套 CLI 连权限模型一起打包给你。',
+        descEn: 'A programming interface giving you an agent loop or an existing CLI. The difference here is not how much it does but <strong>how many decisions it makes for you</strong> — one hands you primitives, the other packages the whole CLI along with its permission model.',
       },
       {
         key: 'orchestration',
         name: '编排框架',
+        nameEn: 'Orchestration',
         desc: '把多步骤、多 Agent、要中断恢复的流程显式建成图。给的是控制力，代价是接线与状态管理都归你。',
+        descEn: 'Makes multi-step, multi-agent flows with resumable state explicit graphs. It gives you control; the cost is that wiring and state management are yours.',
       },
       {
         key: 'general-harness',
         name: '通用 Harness',
+        nameEn: 'General harness',
         desc: '预置了规划、文件系统、记忆等一整套，面向通用长任务。开箱程度最高，可改性最低。',
+        descEn: 'Presets planning, filesystem, memory and the rest, aimed at general long-running tasks. Most ready out of the box, least modifiable.',
       },
     ],
   };
@@ -665,9 +839,9 @@ ${entries.map(cardFor).join('\n')}
       // 所以直接透传即可，不要另造映射表。
       blocks.push(`        <div class="fam-block" data-family="${m.key}">
           <div class="fam-head">
-            <h3>${m.name} <span class="fam-n">${inG.length}</span></h3>
-            <span class="fam-badge">${m.short || m.name}</span>
-            <p>${m.desc}</p>
+            <h3>${bi(m.name, m.nameEn || m.name)} <span class="fam-n">${inG.length}</span></h3>
+            <span class="fam-badge">${bi(m.short || m.name, m.nameEn || m.name)}</span>
+            <p>${bi(m.desc, m.descEn || m.desc)}</p>
           </div>
           <div class="grid">
 ${inG.map(cardFor).join('\n')}
@@ -688,20 +862,21 @@ ${orphan.map(cardFor).join('\n')}
   };
 
   const groupHeading = {
-    form: ['按装法分', '同一产品常有 IDE 与 CLI 两种装法，<strong>它们不是竞品</strong>——装在哪、怎么被唤起、能不能进脚本都不同。选你实际要用的那个。'],
-    family: ['按抽象层分组', '同一层里也能差很远 —— 两个「编程底座」一个是纯原语、一个是全托管包装 CLI，所以先按抽象层分，再看具体对象。'],
-  }[splitBy] || ['全部对象', `按统一坐标系排列。点开任一对象可看到 ${axisNames.join(' / ')} 的完整记录、证据链接与未知项清单。`];
+    form: [bi('按装法分','By install form'), bi('同一产品常有 IDE 与 CLI 两种装法，<strong>它们不是竞品</strong>——装在哪、怎么被唤起、能不能进脚本都不同。选你实际要用的那个。','A product often has both an IDE and a CLI form. <strong>They are not competitors</strong> — they differ in where they install, how they are invoked, and whether they drop into scripts. Pick the one you will actually use.')],
+    family: [bi('按抽象层分组','By abstraction layer'), bi('同一层里也能差很远 —— 两个「编程底座」一个是纯原语、一个是全托管包装 CLI，所以先按抽象层分，再看具体对象。','Even within a layer the gap is wide — of two "coding bases", one is pure primitives and one is a fully managed CLI wrapper. So group by abstraction first, then look at the object.')],
+  }[splitBy] || [bi('全部对象','All objects'), bi(`按统一坐标系排列。点开任一对象可看到 ${axisNames.join(' / ')} 的完整记录、证据链接与未知项清单。`,
+    `Everything on one coordinate system. Open any object to see its full record across ${axisNames.join(' / ')}, with source links and a list of unknowns.`)];
 
   // 完整度表按分区取对应 track 行；harness 没有快照则整块不出
   const covRows = (COVERAGE_ROWS[partKey] || []).filter(t => COVERAGE_BY_TRACK[t]);
   const covTable = covRows.length ? `          <table class="src is-flush mb-3">
-            <thead><tr><th>形态</th><th>已补齐</th><th>说明</th></tr></thead>
+            <thead><tr><th>${bi('形态','Form')}</th><th>${bi('已补齐','Filled')}</th><th>${bi('说明','Meaning')}</th></tr></thead>
             <tbody>
 ${covRows.map(t => {
     const c = COVERAGE_BY_TRACK[t];
-    return `              <tr><td class="nw">${esc(TRACK_LABEL[t])}</td>
+    return `              <tr><td class="nw">${TRACK_LABEL_BI(t)}</td>
                 <td class="nw"><strong>${c.done}/${c.total}</strong></td>
-                <td class="td-vendor">${esc(c.note)}</td></tr>`;
+                <td class="td-vendor">${c.note}</td></tr>`;
   }).join('\n')}
             </tbody>
           </table>
@@ -713,10 +888,10 @@ ${covRows.map(t => {
         <h1 class="t-hero">${esc(site.name)}</h1>
         <p class="lede">${esc(site.desc)}</p>
         <div class="hero-meta">
-          <span><b>${entries.length}</b> 个对象</span>
-          <span><b>${axisNames.length}</b> 个固定维度</span>
-          <span><b>${verified}</b> 个已完整核验</span>
-          <span>最后核验 <b>${latestVerified}</b></span>
+          <span><b>${entries.length}</b> ${bi('个对象','objects')}</span>
+          <span><b>${axisNames.length}</b> ${bi('个固定维度','fixed dimensions')}</span>
+          <span><b>${verified}</b> ${bi('个已完整核验','fully verified')}</span>
+          <span>${bi('最后核验','Last checked')} <b>${latestVerified}</b></span>
         </div>
       </div>
     </section>
@@ -738,18 +913,20 @@ ${groupBlocks()}
         <div class="status-inner">
           <div class="status-mark" aria-hidden="true">!</div>
           <div>
-            <h2>本站目前是「核验快照」，还没有实测数据</h2>
+            <h2>${bi('本站目前是「核验快照」，还没有实测数据', 'This site is currently a verification snapshot — no measured runs yet')}</h2>
             <p>
               ${isTools
                 ? '下面每个 server 的权限范围、传输方式与工具清单都能回到官方 README 核对，但<strong>我们还没有在真实客户端里跑过它们</strong>。'
-                : '下面每一个字段都能回到官方原文核对，但<strong>我们还没有在同一批任务上跑过这些工具</strong>。'}
+                : bi('下面每一个字段都能回到官方原文核对，但<strong>我们还没有在同一批任务上跑过这些工具</strong>。',
+      'Every field below can be traced back to the official source, but <strong>we have not yet run these tools on the same batch of tasks</strong>.')}
               实测协议已经写好（统一任务、统一验收、记录人工介入与返工次数），任务清单也已就绪，
-              <strong>尚未执行</strong>。
+              ${bi('<strong>尚未执行</strong>。', '<strong>not yet run</strong>.')}
             </p>
             <p class="t-sm">
               ${isTools
                 ? 'MCP server 的风险不在「能不能干活」，而在<strong>权限边界是否清楚、越界是否被拒</strong>。'
-                : '所以本站给的是<strong>能力边界与证据</strong>，不是「哪个更好用」的结论。'}
+                : bi('所以本站给的是<strong>能力边界与证据</strong>，不是「哪个更好用」的结论。',
+      'So what this site gives you is <strong>capability boundaries and evidence</strong>, not a verdict on which is better to use.')}
               真正的选型请用你自己的输入、预算与验收标准跑一遍。
             </p>
           </div>
@@ -759,16 +936,16 @@ ${groupBlocks()}
 
     <section class="section">
       <div class="container">
-        <h2>${axisNames.length} 个维度，每格都能回溯</h2>
+        <h2>${bi(`${axisNames.length} 个维度，每格都能回溯`, `${axisNames.length} dimensions, every cell traceable`)}</h2>
         <p class="section-desc">
-          所有对象在同一坐标系下被描述${isTools ? '（MCP 服务器另有 3 个特有维度）' : ''}。
-          点开任一对象，每一格下面都有官方源链接与核验日期——不认同可以自己回去查。
+          ${bi('所有对象在同一坐标系下被描述'+(isTools ? '（MCP 服务器另有 3 个特有维度）' : '')+'。','All objects are described on the same coordinate system'+(isTools ? ' (MCP servers have 3 additional dimensions)' : '')+'.')}
+          ${bi('点开任一对象，每一格下面都有官方源链接与核验日期——不认同可以自己回去查。','Open any object and every cell carries an official source link and a checked date — disagree and verify it yourself.')}
         </p>
         <div class="t-mesh axis-mesh">
 ${axisKeys.map(([k, label], i) => `          <div class="axis-cell">
             <span class="t-index">${String(i + 1).padStart(2, '0')}</span>
-            <h3 class="axis-name">${esc(label)}</h3>
-            <p class="axis-ask">${esc(AXIS_DESC[k] || '')}</p>
+            <h3 class="axis-name">${bi(label, AXES_EN[k]?.name || label)}</h3>
+            <p class="axis-ask">${bi(AXIS_DESC[k] || '', AXIS_DESC_EN[k] || AXIS_DESC[k] || '')}</p>
           </div>`).join('\n')}
         </div>
         </div>
@@ -777,21 +954,25 @@ ${axisKeys.map(([k, label], i) => `          <div class="axis-cell">
 
     <section class="section">
       <div class="container">
-        <h2>全部数据一览</h2>
-        <p class="section-desc">同一张表横向对比。点对象名进详情页看逐格证据。</p>
+        <h2>${bi('全部数据一览','All data at a glance')}</h2>
+        <p class="section-desc">${bi('同一张表横向对比。点对象名进详情页看逐格证据。','The same table side by side. Click an object name to see per-cell evidence.')}</p>
         <div class="table-wrap">
           <table class="cmp">
             <thead>
               <tr>
-                <th>对象</th><th>形态</th><th>厂商</th><th>适合</th><th>核验日</th><th>状态</th>
+                <th>${bi('对象','Object')}</th><th>${bi('形态','Form')}</th><th>${bi('厂商','Vendor')}</th><th>${bi('适合','Best for')}</th><th>${bi('核验日','Checked')}</th><th>${bi('状态','Status')}</th>
               </tr>
             </thead>
             <tbody>
 ${entries.map(e => `              <tr>
                 <td><a href="./${esc(e.id)}.html"><span class="td-mark" style="--card-accent:${esc(e.accent || site.accent)}">${esc(e.mark || e.name.slice(0, 2))}</span>${esc(e.name)}</a></td>
-                <td class="td-vendor">${esc(FORM_LABEL[e.track] || FAMILY_SHORT[e.family] || e.track)}</td>
+                <td class="td-vendor">${biLabel(FORM_LABEL[e.track], e.track) || biLabel(FAMILY_SHORT[e.family], e.family)}</td>
                 <td class="td-vendor">${esc(e.vendor)}</td>
-                <td class="td-fit">${plain(e.fit || e.axes.fit || '', 70)}</td>
+                <td class="td-fit">${(e.fit || e.axes.fit)
+                  ? bi(
+                      plain(e.fit || e.axes.fit, 70),
+                      plain((e.sec && e.sec.fitEn) || e.fit || e.axes.fit, 70))
+                  : ''}</td>
                 <td class="td-date">${esc(e.lastVerified)}</td>
                 <td><span class="td-conf ${esc(e.confidence)}">${esc(e.confidence)}</span></td>
               </tr>`).join('\n')}
@@ -803,55 +984,55 @@ ${entries.map(e => `              <tr>
 
     <section class="section">
       <div class="container">
-        <h2>为什么这里不给总分排名</h2>
-        <p class="section-desc">这不是省略，是方法上的明确取舍。</p>
+        <h2>${bi('为什么这里不给总分排名','Why there is no overall ranking')}</h2>
+        <p class="section-desc">${bi('这不是省略，是方法上的明确取舍。','This is not an omission but a deliberate methodological choice.')}</p>
         <div class="panel">
           <ul>
-            <li><strong>缺统一实测，就不给分。</strong>跨工具的跑分口径不同——题目、预算、执行环境都不一样，A 的 90 分和 B 的 88 分不可比。</li>
-            <li><strong>「未知」是合法答案。</strong>查不到就写「未知」并说明为什么，不用推测填充。缺信息本身也是信息。</li>
-            <li><strong>每条判断挂官方源。</strong>来源链接、类型与核验日都在详情页里，可以逐条回去复核。</li>
+            <li>${bi('<strong>缺统一实测，就不给分。</strong>跨工具的跑分口径不同——题目、预算、执行环境都不一样，A 的 90 分和 B 的 88 分不可比。', '<strong>No shared measurement, no score.</strong> Benchmarks across tools use different rules — different questions, budgets and environments. A 90 and a B 88 are not comparable.')}</li>
+            <li>${bi('<strong>「未知」是合法答案。</strong>','<strong>"Unknown" is a legitimate answer.</strong>')}查不到就写「未知」并说明为什么，不用推测填充。缺信息本身也是信息。</li>
+            <li>${bi('<strong>每条判断挂官方源。</strong>','<strong>Every judgement links to an official source.</strong>')}来源链接、类型与核验日都在详情页里，可以逐条回去复核。</li>
             <li><strong>lifecycle 单独标注。</strong>核验日新不等于数据有效——上游归档后数据会失效，所以单独标 <code>active</code> / <code>maintenance</code> / <code>archived</code>。</li>
             <li><strong>不同层不混排。</strong>成品 agent、自己搭的底座、给 agent 装的工具是三种角色，坐标系不同；硬合成一张 33 行的表只会制造假的可比性。</li>
           </ul>
         </div>
         <div class="panel">
-          <h2>可信度标记怎么读</h2>
+          <h2>${bi('可信度标记怎么读','How to read the confidence marks')}</h2>
           <p class="t-sm mb-3">详情页与上表都带 <code>confidence</code>，它反映<strong>本站数据的完整度</strong>，不是对产品的评价。</p>
           <table class="src is-flush">
             <tbody>
-              <tr><th class="w-24"><span class="td-conf verified">verified</span></th><td>${axisNames.length} 个维度均有官方源支撑，且核验日在 90 天内</td></tr>
-              <tr><th><span class="td-conf partial">partial</span></th><td>部分维度标为未知，或官方文档不可访问，或核验日超过 90 天</td></tr>
-              <tr><th><span class="td-conf stale">stale</span></th><td>官方已发布重大变化，本站尚未核验</td></tr>
+              <tr><th class="w-24"><span class="td-conf verified">verified</span></th><td>${bi(`${axisNames.length} 个维度均有官方源支撑，且核验日在 90 天内`, `all ${axisNames.length} dimensions have official sources and were checked within 90 days`)}</td></tr>
+              <tr><th><span class="td-conf partial">partial</span></th><td>${bi('部分维度标为未知，或官方文档不可访问，或核验日超过 90 天', 'some dimensions are marked unknown, or the official docs were unreachable, or checked over 90 days ago')}</td></tr>
+              <tr><th><span class="td-conf stale">stale</span></th><td>${bi('官方已发布重大变化，本站尚未核验', 'the vendor has shipped a significant change that this site has not re-checked')}</td></tr>
             </tbody>
           </table>
         </div>
         <div class="panel">
-          <h2>本站当前的完整度</h2>
+          <h2>${bi('本站当前的完整度','Current completeness on this site')}</h2>
           <p class="t-sm mb-2">
             数据层用 <code>node scripts/audit-gaps.mjs</code> 可随时复核这个数字。
             以下是最近一次核验的快照（核验日 2026-09-29）：
           </p>
-${covTable}          <p><strong class="em">全站合计 ${COVERAGE.done}/${COVERAGE.total} 维度已补齐（${Math.round(COVERAGE.done / COVERAGE.total * 100)}%）</strong></p>
+${covTable}          <p><strong class="em">${bi(`全站合计 ${COVERAGE.done}/${COVERAGE.total} 维度已补齐`, `Site-wide ${COVERAGE.done}/${COVERAGE.total} dimensions filled`)}（${Math.round(COVERAGE.done / COVERAGE.total * 100)}%）</strong></p>
           <p class="t-sm">
             剩余未补齐项分三类：<strong>官方未公开</strong>（索引算法、沙箱实现细节本就不对外说明）、
             <strong>需实测才能确定</strong>（大仓库表现、CI 无 TTY 行为）、
             <strong>客观渠道不可达</strong>。
           </p>
           <p class="t-sm">
-            我们选择留白而不是填「已支持」——错误的成本最终由使用者承担。
+            ${bi('我们选择留白而不是填「已支持」——错误的成本最终由使用者承担。', 'We chose to leave a blank rather than fill in "supported" — the cost of an error is ultimately borne by whoever uses it.')}
           </p>
         </div>
         <div class="panel">
-          <h2>数据来源与复核方式</h2>
-          <p>全部数据来自开源仓库 <a href="${SITE.repo}" target="_blank" rel="noopener" class="link-brand">speculcom/ai-agent-guide</a>（CC BY 4.0）。</p>
-          <p>每个条目都是纯 Markdown + frontmatter，含 8 个维度、证据链接、核验日与可信度标记。仓库内含：</p>
+          <h2>${bi('数据来源与复核方式','Sources and how to re-check them')}</h2>
+          <p>${bi('全部数据来自开源仓库', 'All data comes from the open-source repository')} <a href="${SITE.repo}" target="_blank" rel="noopener" class="link-brand">speculcom/ai-agent-guide</a>（CC BY 4.0）。</p>
+          <p>${bi('每个条目都是纯 Markdown + frontmatter，含 8 个维度、证据链', 'Every entry is plain Markdown plus frontmatter, carrying 8 dimensions and an evidence chain')}接、核验日与可信度标记。仓库内含：</p>
           <ul>
             <li><code>METHODOLOGY.md</code> —— 方法论总纲与四条核心规则</li>
             <li><code>axes/</code> —— 每个维度的定义与判定标准（含正反例）</li>
             <li><code>SCHEMA.md</code> —— 数据格式规范与构建校验规则</li>
-            <li><code>tracks/*/tasks/_protocol.md</code> —— 实测协议（<strong>尚未执行</strong>，故本站暂无实测结论）</li>
+            <li><code>tracks/*/tasks/_protocol.md</code> —— 实测协议(${bi('<strong>尚未执行</strong>', '<strong>not yet run</strong>')}${bi('，故本站暂无实测结论', ', so this site has no measured conclusions')})</li>
           </ul>
-          <p class="t-sm">发现错误或有新证据，欢迎提 Issue 或 PR——每条修正都会注明依据与影响范围。</p>
+          <p class="t-sm">${bi('发现错误或有新证据，欢迎提 Issue 或 PR——每条修正都会注明依据与影响范围。', 'Found an error or have new evidence? Open an issue or a PR — each correction notes its basis and blast radius.')}</p>
         </div>
       </div>
     </section>`;
@@ -873,7 +1054,7 @@ ${covTable}          <p><strong class="em">全站合计 ${COVERAGE.done}/${COVER
 
   return buildShell({
     current: site.navKey,
-    title: `${site.name} — ${site.tagline} | 投机取巧`,
+    title: `${site.name} — ${plainTagline(site.tagline)} | 投机取巧`,
     desc: site.desc,
     body,
     jsonLd,
@@ -901,9 +1082,9 @@ function renderDetail(site, partKey, e) {
   if (isTools) {
     for (const [k, label] of MCP_AXES) axisKeys.push({ k, label, v: e.mcp[k] });
   }
-  const axesHtml = axisKeys.map(({ label, v }) => {
+  const axesHtml = axisKeys.map(({ label, k, v }) => {
     return `        <div class="axis">
-          <dt>${esc(label)}</dt>
+          <dt>${bi(label, AXES_EN[k]?.name || label)}</dt>
           <dd>${mdLinks(v)}</dd>
         </div>`;
   }).join('\n');
@@ -913,10 +1094,10 @@ function renderDetail(site, partKey, e) {
   ).join('\n');
 
   const priceRows = [];
-  if (e.pricing.monthly_label) priceRows.push(['月度入口', e.pricing.monthly_label]);
-  if (e.pricing.monthly_usd) priceRows.push(['月度数值', `$${e.pricing.monthly_usd}`]);
-  if (e.pricing.annual_label) priceRows.push(['年付', e.pricing.annual_label]);
-  if (e.pricing.note) priceRows.push(['额度说明', e.pricing.note]);
+  if (e.pricing.monthly_label) priceRows.push([bi('月度入口','Monthly entry'), bi(e.pricing.monthly_label, e.pricing.monthly_label)]);
+  if (e.pricing.monthly_usd) priceRows.push([bi('月度数值','Monthly price'), `${e.pricing.monthly_usd}`]);
+  if (e.pricing.annual_label) priceRows.push([bi('年付','Annual'), bi(e.pricing.annual_label, e.pricing.annual_label)]);
+  if (e.pricing.note) priceRows.push([bi('额度说明','Quota note'), bi(e.pricing.note, e.pricing.note)]);
 
   /* 「相关条目」渲染 —— 36 份档案全都有这一章，是访客在同一赛道横向对比的入口。
    *
@@ -941,7 +1122,7 @@ function renderDetail(site, partKey, e) {
       return`          <li><span class="rel-t">${mdLinks(m[1])}</span><span class="rel-n">${mdLinks(m[2])}</span></li>`;
     }).join('\n');
     return `      <div class="panel is-slim">
-        <h2>相关条目</h2>
+        <h2>${bi('相关条目','Related entries')}</h2>
         <ul class="rel-list">
 ${lis}
         </ul>
@@ -978,50 +1159,62 @@ ${crumb}
         ${(e.tags || []).map(t => `<span class="tag on">${esc(t)}</span>`).join('\n        ')}
         <span class="badge accent">${esc(e.confidence)}</span>
         <span class="badge">lifecycle: ${esc(e.lifecycle)}</span>
-        <span class="badge">核验 ${esc(e.lastVerified)}</span>
+        <span class="badge">${bi('核验','Checked')} ${esc(e.lastVerified)}</span>
       </div>
 
-      ${e.sec.oneline ? `      <p class="panel-lead">${mdLinks(e.sec.oneline)}</p>\n` : ''}
+      ${e.sec.oneline ? `      <p class="panel-lead">${mdLinks(e.sec.oneline)}<span data-en>${mdLinks(e.sec.onelineEn || e.sec.oneline)}</span></p>\n` : ''}
       ${e.sec.fit ? (() => {
-        // 段落以空行分隔；「不适合」段用警示色
-        const paras = e.sec.fit.split(/\n{2,}/).map(s => s.trim()).filter(Boolean);
-        const body = paras.map(p => {
-          const isWarn = /^(\*\*)?不适合/.test(p);
-          const cls = isWarn ? ' class="warn-p"' : '';
-          return `        <p${cls}>${mdLinks(p)}</p>`;
-        }).join('\n');
+        /* 「适合与不适合」双语（2026-10-04）。
+         * ⚠ 这段是全站最敏感的内容 —— 直接告诉用户什么该用、什么不该用。
+         *   英文侧**保留强度**：「直接排除」→ rules that out outright、
+         *   「未核验」→ not verified（见 _fits.en.json 的 _rules）。
+         * 段落以空行分隔；「不适合」段用警示色 —— 英文侧同样要识别
+         * "Not a fit"，否则警示色丢失、语气被磨平。*/
+        const renderFit = (txt, warnRe) => {
+          const paras = String(txt).split(/\n{2,}/).map(s => s.trim()).filter(Boolean);
+          return paras.map(p => {
+            const isWarn = warnRe.test(p);
+            const cls = isWarn ? ' class="warn-p"' : '';
+            return `        <p${cls}>${mdLinks(p)}</p>`;
+          }).join('\n');
+        };
+        const zh = renderFit(e.sec.fit, /^(\*\*)?不适合/);
+        const en = e.sec.fitEn ? renderFit(e.sec.fitEn, /^(\*\*)?Not a fit/i) : '';
+        const body = en
+          ? `<span data-zh>${zh}</span><span data-en>${en}</span>`
+          : zh;
         return `      <div class="panel is-slim">
-        <h2>适合与不适合</h2>
+        <h2>${bi('适合与不适合', 'When to use it, when not to')}</h2>
 ${body}
       </div>\n`;      })() : ''}
 
       <div class="block-head">
-        <h2 class="t-h2">固定坐标系</h2>
-        <p class="t-section-lead">${axisKeys.length} 个维度，与同赛道其他对象逐项可比。</p>
+        <h2 class="t-h2">${bi('固定坐标系','Fixed coordinate system')}</h2>
+        <p class="t-section-lead">${axisKeys.length} ${bi('个维度','dimensions')}, ${bi('与同赛道其他对象逐项可比','each comparable item by item against others in the same track')}.</p>
       </div>
       <dl class="axes">
 ${axesHtml}
       </dl>
 
       ${e.pitfalls.length ? `      <div class="panel warn">
-        <h2 class="warn">头号误解</h2>
+        <h2 class="warn">${bi('头号误解','Top misconception')}</h2>
         <ul>
 ${e.pitfalls.map(p => `          <li>${mdLinks(p)}</li>`).join('\n')}
         </ul>
       </div>\n` : ''}
 
       ${priceRows.length ? `      <div class="panel is-slim">
-        <h2>价格</h2>
+        <h2>${bi('价格','Pricing')}</h2>
         <table class="src">
           <tbody>
-${priceRows.map(([k, v]) => `            <tr><th class="w-28">${esc(k)}</th><td>${mdLinks(v)}</td></tr>`).join('\n')}
+${priceRows.map(([k, v]) => `            <tr><th class="w-28">${k}</th><td>${v}</td></tr>`).join('\n')}
           </tbody>
         </table>
-        <p class="fine mt-3">不同币种不做折算。优惠、地区、税费与登录后报价可能变化，购买前请到官方页面确认。</p>
+        <p class="fine mt-3">${bi('不同币种不做折算。优惠、地区、税费与登录后报价可能变化，购买前请到官方页面确认。', 'No currency conversion. Discounts, regions, tax and post-login pricing can change — confirm on the official page before buying.')}</p>
       </div>\n` : ''}
 
       ${e.sec.unknowns && /^\s*[-*]/m.test(e.sec.unknowns) ? `      <div class="panel is-slim">
-        <h2>未知项清单</h2>
+        <h2>${bi('未知项清单','Known unknowns')}</h2>
         <ul>
 ${(() => {
           /* 列表项的**缩进续行**必须并入上一项。
@@ -1044,10 +1237,10 @@ ${(() => {
       </div>\n` : ''}
 
       <div class="panel">
-        <h2>证据来源</h2>
-        <p class="t-sm">判断可回到以下一手源复核。本站核验日 ${esc(e.lastVerified)}，内容更新日 ${esc(e.lastUpdated)}。</p>
+        <h2>${bi('证据来源','Evidence sources')}</h2>
+        <p class="t-sm">${bi('判断可回到以下一手源复核。本站核验日', 'Every judgement can be rechecked against the primary sources below. Verified on')} ${esc(e.lastVerified)}，${bi('内容更新日','content updated on')} ${esc(e.lastUpdated)}。</p>
         <table class="src">
-          <thead><tr><th class="w-20">类型</th><th class="w-52">名称</th><th>链接</th></tr></thead>
+          <thead><tr><th class="w-20">${bi('类型','Type')}</th><th class="w-52">${bi('名称','Name')}</th><th>${bi('链接','Link')}</th></tr></thead>
           <tbody>
 ${srcRows}
           </tbody>
@@ -1055,14 +1248,14 @@ ${srcRows}
       </div>
 
       ${e.sec.runs ? `      <div class="panel is-slim">
-        <h2>实测记录</h2>
+        <h2>${bi('实测记录','Measured runs')}</h2>
         <p>${mdLinks(e.sec.runs)}</p>
       </div>\n` : ''}
 
       ${relatedHtml}
 
       <p class="fine mt-6">
-        本页由 <a href="${SITE.repo}" target="_blank" rel="noopener" class="link-brand">ai-agent-guide</a> 数据层生成（CC BY 4.0）。
+        ${bi('本页由', 'This page is generated from the')} <a href="${SITE.repo}" target="_blank" rel="noopener" class="link-brand">ai-agent-guide</a> ${bi('数据层生成（CC BY 4.0）。', 'data layer (CC BY 4.0).')}
         方法论与坐标系定义见仓库内 <code>METHODOLOGY.md</code>。
       </p>
     </div>`;
@@ -1202,14 +1395,14 @@ ${site.desc}
 
 | 对象 | 形态 | 厂商 | 可信度 | 核验日 |
 |---|---|---|---|---|
-${entries.map(e => `| [${e.name}](./${e.id}.html) | ${esc(FORM_LABEL[e.track] || FAMILY_SHORT[e.family] || e.track)} | ${esc(e.vendor)} | ${e.confidence} | ${e.lastVerified} |`).join('\n')}
+${entries.map(e => `| [${e.name}](./${e.id}.html) | ${FORM_LABEL_MD(e.track, e.family)} | ${esc(e.vendor)} | ${e.confidence} | ${e.lastVerified} |`).join('\n')}
 
 ## 可信度标记
 
 | 标记 | 含义 |
 |---|---|
-| \`verified\` | ${axisNames.length} 个维度均有官方源支撑，核验日在 90 天内 |
-| \`partial\` | 部分维度标为未知，或官方文档不可访问，或核验日超过 90 天 |
+| \`verified\` | all ${axisNames.length} dimensions backed by official sources, checked within 90 days |
+| \`partial\` | some dimensions unknown, or official docs unreachable, or checked over 90 days ago |
 | \`stale\` | 官方已发布重大变化，本站尚未核验 |
 
 当前 ${entries.length} 个对象中，**${verifiedCount} 个为 verified**。
