@@ -23,7 +23,8 @@ pricing_pitfalls:
 axes:
   model_access: >-
     本身不调用模型，是被客户端调用的接口实现。
-    协议兼容性取决于客户端实现，仓库未声明最低协议版本。
+    依赖 @modelcontextprotocol/sdk（npm 2026.8.31 实测 ^1.30.0）；
+    协议版本在 initialize 握手时由 SDK 与客户端协商，不绑定单一版本。
   runtime: >-
     本地 Node.js 子进程，通过 stdio 与客户端通信。
     生命周期绑定客户端进程，客户端退出即停止。
@@ -59,7 +60,8 @@ pitfalls:
 mcp:
   transport: >-
     仅 stdio。本地 Node.js 进程，通过标准输入输出通信。
-    未声明支持 SSE 或 Streamable HTTP。
+    官方 README（2026-10-08 全文核验）只给 npx / Docker 两种本地启动方式，
+    没有远程传输的官方配置；目录控制走命令行参数或 MCP Roots（可动态更新）。
   auth: >-
     无独立认证层。stdio 形态继承启动它的客户端用户的全部文件权限。
     权限边界不是认证机制，而是目录白名单。
@@ -71,6 +73,7 @@ mcp:
     可用 list_allowed_directories 查询当前生效目录。
 
 tags: [文件, 本地, 只读, 读写]
+related: [claude-code-cli]
 
 sources:
   - label: MCP · Servers Releases（2026.8.31 / 2026.8.18 / 2026.7.10）
@@ -93,8 +96,8 @@ link:
   url: https://www.npmjs.com/package/@modelcontextprotocol/server-filesystem
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-08
+last_updated: 2026-10-08
 lifecycle: active
 confidence: verified
 ---
