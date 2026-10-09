@@ -59,8 +59,8 @@ pitfalls:
 
 mcp:
   transport: >-
-    仅 stdio。本地 Node.js 进程，通过标准输入输出通信。
-    **是否支持 Streamable HTTP，仓库未声明。**
+    仅 stdio。本地 Node.js 进程，通过标准输入输出通信（npx 启动）。
+    官方 README（2026-10-08 全文核验）没有远程传输的官方启动方式。
   auth: >-
     无独立认证层。stdio 形态继承客户端用户权限。
     记忆文件本身无加密，**任何能读该文件的进程都能获取全部记忆内容**。
@@ -71,6 +71,7 @@ mcp:
     且文件无加密、无独立访问控制。
 
 tags: [记忆, 本地, 读写]
+related: [hermes-agent]
 
 sources:
   - label: MCP · Memory Server
@@ -90,8 +91,8 @@ link:
   url: https://www.npmjs.com/package/@modelcontextprotocol/server-memory
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-08
+last_updated: 2026-10-08
 lifecycle: active
 confidence: verified
 ---
