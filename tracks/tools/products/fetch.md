@@ -54,7 +54,8 @@ mcp:
   transport: >-
     支持 stdio，**并提供容器部署方式（Docker / Podman）**。
     2026-08-30 修复了 bind mount 的安全与兼容问题（含 SELinux）。
-    **是否支持 Streamable HTTP，仓库未声明。**
+    官方 README（2026-10-08 全文核验）只给本地进程接入：
+    uvx / pip / Docker；没有远程传输的官方启动方式。
   auth: >-
     无独立认证层。stdio 形态继承客户端用户权限。
     **容器形态的认证配置仓库未说明。**
@@ -66,6 +67,7 @@ mcp:
     在生产或含内网服务的环境中使用前必须评估。
 
 tags: [检索, 网络, 只读]
+related: [grok-bot]
 
 sources:
   - label: MCP · Fetch Server（含官方安全警告）
@@ -85,8 +87,8 @@ link:
   url: https://github.com/modelcontextprotocol/servers/tree/main/src/fetch
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-08
+last_updated: 2026-10-08
 lifecycle: active
 confidence: verified
 ---
