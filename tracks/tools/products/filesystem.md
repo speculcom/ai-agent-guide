@@ -23,31 +23,43 @@ pricing_pitfalls:
 axes:
   model_access: >-
     本身不调用模型，是被客户端调用的接口实现。
+
     依赖 @modelcontextprotocol/sdk（npm 2026.8.31 实测 ^1.30.0）；
     协议版本在 initialize 握手时由 SDK 与客户端协商，不绑定单一版本。
+
   runtime: >-
     本地 Node.js 子进程，通过 stdio 与客户端通信。
     生命周期绑定客户端进程，客户端退出即停止。
+
   local_files: >-
     核心能力。**默认不支持无限制访问**：
     必须通过命令行参数指定允许目录，或客户端支持 Roots 协议动态下发。
     **若无参数启动且客户端不支持 roots，server 在初始化阶段直接报错。**
+
   background: >-
     不支持。本地 stdio 进程随客户端生死，
     无独立守护或云端执行形态。
+
   tools: >-
     提供 11 个工具：read_text_file、read_media_file、read_multiple_files、
+
     write_file、edit_file、create_directory、list_directory、
+
     list_directory_with_sizes、move_file、search_files、directory_tree。
+
     输出为结构化内容，可直接消费。
+
   context: >-
     无状态。每次调用独立，不保留会话记忆。
     list_allowed_directories 可查询当前生效目录。
+
   permissions: >-
     **无独立审批机制**，权限边界完全由允许目录决定。
     全部文件操作限制在允许目录内，越界会被拒绝。
+
     **注意：提供 write_file / edit_file / move_file / create_directory，
     属可写但无删除工具的组合。**
+
   fit: >-
     让 Agent 安全读写指定目录内的文本与媒体文件。
     不适合需要删除操作或需要跨目录聚合的场景。
@@ -60,15 +72,19 @@ pitfalls:
 mcp:
   transport: >-
     仅 stdio。本地 Node.js 进程，通过标准输入输出通信。
+
     官方 README（2026-10-08 全文核验）只给 npx / Docker 两种本地启动方式，
     没有远程传输的官方配置；目录控制走命令行参数或 MCP Roots（可动态更新）。
+
   auth: >-
     无独立认证层。stdio 形态继承启动它的客户端用户的全部文件权限。
     权限边界不是认证机制，而是目录白名单。
+
   scope: >-
     **默认范围窄且强制显式**：必须通过命令行参数指定允许目录，
     或客户端支持 Roots 协议动态下发。
     无参数且客户端不支持 roots 时，server 初始化即报错。
+
     **不提供删除工具**；提供写入、编辑、移动、建目录。
     可用 list_allowed_directories 查询当前生效目录。
 
@@ -79,15 +95,19 @@ sources:
   - label: MCP · Servers Releases（2026.8.31 / 2026.8.18 / 2026.7.10）
     url: https://github.com/modelcontextprotocol/servers/releases
     kind: changelog
+
   - label: MCP · Filesystem 目录变更历史
     url: https://github.com/modelcontextprotocol/servers/commits/main/src/filesystem
     kind: changelog
+
   - label: MCP · Filesystem Server
     url: https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem
     kind: docs
+
   - label: MCP · Servers 仓库 README（含生产环境免责声明）
     url: https://github.com/modelcontextprotocol/servers
     kind: repo
+
   - label: MCP · 规范
     url: https://modelcontextprotocol.io/specification
     kind: docs
@@ -143,7 +163,7 @@ MCP servers 仓库 README 原文：
 面向的是正在构建自己 MCP server 的开发者，**不是生产就绪方案**。
 使用者需自行评估安全需求并按自身威胁模型实现防护。
 
-> **注意**：这句话适用于本赛道所有官方 reference server，
+> **注意**：这句话适用于本分区所有官方 reference server，
 > 每个条目的正文都应保留这一提示。
 
 ## 权限设计实测记录
