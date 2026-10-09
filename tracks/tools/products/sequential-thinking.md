@@ -27,14 +27,22 @@ axes:
   runtime: >-
     本地 Node.js 进程，通过 stdio 通信。无文件与网络访问需求。
   local_files: >-
-    **无任何文件访问能力**。不提供读写工具，是本赛道权限最窄的一类。
+    **无任何文件访问能力**。不提供读写工具，是本分区权限最窄的一类。
   background: >-
     不支持。纯计算型工具，无状态，无需后台。
   tools: >-
     **仅 1 个工具** `sequential_thinking`，
-    参数包含 thought、thoughtNumber、totalThoughts、nextThoughtNeeded，
+
+    参数包含：
+
+    - thought
+    - thoughtNumber
+    - totalThoughts
+    - nextThoughtNeeded
+
     以及修订（isRevision / revisesThought）与
     分支（branchFromThought / branchId）控制。
+
     输出为结构化对象。
   context: >-
     无跨会话记忆。每次调用接收完整的思考文本，
@@ -56,7 +64,7 @@ mcp:
     仅 stdio。npx / Docker 本地进程（2026-10-08 README 全文核验）；
     没有远程传输的官方启动方式。Docker 镜像为 mcp/sequentialthinking。
   auth: >-
-    无独立认证层，但**这是本赛道唯一无实质权限边界的 server**——
+    无独立认证层，但**这是本分区唯一无实质权限边界的 server**——
     无文件、无网络、无状态，认证与否不影响安全。
   scope: >-
     **无文件与网络访问，不读不写任何外部资源**。
@@ -70,12 +78,15 @@ sources:
   - label: MCP · Sequential Thinking Server
     url: https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking
     kind: docs
+
   - label: MCP · Sequentialthinking 目录变更历史
     url: https://github.com/modelcontextprotocol/servers/commits/main/src/sequentialthinking
     kind: changelog
+
   - label: MCP · Servers Releases
     url: https://github.com/modelcontextprotocol/servers/releases
     kind: changelog
+
   - label: MCP · Servers 仓库 README（生产环境免责声明）
     url: https://github.com/modelcontextprotocol/servers
     kind: repo
