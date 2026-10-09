@@ -17,21 +17,31 @@ pricing:
     **开源部分为 MIT，但索引/解析/服务端是Upstash 的私有托管服务** ——
     官方 README 自己划了界：这个仓只托管 MCP server 的源码，
     API 后端、解析引擎与爬取引擎均为私有。
+
     **定价（2026-10-01 核验官方 context7.com/docs/plans-pricing.md，该页是 plans 页的 307 目标）**：
+
     | 档 | 价格 | 含额度 | 超出计费 |
     |---|---|---|---|
     | **Free** | **$0** | **1,000 次/月**（Search API + Context API） | 阻塞 |
+
     | **Pro** | **$10 每席位/月** | **2,000 次/席位** | **Unlimited（$5 / 1,000 次）** |
+
     | **Enterprise** | **Custom** | Custom | Custom |
+
     **另有一项独立计费项（易被漏看）**：
     **Private Repo Parsing = $5 / 1M tokens** —— 私有库文档解析按token 单独计费，
     与 API 调用额度是**两个独立的钱包**。
+
     **Free 档的三项能力**（官方对比表）：Public Repos、Access Control、OAuth 2.0。
+
     **Pro 解锁**：Private Repos、Team Collaboration、**Unlimited API Calls**。
+
     **Enterprise 解锁**：SOC-2、SSO（SAML / OIDC）、**Self-Hosted（On-Premise）**，
     且支持把额度与私有解析都按Custom 定制。
+
     **⚠ 一条必须提醒的口径冲突**：多个第三方站（aicoolies / decodo 等，2026-09 前后）
     称Pro 是「5,000 次/席位」，**与官方页面的 2,000 不一致**。
+
     本档案按官方页面写**2,000**，第三方数字视为旧制或臆测。
     ⚠ Free 档超出 1,000 次后的**具体行为**（完全阻塞 / 降速 / 每日 bonus）
     官方页面只列了问题标题、未给答案正文，本档案不做推测。
@@ -40,8 +50,10 @@ pricing_pitfalls:
   - 以为不配 key 就能无限用 —— Free 档只有 1,000 次/月，且超出后行为官方未明示
   - **以为 Pro 的「Unlimited API Calls」= 不限速不限量** —— 它是「不阻塞」，
     超出 2,000 次/席位后按 **$5 / 1,000 次** 计费
+
   - **漏看 Private Repo Parsing 是独立计费项**（$5 / 1M tokens）——
     与 API 额度是两个钱包，Pro 的 $10 也不含它
+
   - 拿第三方站（aicoolies 等）的 Pro「5,000 次/席位」做预算 —— **官方页面是 2,000**
 
 axes:
@@ -51,29 +63,39 @@ axes:
     解决模型训练数据滞后导致的使用错误。
   runtime: >-
     **远程托管 HTTP 服务**（`https://mcp.context7.com/mcp`），
-    由 Upstash 运营。**这是本赛道唯一默认走远程的条目**，
+
+    由 Upstash 运营。**这是本分区唯一默认走远程的条目**，
     其余 reference server 均为本地 stdio 进程。
+
   local_files: >-
     **无任何本地文件访问能力**。纯文档检索服务。
+
   background: >-
     **作为远程托管服务始终可用**，与客户端进程生命周期无关——
-    这是本赛道唯一不受本机开关影响的条目。
+    这是本分区唯一不受本机开关影响的条目。
+
     但**服务可用性取决于 Upstash 侧的服务状态**，
     本仓库的 releases 不能保证服务端可用性，两者需分开判断。
+
   tools: >-
     提供 MCP 工具用于检索库文档。
+
     README 强调正确用法：使用 Library Id、**指定版本**（Specify a Version）、
     以及通过 rule 声明「需要库文档时总是使用 Context7」。
     输出为结构化文档内容。
+
   context: >-
     无跨会话记忆，但**文档检索本身是"外部记忆"**——
     弥补模型训练数据滞后，这是它的核心定位。
+
   permissions: >-
     **权限风险与本地 server 完全不同**：
     不碰本地文件，但要**把查询内容发送到 Upstash 服务器**。
+
     传入 Library Id 与具体问题即产生网络请求。
     认证用 API Key（`Authorization: Bearer YOUR_API_KEY`）。
     无独立审批机制。
+
   fit: >-
     需要查当前版本库文档的场景：库升级后的 API 变更、
     新版本引入的配置项、模型不确定的第三方库用法。
@@ -87,26 +109,35 @@ pitfalls:
 mcp:
   transport: >-
     **远程 Streamable HTTP**，服务端点为 `https://mcp.context7.com/mcp`。
-    **本赛道唯一以远程服务为默认形态的条目**——
+
+    **本分区唯一以远程服务为默认形态的条目**——
     其余官方 reference server 均为本地 stdio 进程。
+
   auth: >-
     **需 API Key**，通过 `Authorization: Bearer YOUR_API_KEY` 头传递。
     README 说明可经 OAuth 流程由安装器自动生成 key。
+
     **额度档位本轮已核验（2026-10-01，官方 plans 页）**：
     Free **1,000 次/月**（Search API + Context API 合计）、
+
     Pro **2,000 次/席位/月**、超出 **$5 / 1,000 次**不阻塞。
+
     另Free 档本身就用 OAuth 2.0（官方对比表把 OAuth 2.0 列为 Free 的能力）。
     ⚠ **Free 超出额度后的确切行为官方页面未给答案正文**，只列了问题标题。
+
   scope: >-
     **无本地权限风险，但有数据出境风险**：
     查询内容会发送到 Upstash 服务器。
     传入的库名与问题文本属于对外传输内容，
     涉密场景需评估。
+
     **本轮补一条官方对隐私的明确承诺**（官方 FAQ 标题即
     "How do you keep the privacy of my queries?"）：
+
     查询只发**文档问题与库名/ID**，
     不发完整 prompt、源代码与对话历史；
     且官方要求agent 不要在查询里带凭据、个人数据或专有代码。
+
     服务端自身的文档索引范围由 Upstash 掌握，客户端不可见。
 
 tags: [检索, 网络, 远程]
@@ -116,15 +147,19 @@ sources:
   - label: Upstash · Context7 README（API Key 与远程端点说明、**「本仓只托管 MCP server 源码，API 后端/解析/爬虫为私有」的自述**）
     url: https://github.com/upstash/context7
     kind: docs
+
   - label: 官方 Pricing & Plans（核验 2026-10-01：Free $0/1,000 次每月、Pro $10 每席位每月/2,000 次每席位/超出 $5 每 1,000 次、Private Repo Parsing $5 每 1M tokens、Enterprise Custom 含 SOC-2/SSO/Self-Hosted；**与第三方「Pro 5,000 次」冲突，按官方 2,000**）
     url: https://context7.com/docs/plans-pricing.md
     kind: pricing
+
   - label: Upstash · Context7 Releases（ctx7@0.5.12）
     url: https://github.com/upstash/context7/releases
     kind: changelog
+
   - label: Upstash · Context7 Commits
     url: https://github.com/upstash/context7/commits/main
     kind: changelog
+
   - label: Model Context Protocol · 规范
     url: https://modelcontextprotocol.io/specification
     kind: docs
@@ -239,6 +274,7 @@ API 后端、解析引擎、爬取引擎都是私有的。**
 
 **但本轮补到一条官方对隐私的明确承诺**（官方 FAQ 设了专题
 "How do you keep the privacy of my queries?"）：
+
 查询只发送**文档问题与库名/ID**，
 **不发送完整 prompt、源代码与对话历史**；
 官方并要求 agent 不要在查询里携带凭据、个人数据或专有代码。
@@ -250,7 +286,7 @@ API 后端、解析引擎、爬取引擎都是私有的。**
 需要查当前版本库文档的场景：库升级后的 API 变更、
 新版本引入的配置项、模型不确定的第三方库用法。
 
-**不适合**涉密场景**——查询内容会发送到 Upstash 服务器，需先评估数据出境。
+**不适合涉密场景**——查询内容会发送到 Upstash 服务器，需先评估数据出境。
 也不适合查内部代码或私有库。
 
 ## 实测记录
