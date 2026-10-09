@@ -110,6 +110,7 @@ mcp:
     服务端自身的文档索引范围由 Upstash 掌握，客户端不可见。
 
 tags: [检索, 网络, 远程]
+related: [claude-code-cli]
 
 sources:
   - label: Upstash · Context7 README（API Key 与远程端点说明、**「本仓只托管 MCP server 源码，API 后端/解析/爬虫为私有」的自述**）
@@ -140,7 +141,7 @@ confidence: partial
 
 ## 一句话定位
 
-**MCP 赛道上唯一的远程托管条目** —— 为 Agent 提供版本感知的库文档，MIT 开源但核心服务在 Upstash 侧。
+**工具分区里唯一的远程托管条目** —— 为 Agent 提供版本感知的库文档，MIT 开源但核心服务在 Upstash 侧。
 
 ## 为什么它和其他条目不一样
 
