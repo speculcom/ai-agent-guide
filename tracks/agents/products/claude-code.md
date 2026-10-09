@@ -2,6 +2,7 @@
 id: claude-code
 track: ide
 name: Claude Code IDE 扩展
+nameEn: Claude Code (IDE extension)
 vendor: Anthropic
 homepage: https://code.claude.com/docs/en/overview
 mark: CC
@@ -14,7 +15,7 @@ pricing:
   annual_usd: null
   annual_label: 未核验年付报价
   note: >-
-    与 [CLI 形态](../../cli/products/claude-code-cli.md) 共享同一授权：
+    与 [CLI 形态](../../agents/products/claude-code-cli.md) 共享同一授权：
     随 Claude 订阅。
     **仓库 LICENSE.md 明确：© Anthropic PBC. All rights reserved，
     使用受 Anthropic 商业条款约束**——源码公开不等于开源。
@@ -33,36 +34,73 @@ axes:
     "Use it in your terminal, **IDE**, or tag @claude on Github."
     即终端、IDE、以及在 GitHub 上用 `@claude` 提及触发。
     **这三种是同一个工具的不同入口，不是三套实现**——
-    这点与 [Cline 的三形态](../../ide/products/cline.md)（三套独立形态）不同。
+    这点与 [Cline 的三形态](../../agents/products/cline.md)（三套独立形态）不同。
   local_files: >-
-    **权限模型与工作目录强绑定**——
-    auto 模式在「读取工作目录之外的文件前」会询问，
-    且提供「允许这一次但保持询问」的第三态选项。
-    1M 上下文。
-    **IDE 形态下的具体文件访问边界本次未核验**。
+    **权限模型与工作目录强绑定**（官方 security 页「Working directory boundary」）：
+    Manual 模式下，文件工具读/写启动目录及其子目录之外的内容前会先询问；
+    要免询问读某目录可把它加为 additional directory
+    （`--add-dir` / `/add-dir` / `additionalDirectories`）。
+    **可按路径精确放行或拒绝读**：settings 的 `permissions.deny`
+    官方示例即 `"Read(./.env)"`、`"Read(./.env.*)"`，
+    `permissions.allow` 示例 `"Bash(npm run test *)"`。
+    **Bash 另有 OS 级沙箱**（官方 sandboxing 页，默认关闭）：
+    `sandbox.enabled` 开启后，写入默认限工作目录 + 临时目录 + 已添加目录，
+    读取默认放开整机（含 `~/.ssh` 等凭据文件，可 `denyRead` 收紧）。
+    1M 上下文。**这三套机制在 VS Code / JetBrains 扩展与终端读同一批
+    settings 文件**（官方 settings 页），故 IDE 形态适用同一套边界。
   background: >-
-    依赖 IDE 或客户端进程。
-    **IDE 形态是否有后台任务本次未核验。**
+    **IDE 扩展本身是本地进程**，退出即停（本地会话可用 Remote Control
+    从手机/浏览器远程操控，但执行仍在你的机器上）。
+    **但同一工具提供「真后台」**：云会话（`claude --cloud` / claude.ai/code）
+    跑在 Anthropic 托管的云基础设施上——官方原文
+    "The session keeps running after you close your laptop"，
+    可从浏览器、手机、桌面端或终端启动与查看；
+    另有 GitHub Actions（`@claude`、`prompt` 自动化、`schedule` 定时）
+    与 Routines 定时/触发运行，每次执行都算一个云会话。
+    **云会话可用不代表本地 IDE 会话能后台跑**——两者执行环境不同。
   tools: >-
-    **MCP 支持在持续加强**——
-    v2.1.284 新增 `/mcp reconnect all`
-    （一次性重试所有连接失败或待认证的 server）；
-    同期修复了恢复会话时 MCP 工具报 "No such tool available" 的竞态问题，
-    现在会等待最多 10 秒。
-    **IDE 形态下的 MCP 配置方式本次未核验。**
+    **内置工具 + MCP + 扩展机制都齐**。
+    内置文件与网络工具（Read / Edit / Write / WebFetch / WebSearch）、
+    Bash、LSP 等（官方 tools-reference）。
+    **MCP 支持完整**（官方 mcp 页）：传输含 **HTTP / SSE / stdio /
+    WebSocket** 四种；安装 scope 分 local / project（`.mcp.json`）/ user
+    三级，用 `claude mcp add` 配置，支持 `mcpServers` JSON 导入与 OAuth 认证。
+    v2.1.284 另新增 `/mcp reconnect all`，并修复恢复会话时
+    MCP 工具报 "No such tool available" 的竞态（现等待最多 10 秒）。
+    **扩展机制**：Hooks（ConfigChange / PreToolUse 等）、
+    Subagents（各自独立上下文与可选持久记忆）、Plugins、Skills、
+    `.claude/rules/` 规则。三入口（终端 / IDE / GitHub）共用同一套。
   context: >-
-    **上下文压缩有明确的边界处理**——
-    v2.1.284 修复了「压缩后仍超长导致 Prompt is too long 持久报错」：
-    现在会再压缩一次并保留更少的近期对话。
-    **IDE 形态与 CLI 形态是否共享同一压缩策略，本次未核验。**
+    **跨会话记忆有明确层级**（官方 memory 页）：
+    CLAUDE.md 按 托管策略 / 用户（`~/.claude/CLAUDE.md`）/
+    项目（`./CLAUDE.md` 或 `./.claude/CLAUDE.md`）/ 本地
+    （`CLAUDE.local.md`）四级，从宽到窄依次加载并拼接；
+    子目录里的 CLAUDE.md 在读到该目录文件时才按需载入。
+    另有 **auto memory**（Claude 自己写的笔记，每会话载入前 200 行 / 25KB）
+    与 `.claude/rules/`（可按 `paths:` 限定文件类型）。
+    **压缩自动进行**：接近上限即自动 `/compact`，
+    官方 context-window 页给出压缩后各机制的保留规则
+    （项目根 CLAUDE.md、auto memory 会从磁盘重新注入）；
+    v2.1.284 修复过「压缩后仍超长」的持久报错（会再压一次）。
+    支持 1M 上下文的模型另有 `[1m]` 变体。
+    **三入口读同一批 CLAUDE.md、用同一压缩策略，故 IDE 与 CLI 一致。**
   permissions: >-
     **本赛道里权限设计最细的一个**，且多态共用：
-    按路径询问（工作目录外读取需确认）；
-    提供「允许这一次」的第三态；
+    settings 用 `allow` / `ask` / `deny` 三类规则按工具与内容放行，
+    官方示例 `"allow": ["Bash(npm run lint)"]`、
+    `"deny": ["Read(./.env)"]`；规则来自四级 settings 文件
+    （用户 / 项目 / 项目本地 / 托管），托管设置优先级最高。
+    权限模式含 auto（分类器模型审）、manual（只读起步、逐个问）、
+    acceptEdits、plan、bypassPermissions、dontAsk；
+    另提供「允许这一次但保持询问」的第三态。
     托管策略支持 `availableModels` 与 `enforceAvailableModels`，
-    不匹配时启动即警告；
-    `/usage` 显示具体金额而非百分比。
-    **IDE 形态是否行为一致，本次未核验。**
+    不匹配时启动即警告；`/usage` 显示具体金额而非百分比。
+    **Bash 另有 OS 级沙箱**（官方 sandboxing 页，默认关闭）：
+    开启后文件系统与网络双隔离（网络默认无出口，走本地代理按域名白名单）；
+    macOS / Linux / WSL2 支持，原生 Windows 不支持。
+    凭据存储：macOS 走 Keychain，Linux 用 0600 文件。
+    **VS Code 与 JetBrains 扩展读同一批 settings 文件**（官方 settings 页），
+    故上述权限机制在 IDE 形态适用。
   fit: >-
     已在用 IDE 且希望不切换工具就能用 Claude 的人。
     需要在终端、IDE、GitHub 三处用同一工具的人。
@@ -70,10 +108,11 @@ axes:
 
 pitfalls:
   - 以为 IDE 形态是独立产品，它与 CLI 是同一个进程的三种入口
-  - 套用 CLI 的权限设计到 IDE 形态，本次未核验两者是否一致
+  - 套用 CLI 的权限设计到 IDE 形态 —— 官方 settings 页明确 VS Code / JetBrains 扩展读同一批 settings 文件，两者一致
   - 以为开源可自由使用，许可是 proprietary
 
 tags: [编程, IDE, 本地]
+related: [claude-agent-sdk]
 
 sources:
   - label: Anthropic · Claude Code 官方文档
@@ -91,13 +130,37 @@ sources:
   - label: Anthropic · Commercial Terms of Service
     url: https://www.anthropic.com/legal/commercial-terms
     kind: docs
+  - label: Anthropic · Claude Code Settings（四级 settings 文件、allow/ask/deny 示例）
+    url: https://code.claude.com/docs/en/settings
+    kind: docs
+  - label: Anthropic · Claude Code Security（权限架构、工作目录边界、云会话隔离）
+    url: https://code.claude.com/docs/en/security
+    kind: docs
+  - label: Anthropic · Claude Code Sandboxing（Bash 沙箱、文件系统与网络隔离、默认值）
+    url: https://code.claude.com/docs/en/sandboxing
+    kind: docs
+  - label: Anthropic · Claude Code Memory（CLAUDE.md 层级、auto memory、/compact 保留规则）
+    url: https://code.claude.com/docs/en/memory
+    kind: docs
+  - label: Anthropic · Claude Code MCP（HTTP/SSE/stdio/WebSocket 传输、scope 层级）
+    url: https://code.claude.com/docs/en/mcp
+    kind: docs
+  - label: Anthropic · Claude Code on the web（云会话，关机后续跑）
+    url: https://code.claude.com/docs/en/claude-code-on-the-web
+    kind: docs
+  - label: Anthropic · Claude Code GitHub Actions（@claude、自动化与 schedule 定时）
+    url: https://code.claude.com/docs/en/github-actions
+    kind: docs
+  - label: Anthropic · Claude Code Context window（压缩后续留机制清单）
+    url: https://code.claude.com/docs/en/context-window
+    kind: docs
 
 link:
   url: https://code.claude.com/docs/en/overview
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-08
+last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
 ---
@@ -190,14 +253,19 @@ v2.1.284 两处改动：
 
 **不适合**需要开源许可或自托管的场景——
 许可明确为 proprietary。
-也不适合要求「权限行为在 IDE 与 CLI 严格一致」的场景，本次未核验两者是否完全一致。
 
 ## 权限定级说明
 
 `confidence: partial`：
 
 - ✅ 已核验：许可状态原文、三种用法的官方表述、模型定价原文、权限设计三个机制、上下文压缩策略、MCP 两处改动、release 频率（5 天 5 版）、Atom feed 存在
-- ❌ 未核验：IDE 形态的索引策略、工具集细节、审批在 IDE 下的具体行为、上下文策略是否跨形态一致
+- ✅ A6.2 本轮新核（2026-10-08）：**VS Code / JetBrains 扩展与终端读同一批 settings 文件**；
+  allow/ask/deny 规则语法与四级 settings；权限模式枚举；OS 级 Bash 沙箱（文件系统 + 网络隔离）；
+  工作目录边界与凭据存储；CLAUDE.md 四级记忆层级与 auto memory；MCP 四种传输与三级 scope；
+  云会话（关机后续跑）、GitHub Actions、Routines 定时
+
+**仍属 partial 的原因**：部分官方只给机制、不给逐平台细节
+（如沙箱在 macOS/Linux/WSL2 的实现差异、云会话的具体并发上限）。
 
 ## 实测记录
 
@@ -209,10 +277,9 @@ v2.1.284 两处改动：
 
 ## 未知项清单
 
-- IDE 形态的索引策略与工具集细节
-- 审批在 IDE 下的具体行为
-- 上下文压缩策略是否跨形态一致
-- GitHub `@claude` 提及的具体触发条件
+- 沙箱在 macOS / Linux / WSL2 的逐平台实现差异（官方只说 OS 级强制）
+- 云会话的并发数与时长上限（官方未给具体数字）
+- GitHub `@claude` 提及的完整触发条件（官方给写权限 + 非 bot 两项检查）
 - 商业条款的具体限制内容
 
 ## 相关条目
