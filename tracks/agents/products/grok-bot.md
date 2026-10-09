@@ -34,12 +34,14 @@ pricing_pitfalls:
 
 axes:
   model_access: >-
-    **官方发布页未指定底层模型名** —— 这是三家里唯一没写模型的一条。
-    站内可确认的关联：同期的Grok 4.6 发布页明确写
-    「a particular focus on long-running agents」，而 Grok Bot 正是常驻型 agent，
-    **但两页没有互相点名，所以「Grok Bot 跑在哪个模型上」本次未核验，不做推断。**
-    与另两家对比：OpenAI Dot 明确写了 GPT‑6 Astra，Meta Muse 明确写了 Muse Spark，
-    **只有本条留白**。
+    **官方两篇发布页均未点名底层模型，也未给出「可换模型」的表述**
+    （已查 x.ai「Introducing Grok Bot」与「Grok Bot is now included with
+    more plans」两页）。
+    站内平行证据：同期「Introducing Grok 4.6」页写
+    「a particular focus on long-running agents」，与 Grok Bot 的常驻定位吻合，
+    **但两页无互相点名**，故本站不写「Grok Bot 跑在 4.6 上」（R5：不推断）。
+    与另两家对比：OpenAI Dot 明确写了 GPT‑6 Astra、Meta Muse 明确写了
+    Muse Spark，**只有本条留白**。**是否可换模型、可换哪些，官方未说明。**
   runtime: >-
     **形态的答案与另两家同构**：官方原文「They have their own computer,
     work inside tools and apps like you do, and keep working 24/7」，
@@ -52,22 +54,26 @@ axes:
     instead of a chat draft」。
     可用端：官方写 desktop and iOS。
   local_files: >-
-    **官方未提及本地文件系统**，数据/工作面在它自己的云端机器。
-    可间接看到的工作面是已登录的 app：
-    官方列的例子里有 audit email, Drive, and paid subscriptions、
-    以及「Works across apps and inboxes」，说明它确实在动邮箱与云盘，
-    **但权限粒度与是否全量同步，官方未说明，本次未核验。**
+    **官方未提及本地文件系统**，工作面在它自己的云端机器（官方原文
+    "They have their own computer. It's always on, with browser and terminal
+    access"）。
+    可间接看到的工作面是已登录的 app：官方例子里有 audit email, Drive, and
+    paid subscriptions、以及「Works across apps and inboxes」，
+    说明它确实在动邮箱与云盘。
+    **权限粒度与是否全量同步，官方未说明**（已查两篇发布页与
+    x.ai/bot 治理规范）。
   background: >-
     **官方直接给了时长承诺**：首发页原文「keep working 24/7」，
     另一篇「Bots work across apps and inboxes, keep going when you step away,
     and only pull you in for judgment calls」。
     **「only pull you in for judgment calls」是这一维度里最清楚的一句** ——
     它明确了回调条件是「需要判断的时候」，而不是定时汇报。
-    另有官方给的固化机制：「Ask a Bot to follow along the next time you do the job,
-    so it can run on its own after that」（教一次之后自己跑）。
+    另有官方给的固化机制：「Ask a Bot to follow along the next time you do the
+    job, so it can run on its own after that」（教一次之后自己跑）。
     并明确它可并行：「Stand up a researcher, writer, and chief of staff.
     Put them in a group chat so they pass work between themselves」。
-    ⚠ 与 OpenAI Dot 一样，后台自主时工具的权限级别**官方未给只读或读写表述**，**未核验**。
+    **后台自主时工具的权限级别（只读还是读写），官方未说明**
+    （已查两篇发布页与 x.ai/bot 治理规范，后者只列必审动作、不述权限级别）。
   tools: >-
     **官方用「例行工作」清单代替了能力表**，这份清单本身是选型依据。
     官方原文列的jobs：Bots doing today ——
@@ -87,45 +93,43 @@ axes:
     on your team, from mobile or desktop, so you can pick up the same thread
     on either — with nothing to set up first」。
     **即跨端续同一条对话线程。**
-    多Bot 协作有独立描述（group chat 里互相传活，用户不在中间）。
-    **上下文窗口大小、记忆的存储与删除机制，官方发布页完全未提，本次未核验**
-    （对比：Meta Muse 官方给了删除与 forget skill，这是本条明显的信息缺口）。
+    多 Bot 协作有独立描述（group chat 里互相传活，用户不在中间）。
+    **上下文窗口大小与记忆的存储、删除机制，官方未说明**
+    （已查两篇发布页与 x.ai/bot 治理规范；对比 Meta Muse 官方给了删除与
+    forget skill，这是本条明显的信息缺口）。
   permissions: >-
-    **官方发布页对权限的描述比另两家薄，但官方域内另有一份 Bot 治理规范补上了一部分**
+    **发布页只有「回调即审批」一层，官方域内另有 Bot 治理规范补上审批清单**
     （2026-10-03 补，文档性质见正文「那份治理规范怎么读」一节）。
-    发布页已核验的三处：
-    已核验的只有三处：
+    发布页已核验三处：
     ① 回调即审批 —— 「only come back when something needs your approval」、
     「Leaves every send for you to approve in your inbox or navigator」；
-    ② 例行任务自带保守动词 —— declutterer「Only discards or unsubscribes if you say so」、
-    refunds manager「Comes back with the refund or discount it recovered」
-    （不自行执行退款，把结果拿回来）；
+    ② 例行任务自带保守动词 —— declutterer「Only discards or unsubscribes if
+    you say so」、refunds manager「Comes back with the refund or discount it
+    recovered」（不自行执行退款，把结果拿回来）；
     ③ 一个值得记的设计 —— Website builder 官方写
     「Helps configure plugins, delivers a live URL, and adds redirect rules」，
-    **即它连改域名解析都做，但官网未把它列为需审批项。**
-    **⚠ 官方域内 `x.ai/bot/…` 的Bot 治理规范给出了一份明确的审批清单**
-    （原文「Explicit approval required before…」），逐条列出的必审动作包括：
+    **它连改域名解析都做，但官网未把它列为需审批项。**
+    **官方域内 `x.ai/bot/…` 的 Bot 治理规范给出了明确的审批清单**
+    （原文「Explicit approval required before…」），必审动作包括：
     创建/编辑/复制/隐藏/删除 Bot；保存或实质修改 Skill；
-    创建/启用/编辑/暂停 Routine；创建或变更群聊；
-    安装或认证连接器；**扩张权限**；写入外部源；发送或发布；
-    联系外部人员；**采购、转账、改定价、商业承诺**；删除或覆写数据；改动生产环境；
+    创建/启用/编辑/暂停 Routine；创建或变更群聊；安装或认证连接器；
+    **扩张权限**；写入外部源；发送或发布；联系外部人员；
+    **采购、转账、改定价、商业承诺**；删除或覆写数据；改动生产环境；
     接受法律条款；敏感雇佣/医疗/法律/财务决策；创建公开分享链接或市场提交。
-    **三条与本档案直接相关的**：
-    「**Do not infer approval from silence, vague agreement, a previous approval,
-    another version, or an example**」——**沉默不算同意**，
-    这与 Dot 的「always ask」是不同强度的档位；
+    三条与本档案直接相关的行为规约：
+    「**Do not infer approval from silence, vague agreement, a previous
+    approval, another version, or an example**」——**沉默不算同意**；
     「Approval applies only to the **exact action, target, scope, version,
-    configuration, connection, permission, and schedule**」——**审批不外溢**，
-    换一个版本或配置就不再有效；
+    configuration, connection, permission, and schedule**」——**审批不外溢**；
     「**Never delete a Bot automatically**」+
-    「Agents cannot be deleted by another agent; **the user deletes from the sidebar**」。
-    另有两条凭据规则：「**Never store credentials**」、
+    「Agents cannot be deleted by another agent; **the user deletes from the
+    sidebar**」。另有两条凭据规则：「**Never store credentials**」、
     「Never request passwords, passkeys, 2FA, private keys, recovery codes,
     payment confirmations, or API secrets in chat」。
-    **⚠ 仍未核验**：是否有类似 Dot 的**自动审核器**、是否有**可自定义的权限规则界面**、
-    **审计日志**长什么样、凭据的**技术保管方式**（只知「不存凭据」的规约，
-    不知如何加密或隔离）、以及上述规范是**产品级强制**还是**单个 Bot 的行为约束**。
-    ⚠ 三份档案里**本条仍是最薄的一份** —— 补上的是行为规约，不是产品机制说明。
+    **产品级机制（可自定义的权限规则界面、自动审核器、审计日志、
+    凭据的技术保管方式、规范是产品级强制还是单个 Bot 的约束），官方未说明**
+    —— 补到的是一份 Bot 行为规范，不是产品机制文档（已查两篇发布页与
+    x.ai/bot 规范）。
   fit: >-
     官方给的是**岗位化的 jobs 清单**（见 tools 维），选型时可当清单用：
     销售线索、网站搭建、邮箱清理、客服、游戏素材、办公排程、收件箱、会议代听、退款跟进。
@@ -141,6 +145,7 @@ pitfalls:
   - 以为能像 Muse 那样直接付款 —— 官方 Grok Bot 页未提支付结账
 
 tags: [编码agent, 云端, 厂商云, 常驻, 并行, beta, 岗位化]
+related: [playwright]
 
 sources:
   - label: xAI · Introducing Grok Bot（官方首发页，2026-08-11 beta 上线）
