@@ -1,46 +1,30 @@
 // 审计：逐条目列出 confidence、lifecycle 与标了未知的维度
-import fs from 'node:fs';
+//
+// ⚠ 2026-10-08：数字口径已统一到 scripts/completeness.mjs（铁律 R4）。
+// 本文件**不再自己算**补齐率 —— 过去这里算出 174/315，而站点写死 69/99，
+// 独立测量又是 193/315，同一件事三个数字。
+// 现在本文件只做「人可读的明细打印」，真值一律来自 completeness.mjs。
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { computeCompleteness, TRACKS } from './completeness.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const AXES = ['model_access','runtime','local_files','background','tools','context','permissions','fit'];
-const MCP_AXES = ['transport','auth','scope'];
-const PAT = /(未核验|未知|未声明|未逐条|本次未能|未能逐)/;
-
-// v4 赛道目录（此前写死 ['ide','cli','mcp']，v4 合成 agent 分区后那三个目录已删）
-const TRACKS = ['agents', 'harness', 'tools'];
 const only = process.argv.slice(2).length ? process.argv.slice(2) : TRACKS;
 
 console.log('\n（未知维度 = 该维度正文里仍有「未核验/未知/未声明」字样；已补齐 = 该维度内容完整）\n');
 
-let tTotal = 0, tDone = 0, tUnknown = 0;
-for (const t of only) {
-  const dir = path.join(ROOT, 'tracks', t, 'products');
-  if (!fs.existsSync(dir)) continue;
-  for (const f of fs.readdirSync(dir).filter(x => x.endsWith('.md'))) {
-    const raw = fs.readFileSync(path.join(dir, f), 'utf8');
-    const fm = raw.split('\n---\n')[0];
-    const isMcp = /^track:\s*mcp/m.test(fm);
-    const keys = isMcp ? [...AXES, ...MCP_AXES] : AXES;
-    const ai = fm.indexOf('\naxes:');
-    const mi = fm.indexOf('\nmcp:');
-    const pi = fm.indexOf('\npitfalls:');
-    const axesSeg = ai >= 0 ? fm.slice(ai, mi > ai ? mi : pi) : '';
-    const mcpSeg = mi >= 0 ? fm.slice(mi, pi) : '';
-    for (const k of keys) {
-      tTotal++;
-      const seg = (k === 'transport' || k === 'auth' || k === 'scope') ? mcpSeg : axesSeg;
-      const i = seg.indexOf(`  ${k}:`);
-      if (i < 0) continue;
-      const after = seg.slice(i + `  ${k}:`.length);
-      const m = after.match(/\n(?=  [a-z_]+:)|\n(?=\S)/);
-      const body = m ? after.slice(0, m.index) : after;
-      if (PAT.test(body)) tUnknown++; else tDone++;
-    }
-  }
+const c = computeCompleteness({ tracks: only, root: ROOT });
+const pct = c.total ? Math.round(c.done / c.total * 100) : 0;
+console.log('分赛道：');
+for (const [t, v] of Object.entries(c.byTrack)) {
+  const p = v.total ? Math.round(v.done / v.total * 100) : 0;
+  console.log(`  ${t.padEnd(9)} ${v.done}/${v.total} = ${p}%`);
 }
-const pct = tTotal ? Math.round(tDone / tTotal * 100) : 0;
-console.log(`全赛道维度补齐率：${tDone}/${tTotal} = ${pct}%  （未核验 ${tUnknown}）`);
+console.log(`\n全赛道维度补齐率：${c.done}/${c.total} = ${pct}%  （未核验 ${c.unknown}）`);
 if (pct >= 60) console.log('  → 已过半，继续补齐可显著提升 confidence 分布');
-if (pct >= 85) console.log('  → 接近完整，剩余多为实测才能补的项');
+if (c.missing.length) {
+  console.log(`\n⚠ ${c.missing.length} 个维度在 frontmatter 里找不到对应键（分母已计入、内容算未核验）：`);
+  console.log('  ' + c.missing.slice(0, 10).join('\n  '));
+}
+
+console.log('（逐条明细见各赛道页的「完整度」区块；补内容后重跑本脚本）');
