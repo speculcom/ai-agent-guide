@@ -36,9 +36,12 @@ axes:
     **headless 默认 1 小时关闭，headed 模式默认永不关闭**；
     下次工具调用会重新拉起浏览器。
   tools: >-
-    提供完整的浏览器自动化工具集（导航、点击、输入、快照、截图等）。
+    提供完整的浏览器自动化工具集，**本站已按官方 README 逐条核对：共 72 个工具**
+    （2026-10-08）：导航与标签页、点击 / 拖放 / 悬停、表单与键盘输入、
+    无障碍树快照（snapshot）、截图与 PDF、网络请求与路由（route / unroute）、
+    Cookie 与 localStorage / sessionStorage 读写、文件上传、对话框处理、
+    视频录制与 tracing（start / stop）、以及 verify_* 断言组等。
     输出以无障碍树结构为主，是结构化数据，可直接消费。
-    **具体工具清单需读仓库文档，本站未逐条核验。**
   context: >-
     **保持浏览器上下文是本 server 的核心价值**——
     README 明确指出 MCP 形态适合需要持久状态、
@@ -68,7 +71,10 @@ mcp:
     --shared-browser-context 可让多个 HTTP 客户端共用同一浏览器上下文。
   auth: >-
     stdio 形态无独立认证层，继承客户端用户权限。
-    **HTTP endpoint 模式的认证机制仓库未说明，本次未核验。**
+    **HTTP 模式（2026-10-08 核验官方 README）**：选项表没有 token / auth
+    相关参数，Docker 示例直接以 `--host 0.0.0.0` 裸监听；官方明确声明
+    “Playwright MCP is **not** a security boundary”，要求按 MCP 安全最佳
+    实践自行加固（反向代理 / 网络层）。**认证要自己加，别默认它有。**
   scope: >-
     **控制的是浏览器而非文件**，但风险面同样宽：
     默认允许访问所有来源（--allowed-origins 默认放行全部），
@@ -77,6 +83,7 @@ mcp:
     需要真正隔离时应使用 --isolated 或容器化网络策略。
 
 tags: [浏览器, 网络, 本地, 只读]
+related: [openai-dot]
 
 sources:
   - label: Microsoft · Playwright MCP README（含来源限制免责声明）
@@ -96,8 +103,8 @@ link:
   url: https://github.com/microsoft/playwright-mcp
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-08
+last_updated: 2026-10-08
 lifecycle: active
 confidence: verified
 ---
@@ -212,9 +219,7 @@ Deterministic tool application — Avoids ambiguity common with screenshot-based
 
 ## 未知项清单
 
-- 完整工具清单（需读仓库文档）
-- HTTP endpoint 模式的认证机制
-- 多客户端共用上下文时的状态隔离程度
+- 多客户端共用上下文（`--shared-browser-context`）时的状态隔离程度
 - 重定向绕过来源限制的具体表现
 
 ## 相关条目
