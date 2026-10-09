@@ -93,8 +93,15 @@ axes:
     **「your own endpoint」这一条对本站读者最有用** —— 自建网关/自托管推理可以直接接。
     换模型的操作是**运行时命令 `/model [provider:model]`**（CLI 与消息平台共用，
     见 CLI vs Messaging 对照表），不是改代码。
-    ⚠ **未核验**：完整 provider 清单（官方 `docs/integrations/providers` 未取到正文）、
-    换模型后的能力对齐度、本地量化模型在多后端下的行为差异。
+    **完整 provider 清单已核验**（官方 `docs/integrations/providers`）：官方列出 40+ 家，
+    含 Nous Portal（"300+ frontier agentic models"）、OpenRouter、Anthropic、
+    GitHub Copilot、xAI Grok、Google Gemini / Vertex AI、AWS Bedrock、
+    Azure AI Foundry、DeepSeek、Hugging Face、NVIDIA Build；**本地/自托管路径**有
+    Ollama、LM Studio、**Custom Endpoint**（"saved in `config.yaml`"）。
+    官方对该页定位原文："from cloud APIs ... to self-hosted endpoints like **Ollama
+    and vLLM**, to advanced routing and fallback configurations."
+    **换模型后的能力对齐度、本地量化模型在多后端下的行为差异**，官方未给量化结论，
+    本站未实测（已查 providers 页与 configuration 页）。
   runtime: >-
     **这是本对象最强的一维：七种终端后端 + 两个入口。**
     README 原文列举："**Seven terminal backends** — **local, Docker, SSH, Singularity,
@@ -110,20 +117,35 @@ axes:
     但它把这个能力做成了默认形态而不是可选部署项。
   local_files: >-
     **本地文件能力通过终端后端间接获得，且有明确的隔离机制（见 permissions）。**
-    它的工作区由所选后端决定（local 后端 = 本机，Docker/SSH/Singularity 等各有隔离）。
-    **Context Files 是官方的一等概念**（文档 `features/context-files`）：
-    "Project context that shapes every conversation" —— 项目上下文文件会影响**每一次**对话。
-    ⚠ **未核验**：context files 的确切格式与加载优先级、
-    工作区与「本地文件」的边界在哪（local 后端下的默认文件访问范围）。
+    工作区由所选后端决定：官方 `terminal.backend` **默认是 `local`**
+    （"Run on your machine (default)"），`cwd` 决定工作目录；
+    Docker / SSH / Singularity / Modal / Daytona / Vercel 后端各提供隔离。
+    **Context Files 是官方的一等概念，格式与优先级已核验**
+    （文档 `features/context-files`）：支持 `.hermes.md`/`HERMES.md`、`AGENTS.md`、
+    `AGENTS.override.md`、`CLAUDE.md`、`SOUL.md`、`.cursorrules`、`.cursor/rules/*.mdc`；
+    **优先级 first match wins**：`.hermes.md` → `AGENTS.override.md` → `AGENTS.md`
+    → `CLAUDE.md` → `.cursorrules`，`SOUL.md` 作为身份始终单独加载。
+    git 仓库内按 **git root → 工作目录** 合并整条 `AGENTS.md` 链，
+    会话中再渐进发现子目录 context；每文件字数上限为 floor 20,000 / ceiling 500,000。
+    **文件访问边界**：官方安全页第 8 层原文——terminal 后端的工作目录参数
+    "validated against an allowlist to prevent shell injection"；
+    `write_file` / `patch` 有 denylist 与可选 write sandbox（安全页第 3 层）。
   background: >-
     **这一维它是全站最强的，而且有官方三重机制。**
-    **① 内建cron 调度器**：官方特性表写"Built-in **cron scheduler** with delivery to
+    **① 内建 cron 调度器**：官方特性表写"Built-in **cron scheduler** with delivery to
     any platform. Daily reports, nightly backups, weekly audits — all in natural language,
     **running unattended**."（文档 `features/cron`）。
-    **② serverless 休眠后唤醒**：Daytona / Modal 后端空闲时休眠、需唤醒 —— 本站未核验唤醒延迟。
-    **③ 常驻网关进程**：gateway 一旦运行，就能从六个消息平台随时触发。
-    ⚠ **未核验**：cron 未触发任务的补偿逻辑、网关断线后的任务补跑、
-    跨休眠/唤醒的状态一致性。
+    **② serverless 休眠后唤醒**：Daytona / Modal / Vercel 后端空闲时休眠、需唤醒
+    （官方："hibernates when idle and wakes on demand"）。
+    **③ 常驻网关进程**：gateway 一旦运行就能从多个消息平台随时触发。
+    **补偿与补跑机制官方已写明**（`features/cron`）：有 **misfire catch-up** 扫描；
+    `resume` 后"the next tick fires one **catch-up run**"（可关：`cron.catch_up_missed: false`）；
+    全局 `hermes pause` 期间托管 cron 的 fire webhook 返 `503 Retry-After: 60` 让调度器重投，
+    "nothing is lost: due work catches up on the first tick"；运行中的任务"never killed"。
+    网关侧有 **event-loop liveness watchdog**（连续 3 次探针无响应即 code 75 退出、
+    由 supervisor 重启）与 60s 心跳。
+    **跨休眠/唤醒的状态一致性官方未说明**（已查 `features/cron`、`features/tools`、
+    `user-guide/messaging` 三页）。
   tools: >-
     **官方说 40+ 工具，并且明确支持 MCP。**
     文档目录里有独立的 "**Tools & Toolsets**" 页，副标题原文
@@ -160,23 +182,29 @@ axes:
     以及 `~/.hermes/skills/openclaw-imports/`（技能目录）。
     **这说明记忆是明文的 markdown 文件，可读可迁移** —— 对本站读者来说是重要优点。
   permissions: >-
-    **官方文档目录里有一节独立的 "Security"，这是本站判断它权限面做得比较细的依据。**
-    该节副标题原文（核验自 README 文档目录表）：
-    "**Command approval, DM pairing, container isolation**"。
-    逐项解读：
-    **① Command approval** —— 命令级审批（与 OpenHands 的 API key、
-    Codex SDK 的 ApprovalMode 属不同层面的做法；本站未核验其粒度与默认值）。
-    **② DM pairing** —— 私聊配对，即**只有配对过的用户能指挥它**。
-    **这一点在六个消息平台入口的前提下极其重要** ——
-    一个能通过 Telegram/WhatsApp 接指令、还能在文件系统上动手的 agent，
-    「谁能给它下指令」就是最关键的安全问题。
-    **③ Container isolation** —— 容器隔离。
-    ⚠ **未核验**：三者的默认状态（默认开还是默认关）、
-    command approval 的粒度与是否可白名单化、
-    gateway 暴露面与端口安全。
-    ⚠ 另有一处需要注意：`hermes claw migrate --preset user-data` 之类的迁移会涉及
-    API keys（README 列出 Telegram / OpenRouter / OpenAI / Anthropic / ElevenLabs），
-    **迁移脚本本身接触密钥** —— 用 dry-run 预览是官方给的手段。
+    **官方文档里有一节独立的 "Security"，而且把权限面拆成了八层（原文）**：
+    user authorization（allowlists、DM pairing）、dangerous command approval、
+    file write safety、container isolation、MCP credential filtering、
+    context file scanning、cross-session isolation、input sanitization。
+    逐项核验（官方 `user-guide/security`）：
+    **① Command approval（默认已核验）**：`approvals.mode` 三档，**默认 `smart`**
+    —— 用辅助 LLM 评风险，低危命令自动批准、真正危险自动拒绝、不确定升级为手动；
+    `manual` 每次都问，`off` 等于 `--yolo`。超时默认 `300` 秒，**未回复即 fail-closed**。
+    另有**始终生效的 hardline blocklist**（`rm -rf /`、fork bomb、`dd` 写块设备等，
+    `--yolo`/`approvals.mode: off` 都不能越过）与**用户可编辑的 deny 规则**
+    `approvals.deny`（fnmatch glob、大小写不敏感，可写"yolo 但除这些之外"）。
+    **② DM pairing（默认拒绝）**：授权检查顺序为 平台 allow-all → **DM pairing 已批准名单**
+    → 平台 allowlist（`TELEGRAM_ALLOWED_USERS` 等）→ 全局 allowlist → 全局 allow-all
+    → **Default: deny**。配对流程是 8 位码 + `hermes pairing approve <platform> <code>`，
+    `unauthorized_dm_behavior` 默认 `pair`（另可 `ignore`/`decline`），
+    配对码 1 小时过期、限速、5 次失败锁 1 小时。
+    **③ Container isolation（默认关）**：`terminal.backend` 默认 `local`，
+    容器隔离是**改用 docker/ssh/singularity/modal/daytona/vercel 后端时才启用**；
+    启用后官方列出一整套 Docker 加固 flag（`--cap-drop ALL`、
+    `--security-opt no-new-privileges`、`--pids-limit 256`、noexec tmpfs 等）。
+    **迁移脚本会碰密钥**：`hermes claw migrate` 会导入五家 API keys
+    （Telegram / OpenRouter / OpenAI / Anthropic / ElevenLabs），官方给 `--dry-run` 预览。
+    **gateway 端口安全**官方未单列一节；dashboard 侧有 OAuth / 自托管 OIDC 鉴权。
   fit: >-
     **适合**：想要一个**常驻的跨平台个人助手**（Telegram/Discord/Slack/WhatsApp/Signal/Email）；
     把它放在云VM / serverless 上而不绑在自己笔记本；需要定时任务无人值守跑；
@@ -184,8 +212,9 @@ axes:
     需要命令级审批与 DM 配对做安全边界。
     **不适合**：只做编程任务（它是通用助手，编程只是其一）；
     需要拿它当嵌入式 SDK（它是完整运行时，不是库）；
-    需要详细的「状态 vs 上下文」分层保证（它机制多但官方没按这两层分）；
-    需要企业级多用户与审计（本次未核验）。
+    需要详细的「状态 vs 上下文」分层保证（它机制多但官方没按这两层分）。
+    **企业级多用户与审计官方未单独提供文档**（已查 security 与 messaging 两页，
+    二者只讲单 owner 的 allowlist / DM pairing 授权，未讲多租户审计）。
 
 pitfalls:
   - 当成编程框架用 —— **它是通用个人助手**，编程只是它能做的事之一，形态与 LangGraph/CrewAI 完全不同
@@ -197,6 +226,7 @@ pitfalls:
   - 不确认就迁移 —— Hermes 与 OpenClaw 的关系本站未核验，只记录 README 的一手事实
 
 tags: [Python, 开源, MIT, 通用harness, 通用助手, 常驻, 跨平台消息, 定时任务, MCP, 子代理, RPC, 技能系统, 记忆, 上下文压缩, 权限审批, 自托管]
+related: [memory]
 
 sources:
   - label: NousResearch/hermes-agent · 仓库（250,401★，MIT，核验 2026-10-01）
@@ -207,6 +237,12 @@ sources:
     kind: docs
   - label: 官方文档首页
     url: https://hermes-agent.nousresearch.com/docs/
+    kind: docs
+  - label: LLM and Model Providers（官方 provider 清单 40+ 家、Nous Portal 300+ models、Ollama / LM Studio / vLLM / Custom Endpoint）
+    url: https://hermes-agent.nousresearch.com/docs/integrations/providers
+    kind: docs
+  - label: Tools & Toolsets（40+ tools、terminal backends 七种、container security、background 进程管理）
+    url: https://hermes-agent.nousresearch.com/docs/user-guide/features/tools
     kind: docs
   - label: Security（Command approval / DM pairing / container isolation）
     url: https://hermes-agent.nousresearch.com/docs/user-guide/security
@@ -358,7 +394,9 @@ local 就是本机执行，Docker/Singularity 是容器，SSH 是远端机，Mod
 另有一个独立的 **Context Files** 概念（文档 `features/context-files`）——
 "Project context that shapes **every** conversation"，即项目上下文文件会影响每一次对话。
 
-⚠ 未核验：context files 的确切格式与加载优先级。
+**context files 的格式与优先级已核验**：first match wins，
+`.hermes.md` → `AGENTS.override.md` → `AGENTS.md` → `CLAUDE.md` → `.cursorrules`，
+`SOUL.md` 作为身份始终单独加载（见 axes.local_files）。
 
 ## 权限：六个平台入口让「谁能指挥它」成为核心问题
 
@@ -368,18 +406,21 @@ README 的文档目录里有一节独立的 **Security**，副标题原文：
 
 **逐项解读**：
 
-**① Command approval** —— 命令级审批。
+**① Command approval** —— 命令级审批。**默认 `smart`**（辅助 LLM 评风险，低危自动批准、
+危险自动拒绝、不确定转手动），超时 `300` 秒 fail-closed；另有始终生效的 hardline
+blocklist 与用户可编辑的 `approvals.deny`（fnmatch glob、大小写不敏感）。
 与OpenHands 的 API key 机制、Codex SDK 的四种 `ApprovalMode` 属不同层面的做法。
-⚠ 未核验粒度与默认状态。
 
 **② DM pairing** —— 私聊配对，即**只有配对过的用户能指挥它**。
+**默认拒绝**：授权检查顺序里 pairing 已批准名单排在平台 allowlist 之前，
+全未命中即 deny；流程是 8 位码 + `hermes pairing approve <platform> <code>`。
 
 > **这一项在六个消息平台入口的前提下极其重要。**
 > 一个能通过 Telegram / WhatsApp 接指令、还会在文件系统上动手的 agent，
 > **「谁能给它下指令」就是最关键的安全问题** —— 这也是本站把它单独列出来的理由。
 
-**③ Container isolation** —— 容器隔离。
-⚠ 未核验默认状态，以及 command approval 与容器隔离是否默认同时开启。
+**③ Container isolation** —— 容器隔离。**默认关**：`terminal.backend` 默认是 `local`，
+只有改用 docker / ssh / singularity / modal / daytona / vercel 后端时才启用隔离。
 
 ## 工具：40+ 且支持 MCP，还有一项很特别的能力
 
@@ -413,9 +454,12 @@ README 特性表原文：
 > **running unattended**.
 
 **常驻这件事官方给了三重机制**：① 内建 cron；② serverless 休眠后唤醒；
-③ 常驻网关进程（六平台随时触发）。
+③ 常驻网关进程（多平台随时触发）。
 
-⚠ 未核验：cron 未触发任务的补偿逻辑、网关断线后的补跑、跨休眠/唤醒的状态一致性。
+**cron 的补偿/补跑已核验**：有 misfire catch-up 扫描、`cron.catch_up_missed` 开关、
+`hermes pause` 期间托管 cron 的 fire webhook 重投（`503 Retry-After: 60`）、
+运行中任务"never killed"；网关侧有 event-loop liveness watchdog 与 60s 心跳。
+**跨休眠/唤醒的状态一致性官方未说明。**
 
 ## 迁移脚本会碰密钥：用 dry-run
 
@@ -444,10 +488,11 @@ hermes claw migrate --preset user-data     # 不导入密钥
 
 `confidence: partial` 的依据：
 
-**为什么不是 verified**：`permissions` 三项机制的**默认状态**未核验
-（command approval / container isolation 默认开还是关，是部署安全的前提）；
-`local_files` 的工作区边界与 context files 加载优先级未核验；
-`background` 的休眠/唤醒与 cron 补偿语义未核验。
+**为什么不是 verified**：`model_access` 的换模型后能力对齐度未核验；
+`background` 的休眠/唤醒延迟与跨休眠状态一致性官方未说明；
+「zero-context-cost」与 Honcho/skills 的实际效果未核验。
+（A6.2 已补：permissions 三机制默认值、local_files 的 context files 格式与优先级、
+cron 补偿语义均已核验，见上。）
 
 已核验：仓库存在与星数（250,401，**本站收录对象里最高**）、许可（MIT，经 license API）、
 最近推送（2026-10-01，仍活跃）、最新版 **v2026.9.24**（releases @ 2026-09-24）、
@@ -456,10 +501,9 @@ CLI vs Messaging 完整对照表、十四节文档目录含 Security/Memory/MCP/
 OpenClaw 迁移清单含文件级条目、社区与许可段）、
 仓库有中文与西语等README 分支、Nous Portal 入口
 
-未核验：完整 provider 清单与换模型后的对齐度、
-command approval 的粒度与默认值、container isolation 的默认状态、
-context files 格式与优先级、休眠唤醒延迟与状态一致性、
-cron 未触发任务的补偿逻辑、「zero-context-cost」的量化值、
+未核验：换模型后的能力对齐度与本地模型可靠性、
+休眠唤醒延迟与跨休眠状态一致性、
+「zero-context-cost」的量化值、
 Honcho 用户建模与 skills 自改进的实际效果、
 Hermes 与 OpenClaw 的确切关系
 
@@ -486,12 +530,7 @@ Hermes 与 OpenClaw 的确切关系
 
 ## 未知项清单
 
-- command approval 的粒度、是否可白名单化、默认状态
-- container isolation 的默认状态与覆盖范围
-- DM pairing 的配对流程与撤销机制
-- Context Files 的格式、加载顺序与优先级
 - serverless 后端的唤醒延迟与跨休眠状态一致性
-- cron 未触发时的补偿与补跑逻辑
 - 「zero-context-cost」的实际上下文节省量
 - skills 自我改进的边界（会不会越学越歪）
 - Honcho 用户建模的数据去向与隐私
@@ -499,7 +538,7 @@ Hermes 与 OpenClaw 的确切关系
 - Nous Portal 的**官方**定价（官网不公开，第三方口径未获确认）
 - Nous Portal 额度制的实际消耗速度（长agent 循环能几天烧完一档，第三方说法未实证）
 - Nous Portal 与 OpenRouter 的差异（同样走credit，但模型目录与工具网关不同）
-- 完整 provider 清单与本地模型的可靠性
+- 本地/自托管模型在各后端下的可靠性（完整 provider 清单已核验）
 
 ## 相关条目
 
