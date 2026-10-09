@@ -24,11 +24,17 @@ pricing_pitfalls:
 
 axes:
   model_access: >-
-    **由用户自选 provider**——
-    Desktop App 形态的 README 明确写「manage models, plugins, and MCP servers」，
-    说明模型是可配置的而非绑定单一厂商。
-    官方自述为「open source coding agent in your IDE, terminal, & desktop」，
-    模型层可自选。**具体支持的 provider 清单本次未核验。**
+    **由用户自选 provider，官方给出 30+ 家清单（以 BYOK 为主）。**
+    官方 Model Selection Guide 的 provider 表列出：Cline（免 API key，
+    登录即用）、OpenRouter、Anthropic、OpenAI、OpenAI Codex
+    （直接用 ChatGPT 订阅，无需 API key）、Google Gemini、DeepSeek、
+    Alibaba Qwen、Moonshot、Cerebras、AWS Bedrock、**Ollama（本地模型）**，
+    并指向「all 30+ supported providers」页（另含 xAI Grok、Mistral、
+    Groq、Together、Hugging Face、Baseten、SambaNova、Nebius 等）。
+    接入示例：`cline auth --provider anthropic --apikey sk-... --modelid ...`；
+    官方 SDK 侧另支持 OpenAI-compatible 端点
+    （`providerId: "openai-compatible"` + `baseUrl` + `apiKey`）。
+    **换 provider 后的 tool calling / structured output 质量，官方未给对比。**
   runtime: >-
     **本赛道唯一三形态全覆盖的对象**：
     一是 CLI（`npm i -g cline`，支持交互式与完全 headless 两种模式，
@@ -45,7 +51,15 @@ axes:
     主动修复缺失 import、类型不匹配、语法错误，用户看不到就会出问题的那些。
     在 VS Code 与 JetBrains 中**每次编辑都以 diff 形式呈现**，可审查、修改或回滚；
     所有改动都有 checkpoint 记录，可整体撤销。
-    **索引算法与大仓库的耗时表现本次未核验。**
+    官方 Checkpoints 页说明它用 **shadow Git repository** 跟踪改动，
+    与主 Git 工作流互不干扰，每次工具调用后建一个检查点。
+    读取范围分两档：默认「Read project files」（工作区内），
+    「Read all files」（工作区外）需先打开基础开关才生效；
+    项目级忽略用 `.clineignore` 控制（官方给出用 hook 强制的做法）。
+    **没有「全量语义索引」这一环节**——内置 `search` 工具是
+    "Ripgrep-powered codebase search"，官方给大仓库的建议是
+    "Use search instead of reading many files" 并拆成更小任务
+    （已查 Tools 页与 Context Window Guide）。
   background: >-
     **长进程与定时任务都支持**（README 原文）：
     命令在终端直接执行并实时观察输出——装包、跑构建、跑测试、部署、管数据库；
@@ -56,18 +70,31 @@ axes:
     **且 schedule 在重启后仍保留、独立于任何终端会话运行**。
     CLI 的 headless 模式面向 CI/CD。
   tools: >-
-    VS Code 扩展形态明确支持：
-    创建文件、执行命令、浏览网页、使用工具。
-    Desktop 形态可管理 models、plugins 与 **MCP servers**；
-    仓库 `docs/` 下有独立的 `mcp/` 目录，说明 MCP 是被系统化支持的。
-    **具体工具清单与 MCP 接入细节本次未核验。**
+    **内置工具清单已核到**（官方 Tools 参考，ClineCore 运行时）：
+    `bash`（执行命令）、`editor`（查看/编辑文件）、`read_files`（批量读）、
+    `apply_patch`（打 unified diff）、`search`（ripgrep 代码搜索）、
+    `fetch_web`（HTTP + HTML 转 markdown）、`ask_question`（问用户）。
+    **MCP 是核心扩展面**：官方有 **MCP Marketplace**，称
+    "one-click installation experience for hundreds of MCP servers"，
+    配置文件为 `.cline/mcp.json`，工具经 `use_mcp_tool` 调用、
+    资源经 `access_mcp_resource` 访问；传输支持 **stdio 与 HTTP**，
+    并可用 `.clinerules` 里的「MCP Rules」按触发词分组调度。
+    扩展机制另有 **Hooks**（PreToolUse / PostToolUse）、Skills、Workflows
+    与 plugins（可注册自定义工具，当前限 SDK / CLI / Kanban）。
   context: >-
     **项目级规则文件 `.clinerules`**（README 原文）：
     用于定义项目专属规则——编码标准、架构约定、部署流程、测试要求；
     **规则会被 CLI、VS Code 扩展与 JetBrains 插件自动读取**。
     另可用 skills 让模型按需加载特定规则。
-    Desktop 形态提到「run agent sessions in any folder」，存在跨文件夹的会话管理。
-    **上下文窗口大小与跨会话记忆机制本次未核验。**
+    Desktop 形态提到「run agent sessions in any folder」，存在跨文件夹会话管理。
+    **上下文机制已核到**：接近上限时 **Auto Compact 自动摘要**，官方原文
+    "Creates a comprehensive summary... Replaces the conversation history
+    with the summary"；窗口大小**由所选模型决定**（官方列的
+    Claude Sonnet 4.5 为 1M、GPT-5 为 400K、Gemini 2.5 Pro 为 1M+）。
+    **跨会话记忆靠 Memory Bank**：一套结构化 markdown 文件
+    （`projectbrief.md` / `productContext.md` / `activeContext.md` /
+    `progress.md` 等），放进仓库、以 `.clinerules` 指令驱动读写；
+    官方另有 Focus Chain（todo 注入）与 `/newtask`、`/smol` 做上下文交接。
   permissions: >-
     **两级审批设计，本赛道最细**（README 原文）：
     一是 **Plan / Act 双模式**——Plan 模式下 Cline 探索代码库、提出澄清问题、
@@ -75,8 +102,12 @@ axes:
     二是 **「每次文件编辑与终端命令都需要批准」**，
     也可切换 auto-approve 让它自主运行。
     VS Code 扩展形态另有明确表述："use tools with human-in-the-loop approval"。
-    **CLI headless 模式下的审批行为本次未核验**——
-    这是关键缺口：无人值守时如何处理审批。
+    **CLI / headless 的审批行为已核到**（官方 CLI Overview 与 CLI Reference）：
+    CLI 提示语写 "Default to start in act mode with auto-approve enabled"，
+    `--auto-approve <boolean>` **默认 true**——即默认放行工具；
+    `--auto-approve false` 时每个工具调用前需批准，`--yolo` 跳过全部审批；
+    ACP（编辑器集成）模式默认相反，为 false。
+    另：CLI 无 shell 命令允许/拒绝清单，官方建议用 PreToolUse hook 拦截。
   fit: >-
     需要同一工具覆盖编辑器、终端、桌面三种工作形态的用户。
     需要模型自选（不绑定单一厂商）的人。
@@ -86,10 +117,11 @@ axes:
 pitfalls:
   - 以为是单一形态的 VS Code 插件，实际有 CLI / Desktop / 扩展三套
   - 忽略 headless 模式，CLI 形态本身就支持 CI/CD 集成
-  - 以为审批机制一致，扩展形态明确有 human-in-the-loop，但 CLI headless 下的行为未核验
+  - 以为审批机制一致，扩展形态是 human-in-the-loop，CLI 默认却是 auto-approve 全程放行
   - 以为自动提交是设计意图，实际默认每次编辑都要批准，可开 auto-approve 自主运行
 
 tags: [编程, 终端, 本地, 开源]
+related: [filesystem]
 
 sources:
   - label: Cline · 仓库 README（三形态说明）
@@ -104,13 +136,40 @@ sources:
   - label: Cline · CLI 子项目 README
     url: https://github.com/cline/cline/blob/main/apps/cli/README.md
     kind: docs
+  - label: Cline · Model Selection Guide（30+ provider 清单、BYOK / Ollama 本地模型）
+    url: https://docs.cline.bot/core-features/model-selection-guide
+    kind: docs
+  - label: Cline · Auto Approve & YOLO（分类审批、工作区内外、命令 safe / 需批准）
+    url: https://docs.cline.bot/features/auto-approve
+    kind: docs
+  - label: Cline · Checkpoints（shadow Git 仓库、按步快照、三类恢复）
+    url: https://docs.cline.bot/core-workflows/checkpoints
+    kind: docs
+  - label: Cline · Auto Compact（接近上限自动摘要，替代旧截断）
+    url: https://docs.cline.bot/features/auto-compact
+    kind: docs
+  - label: Cline · Memory Bank（跨会话结构化 markdown 记忆文件）
+    url: https://docs.cline.bot/best-practices/memory-bank
+    kind: docs
+  - label: Cline · Tools 参考（内置工具清单与工具名）
+    url: https://docs.cline.bot/tools-reference/all-cline-tools
+    kind: docs
+  - label: Cline · MCP Marketplace（一键安装数百 MCP server）
+    url: https://docs.cline.bot/mcp/mcp-marketplace
+    kind: docs
+  - label: Cline · CLI Overview（headless 触发、--auto-approve 默认 true）
+    url: https://docs.cline.bot/usage/cli-overview
+    kind: docs
+  - label: Cline · CLI Reference（--auto-approve 默认 true、ACP 模式默认 false）
+    url: https://docs.cline.bot/cli/cli-reference
+    kind: docs
 
 link:
   url: https://docs.cline.bot
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-08
+last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
 ---
@@ -158,12 +217,15 @@ use tools with human-in-the-loop approval
 **这是本赛道里少见的明确表述**——
 多数工具不会在 README 首屏就说明工具执行需要人工批准。
 
-**但有一个关键缺口**：
-CLI 的 headless 模式是给 CI/CD 用的，
-**无人值守时审批如何处理，本次未核验**。
-如果默认拒绝，CI 场景就用不了；如果默认放行，那审批机制在 CI 里等于不存在。
+**CLI / headless 的审批口径已核到**（官方 CLI Overview 与 CLI Reference）：
+提示语写 "Default to start in act mode with auto-approve enabled"，
+`--auto-approve <boolean>` **默认 true**——headless 运行默认放行工具，
+`--auto-approve false` 才改为每次工具调用前需批准，`--yolo` 跳过全部审批；
+ACP（编辑器集成）模式默认相反，为 false。
+另：CLI 无 shell 命令允许/拒绝清单，官方建议用 PreToolUse hook 拦截。
 
-**这是本条目最需要补全的一项。**
+**所以「三形态审批一致」并不成立**：扩展形态默认要人工批准，
+CLI 默认自主放行——跨形态使用时必须按 `--auto-approve` 显式对齐。
 
 ## 适合与不适合
 
@@ -173,8 +235,9 @@ CLI 的 headless 模式是给 CI/CD 用的，
 需要「改动可审查、可回滚」保证的人——每次编辑以 diff 呈现 + checkpoint 整体撤销。
 需要周期性自动化的人（cron 调度，重启后仍生效）。
 
-**不适合**要求「明确审批在所有形态下一致生效」的场景——
-扩展形态确认有 human-in-the-loop，但 CLI headless 下的行为未核验。
+**不适合**要求「审批默认最严」的场景——
+CLI / headless 默认 `--auto-approve true` 全程放行，
+要收紧得显式传 `--auto-approve false`（或用 PreToolUse hook 拦命令）。
 
 ## 值得单独记的两处设计
 
@@ -197,8 +260,8 @@ README 原文：
 
 `confidence: partial`：
 
-- ✅ 已核验：仓库、许可（Apache-2.0）、star 数（69,514）、三形态能力与各自的运行特征、两条 release 线及日期、Plan/Act 双模式、每次编辑需批准 + auto-approve、diff 呈现与 checkpoint 回滚、linter/编译器错误监控、`.clinerules` 项目规则、Desktop 的 cron 定时任务（重启后仍生效）、MCP 管理
-- ❌ 未核验：provider 清单、工具清单细节、索引算法与大仓库耗时、上下文窗口、CLI headless 的审批行为
+- ✅ 已核验：仓库、许可（Apache-2.0）、star 数（69,514）、三形态能力与各自的运行特征、两条 release 线及日期、Plan/Act 双模式、每次编辑需批准 + auto-approve、diff 呈现与 checkpoint 回滚（shadow Git）、linter/编译器错误监控、`.clinerules` 项目规则、Desktop 的 cron 定时任务（重启后仍生效）、MCP 管理与 MCP Marketplace、**30+ provider 清单与 BYOK / 本地模型**、**内置工具清单**、**Auto Compact 与 Memory Bank**、**CLI / headless 审批默认值**
+- ❌ 未核验：换 provider 后的 tool calling / structured output 质量对齐、Desktop 0.0.x 的稳定性预期
 
 ## 实测记录
 
@@ -209,15 +272,15 @@ README 原文：
 
 ## 未知项清单
 
-- 支持的 provider 清单
-- 完整工具清单与 MCP 接入细节
-- 索引策略与大仓库表现
-- 上下文窗口与跨会话记忆
-- **CLI headless 模式下的审批行为**（最关键）
-- 定时任务在客户端关闭后的行为
+- 换 provider 后的 tool calling / structured output 质量对齐（官方未给对比）
 - Desktop 形态 0.0.x 的稳定性预期
+- 大仓库在「无全量索引 + ripgrep 搜索」路线下的实际检索质量
+
+> 原「provider 清单 / 工具清单 / 上下文窗口 / 跨会话记忆 / CLI headless 审批」五项已由官方
+> docs.cline.bot（Model Selection Guide、Tools 参考、Auto Compact、Memory Bank、
+> CLI Overview / Reference）核到，见上方 axes。
 
 ## 相关条目
 
-- [Zed](./zed.md) — 同赛道另一端：以编辑器性能为主，AI 能力未核验
+- [Zed](./zed.md) — 同赛道另一端：以编辑器性能与多 agent 编排为主
 - [Aider](./aider.md) — 同为开源，Git 集成是其核心设计
