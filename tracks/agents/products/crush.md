@@ -22,11 +22,23 @@ pricing_pitfalls:
 
 axes:
   model_access: >-
-    多 provider 接入。
-    **README 明确 Hyper（来自 Charm）是 Crush 的官方 provider，采用订阅制**；
-    同时说明也可以用 Anthropic、OpenAI 等其他 provider，
-    自选 provider 并粘贴 API key，也可用环境变量配置首选 provider。
-    **完整的 provider 清单本次未核验。**
+    **BYOK 多 provider，官方 README 给了完整清单与多种换法。**
+    官方自营 provider **Hyper** 原文：
+    "Hyper, from Charm, is the official Crush provider. It's
+    subscription-based"，另有免费层与零数据留存（ZDR）表述。
+    其余点名 provider 覆盖 Anthropic、OpenAI、Gemini、OpenRouter、
+    Vercel AI Gateway、Z.ai、MiniMax、Synthetic、Hugging Face、
+    Cerebras、io.net、Alibaba、Groq、Avian、OpenCode Zen & Go、
+    Google Cloud VertexAI、Amazon Bedrock（Claude）、Azure OpenAI、
+    Moonshot，每家都有对应环境变量（如 `ANTHROPIC_API_KEY`）。
+    **换法**：`provider add <id> --type openai-compat|anthropic
+    --base-url … --api-key …` 可接任意兼容端点；
+    模型用 `model add <provider>/<id> --context-window …` 注册，
+    用 `model large` / `model small` 设默认大、小模型。
+    默认清单由官方维护的 Catwalk 仓库提供并自动更新。
+    **本地模型**：官方支持 llamacpp、omlx、lmstudio、litellm、ollama
+    并自动发现模型（`provider add ollama --type ollama --base-url
+    http://localhost:11434/v1/`）。
   runtime: >-
     本地进程，在终端运行（由 Charm 的终端库构建 TUI）。
     提供 Homebrew / NPM / Arch Linux 等安装方式。
@@ -35,17 +47,29 @@ axes:
     共享会话列表、消息历史、权限队列、LSP 与 MCP 状态。
     **但每次新调用都会启动新进程**，所以 first-wins 规则会影响共享 workspace 的配置。
   local_files: >-
-    **LSP 增强上下文**（README 原文「LSP-Enhanced: Crush uses LSPs for
-    additional context, just like you do」）——
-    与人一样靠 LSP 拿额外上下文。
-    **按项目维护多个工作会话与上下文**
-    （README「Session-Based: maintain multiple work sessions and contexts per project」）。
-    **可在会话中途切换模型且保留上下文**
-    （README「Flexible: switch LLMs mid-session while preserving context」）。
-    **索引算法与大仓库耗时本次未核验。**
+    **默认在项目工作区读写，无全量语义索引，靠 LSP 与忽略规则界定范围。**
+    **忽略边界**：README 原文「Crush respects `.gitignore` files by default」，
+    并可用同语法的 `.crushignore` 追加排除（放项目根或子目录）。
+    **初始化**：`crush init` 分析代码库并生成一份上下文文件，
+    默认名 `AGENTS.md`，可用 `initialize-as` 改名或改路径。
+    **符号级能力取决于外接 LSP**：README 原文
+    「LSP-Enhanced: Crush uses LSPs for additional context」，
+    可 `lsp add go --command gopls` 手动配置，或让 `auto-lsp` 自动配置。
+    **上下文文件**：全局 `~/.config/crush/CRUSH.md`（Crush 专用）与
+    `~/.config/AGENTS.md`（跨工具通用）自动注入，
+    路径可用 `global-context-path` 追加。
+    **索引算法与大仓库耗时，官方未说明**（已查 README 与 docs/config 两处）。
   background: >-
-    不支持终端形态的后台长任务。
-    **是否有其他运行形态本次未核验。**
+    **本地 CLI，不支持关机续跑——形态决定的边界，不是缺陷。**
+    **多客户端共享 workspace 不等于后台**：README 说明运行 `crush serve`
+    暴露本地后端后，多个 TUI 客户端按 `--cwd` 并入同一 workspace，
+    但官方原文「A workspace lives as long as at least one client has an SSE
+    event stream open against it. When the last stream disconnects, the
+    workspace is torn down.」即最后一条流断开即拆除。
+    **执行环境归你的本地机器**：`crush serve` 也是本机后端，
+    官方 README 与 docs/config 均无厂商托管或「关机后继续」的表述。
+    **中断可恢复**：会话按项目保存、可经会话选择器 resume，
+    退出横幅也提示 resume；但进程本身不常驻。
   tools: >-
     **明确支持 MCP，且传输方式标注最完整**：
     README 写明支持 `http`、`stdio` 和 `sse` 三种。
@@ -56,11 +80,18 @@ axes:
     模型可通过 `model add ollama/llama3.3 --name "Llama 3.3" --context-window 128000`
     手动添加——**支持本地模型且可显式声明其上下文窗口**。
   context: >-
+    **会话机制 + 全局上下文文件 + LSP 三段，压缩策略官方已给。**
+    **会话**：README「Session-Based: maintain multiple work sessions and
+    contexts per project」——按项目维护多个工作会话与上下文，可切换与 resume。
+    **跨模型保留上下文**：README「Flexible: switch LLMs mid-session while
+    preserving context」，官方明确换模型不丢上下文。
+    **上下文文件**：全局 `~/.config/crush/CRUSH.md` 与 `~/.config/AGENTS.md`
+    自动注入；项目侧由 `crush init` 生成 `AGENTS.md`；
+    可用 `context-path` / `global-context-path` 追加。
+    **压缩策略已核到**：docs/config 的 `auto-summarize` 布尔项官方说明为
+    "automatically summarize long conversations"，命令面板另有
+    "Summarize Session" 可手动压缩当前会话。
     **LSP 提供额外上下文**（见 local_files）。
-    **按项目维护多个工作会话与上下文**（per-project sessions）。
-    **切换模型时保留上下文**——这是本赛道少见的明确承诺，
-    因为换模型通常也意味着换上下文策略。
-    **上下文压缩策略本次未核验。**
   permissions: >-
     **默认每次工具调用都询问**（README「By default, Crush will ask you for
     permission before running tool calls」），
@@ -86,10 +117,18 @@ pitfalls:
   - 以为每个终端窗口独立配置，其实同 workspace 下 first-wins 会锁定设置
 
 tags: [编程, 终端, 本地]
+related: [context7]
 
 sources:
   - label: Charm · Crush 仓库 README
     url: https://github.com/charmbracelet/crush
+    kind: repo
+  - label: Charm · Crush 官方配置文档（docs/config：Bash 配置、permissions allow/deny、
+    auto-summarize、context-path、provider/model add、本地模型）
+    url: https://github.com/charmbracelet/crush/blob/main/docs/config/README.md
+    kind: docs
+  - label: Charm · Catwalk 官方 provider/model 目录（README 指明的默认清单来源）
+    url: https://github.com/charmbracelet/catwalk
     kind: repo
   - label: Charm · Crush Releases
     url: https://github.com/charmbracelet/crush/releases
@@ -140,7 +179,7 @@ It's subscription-based
 | Hyper 订阅 | Charm 官方运营，按订阅计费 |
 | 自带 key | 接 Anthropic / OpenAI 等，费用自付 |
 
-**Hyper 的价格与额度本次未核验，记为未知。**
+**Hyper 官方称带免费层，但价格档位与额度数值本次未核验，记为未知。**
 
 ## MCP：三种传输方式写清楚了
 
@@ -151,7 +190,7 @@ Extensible: add capabilities via MCPs (http, stdio, and sse)
 **这是值得单独记录的点**——多数工具只写「支持 MCP」，
 Crush 直接列出了三种传输方式。
 
-对照 MCP 赛道自己的观察：不少 reference server
+对照工具分区自己的观察：不少 reference server
 **只支持 stdio，不支持远程传输**。所以一个明确支持 http 的 CLI 工具，
 实际上扩展兼容面比想象中大。
 
@@ -171,8 +210,11 @@ GitHub API 返回的许可证字段是 **`NOASSERTION`**
 
 `confidence: partial` 的原因：
 
-- ✅ 已核验：仓库、star 数（28,350）、最新 release（nightly）与日期、MCP 三种传输、Hyper 官方 provider、自定义 provider 方式、安装方式
-- ❌ 未核验：**许可证具体条款**、完整 provider 清单、索引策略、上下文策略、权限确认机制、Hyper 价格与额度
+- ✅ 已核验：仓库、star 数（28,350）、最新 release（nightly）与日期、MCP 三种传输、
+  Hyper 官方 provider、自定义 provider 方式、安装方式；**A6.2 本轮补**：
+  完整 provider 清单与本地模型、LSP 与上下文文件机制、auto-summarize、
+  权限 allow/deny 与 `--yolo`、`crush serve` 本地后端边界
+- ❌ 未核验：**许可证具体条款**、Hyper 价格与额度
 
 ## 适合与不适合
 
@@ -194,10 +236,7 @@ GitHub 识别为 NOASSERTION，条款未核验。
 
 - **许可证具体条款**（GitHub 识别为 NOASSERTION）
 - Hyper 订阅的价格与额度
-- 完整 provider 清单
-- 索引策略与大仓库表现
-- 上下文窗口与压缩策略
-- 工具执行的确认机制
+- 索引算法与大仓库首次索引耗时（官方未说明，已查 README 与 docs/config）
 
 ## 相关条目
 
