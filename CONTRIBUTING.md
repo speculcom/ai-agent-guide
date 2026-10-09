@@ -83,6 +83,7 @@
 | 6 | 不得给单一总分排名 |
 | 7 | 有邀请关系必须用 `link.kind: invitation` 并填写 `incentive` |
 | 8 | 不在仓库里放 HTML/CSS/JS |
+| 9 | `related` 至少 1 条，且必须指向**另一分区**（守卫：`_audit/link-graph.mjs`） |
 
 ---
 
@@ -94,15 +95,30 @@
 
 ---
 
-## 跨赛道条目
+## 跨分区条目
 
-同一产品可能出现在多个赛道（如 `claude-code` 在 `ide` 和 `cli` 都有）。
+**两级概念先分清**（完整说明见 [SCHEMA.md §2.5.1](./SCHEMA.md#251-两级命名分区-vs-形态容易混先读这条)）：
+
+- **分区**（3 个，由目录决定）：`agents` / `harness` / `tools`
+- **形态**（5 个，由 frontmatter `track:` 决定）：`ide` / `cli` / `cloud` / `harness` / `mcp`
+
+`ide` / `cli` / `cloud` 三种形态都落在 `agents` 分区。
 
 **约定**：
-- 每个赛道一个独立文件
-- 文件名带区分后缀：`claude-code.md`（ide）/ `claude-code-cli.md`（cli）
-- 用 `related` 字段互链
+- **一个形态一个文件**，都在本分区目录下
+- 文件名带形态后缀：`claude-code.md`（`track: ide`）/ `claude-code-cli.md`（`track: cli`）
+- **`id` 必须全仓库唯一**（构建期硬失败）
+- 跨分区互链写 frontmatter **`related`**（至少 1 条，只装**另一分区**的 id）；
+  同分区对照写正文 `## 相关条目`，两条分工见 [SCHEMA.md §2.5.2](./SCHEMA.md#252-related-与正文相关条目的分工)
+- 跨分区引用另一个档案时，路径用**当前目录名**：`../../harness/products/x.md` ✅ / `../../cli/products/x.md` ❌（旧名，仓里不存在）
 - **不要复制粘贴同一段数据**——重复的两处会不一致，构建时会被检出
+
+**改完必须跑**：
+```bash
+node scripts/validate.mjs            # 0 错 0 警
+node scripts/completeness.mjs        # 不降
+node ../../_audit/link-graph.mjs     # 双口径 100%
+```
 
 ---
 
