@@ -38,57 +38,83 @@ axes:
   model_access: >-
     **Pro 档明确列出供应商**：OpenAI、Claude、Gemini、**SpaceXAI**
     以及领先开源模型。
+
     **自有模型 SWE-2 官方标注「Free use of SWE-2」**，
-    定价页顶部另标注「SWE-2, our latest model, is now available」。
+    定价页顶部另标注**「SWE-2, our latest model, is now available」**。
+
     **Free 档标注「有限模型可用性」（Limited model availability）。**
+
   runtime: >-
     **重要变更：Windsurf 已改称 Devin Desktop**——
+
     官方文档标题为「agent-native editor」的稳定版本发布说明，
     下载页同时提供 macOS（Apple Silicon / Intel）、
     Windows（arm64 / x64）与 Linux x64 for Debian。
+
     **支持 SSH 或 WSL 主机上的文件夹选择**。
+
   local_files: >-
     本地编辑器，直接读写工作区。**官方 context-awareness 页原文**：
     "The entire local codebase is then indexed (including files that are
     not open)"——**整个本地代码库会被 RAG 上下文引擎索引**，检索时按需取片段。
+
     Pro 档有更大索引上限与上下文长度；**Teams / Enterprise 可索引远端仓库**。
+
     `.gitignore` 内文件默认不对 Cascade 开放（Cascade Gitignore Access
-    默认关闭）；`.codeiumignore` 可排除路径。**Fast Context 是专门检索子代理**
+    默认关闭）；`.codeiumignore` 可排除路径。
+
+    **Fast Context 是专门检索子代理**
     （SWE-grep / SWE-grep-mini 模型，仅用 grep / read / glob，
     最多 4 轮、每轮至多 8 个并行工具调用）。亦可拖文件到面板或把选区发到聊天。
+
   background: >-
     **真后台来自 Devin Cloud**：官方 `windsurf/devin` 页原文
     "Each Devin session runs on its own VM with a desktop, browser,
     and computer use, so it can keep working after you close your laptop"——
+
     每个 Devin 会话跑在自己的云端 VM，**关掉笔记本仍继续**。
     可在本地用 Cascade 制定计划后一键交给 Devin 云端实现，
-    会话出现在 Agent Command Center。本地 Cascade 与 Devin Local
-    则在你机器上运行（Devin Local "operates on your machine"），需客户端常驻。
+    会话出现在 Agent Command Center。
+
+    本地 Cascade 与 Devin Local
+    则在你机器上运行（Devin Local **"operates on your machine"**），需客户端常驻。
+
     注意 Devin Cloud 访问在逐步放开（rolling out），Enterprise 需管理员开启。
+
   tools: >-
     **支持 Agent Client Protocol（ACP）**——
-    文档站有「Agent Client Protocol (preview)」与
-    「Building a custom ACP agent」两个专页，说明 ACP 处于 preview 阶段。
+    文档站有**「Agent Client Protocol (preview)」**与
+    **「Building a custom ACP agent」**两个专页，说明 ACP 处于 preview 阶段。
+
     **MCP 支持有一个重要细节**：
+
     changelog 记录 ACP 客户端传入的 MCP server
     现在可被智能体使用并列出，
     **包括 HTTP 与 SSE 类型的 MCP server**。
+
   context: >-
     **Memories 机制已核到**（官方 `cascade/memories` 页）：Cascade
     在对话中自动生成并存储 memory，也可让它「create a memory」；
+
     memory 与工作区绑定、存本地 `~/.codeium/windsurf/memories/`、
     不提交仓库、**不消耗 credits**，Cascade 认为相关时自动检索。
+
     跨会话持久化官方推荐用 Rules（global / workspace / system 三级，
     `.windsurf/rules/*.md`）或 `AGENTS.md`。**另有会话历史**：
+
     changelog 记录切回最近查看过的 10 个会话之一时，会立即显示其 transcript。
+
     底层上下文引擎为 RAG（官方 M-Query 检索）。
+
   permissions: >-
     **有明确的安全机制与 CVE 修复记录**：
     changelog 记录修复了 Restricted Mode 的一个绕过
     （CVE-2026-81376）——
     原本只检查点号形式的受限工作区设置，
     现在也检查嵌套对象形式。
+
     **这条值得注意：受限模式曾可被嵌套对象绕过。**
+
   fit: >-
     需要多模型供应商可选（不想被单一模型绑定）的人；
     需要 ACP 以接入自定义 agent 的人（注意是 preview）；
@@ -107,24 +133,31 @@ sources:
   - label: Windsurf · 官方定价页（Free / Pro / Teams 结构与能力）
     url: https://windsurf.com/pricing
     kind: pricing
+
   - label: Windsurf · 官方 Changelog（Devin Desktop 发布说明 + CVE 修复）
     url: https://windsurf.com/changelog
     kind: changelog
+
   - label: Windsurf · 官方文档
     url: https://docs.windsurf.com
     kind: docs
+
   - label: Windsurf · ACP 文档（preview）
     url: https://docs.windsurf.com
     kind: docs
+
   - label: Windsurf · 官方文档 · Context Awareness（RAG 索引、Fast Context、远端仓库索引）
     url: https://docs.windsurf.com/context-awareness/overview
     kind: docs
+
   - label: Windsurf · 官方文档 · Memories & Rules（memory 自动生成、本地存储、Rules 三级）
     url: https://docs.windsurf.com/windsurf/cascade/memories
     kind: docs
+
   - label: Windsurf · 官方文档 · Devin（云端 agent 独立 VM、关笔记本仍跑、委托流程）
     url: https://docs.windsurf.com/windsurf/devin
     kind: docs
+
   - label: Windsurf · 官方文档 · Devin Local Agent（本地 harness、子代理、沙箱、权限）
     url: https://docs.windsurf.com/windsurf/devin-local
     kind: docs
@@ -149,6 +182,7 @@ confidence: partial
 描述为「agent-native editor」。
 
 这意味着：
+
 - 找 Windsurf 的最新文档可能找不到
 - 品牌、版本号、定价体系都跟着 Cognition 走
 - **Cognition 同时有 Devin（云端）与 Devin Desktop（编辑器）两条产品线**
@@ -179,6 +213,7 @@ confidence: partial
 OpenAI、Claude、Gemini、**SpaceXAI**（xAI）。
 
 **自有模型 SWE-2**：
+
 - 定价页顶部标注「SWE-2, our latest model, is now available」
 - Pro 档标注「Free use of SWE-2」
 
@@ -188,6 +223,7 @@ OpenAI、Claude、Gemini、**SpaceXAI**（xAI）。
 ## ACP 支持（preview 阶段）
 
 文档站有两个 ACP 专页：
+
 - **Agent Client Protocol (preview)**
 - **Building a custom ACP agent**
 
@@ -272,5 +308,5 @@ Free 档已含无限 inline edits 与无限 Tab 补全。
 
 ## 相关条目
 
-- [Cursor](./cursor.md) — 同赛道同为「混合 + 云端」形态
+- [Cursor](./cursor.md) — 同分区同为「混合 + 云端」形态
 - [Cline](./cline.md) — ACP 另一个实现方
