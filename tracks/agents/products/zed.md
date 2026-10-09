@@ -44,16 +44,23 @@ axes:
     文档含 `dev-containers.md`（开发容器）与 `toolchains.md`（工具链管理）。
     关闭应用即停止。
   local_files: >-
-    直接读写工作区，**基于 Tree-sitter 做语法解析**（其核心优势之一），
-    为符号级编辑提供基础。
-    文档站有 `edit-prediction.md`（编辑预测），且**编辑预测有独立的 provider 配置**
-    （与 LLM provider 分开设置）。
-    **索引算法与大仓库表现本次未核验，记为未知。**
+    直接读写工作区，**支持多根目录（multi-root）**，也可经 SSH / WSL
+    打开远端文件夹（remote development）。文件树扫描可用
+    `file_scan_exclusions` 与 `project_panel.hide_gitignore` 控制；
+    符号能力来自 **Tree-sitter 解析与语言服务器（LSP）**（编辑预测另有独立 provider）。
+    Agent 内置检索是 grep（正则）、find_path（glob）、list_directory、
+    read_file；**官方未见代码库向量化语义索引的描述**
+    （已查 Tools 与 Project Panel 页）。**大仓库官方有明说**：
+    一次打开 >100,000 文件的超大目录表现不佳，建议只开具体项目或子目录
+    （remote development 页）。
   background: >-
-    **官方明确区分三类 agent path**，其中 External Agents 与 Terminal Threads
-    依赖外部进程（ACP agent 进程 / 原生 CLI），
-    因此**其在线条件取决于那个外部工具，而非 Zed 本身**。
-    Zed 不提供云端后台执行。**具体行为本次未核验，记为未知。**
+    本地桌面应用，agent 线程在本地（或你自建的远端 SSH / WSL 主机）
+    进程内运行，**绑定客户端在线**：官方称线程运行时 Zed 会请求系统
+    不要休眠以保住长回合（`agent.prevent_idle_sleep`）。
+    remote development 把语言服务器、任务与终端放到**你自己的远端服务器**，
+    官方并注明 **v0.157 起不再经 Zed 服务器中转**。
+    **官方未见「关机后续跑 / 厂商托管后台任务」类能力**
+    （已查 Agent Panel 与 Remote Development 页）。
   tools: >-
     **明确支持 MCP**，官方文档 `mcp.md` 列明当前支持 **Tools 与 Prompts** 两类特性
     （Discovery / Sampling / Elicitation 尚未覆盖，官方欢迎贡献）。
@@ -65,16 +72,29 @@ axes:
     Brave Search、Framelink Figma、Resend 等。
   context: >-
     **Zed Agent 的上下文由 instructions + skills + MCP 组合而成**
-    （见 agents.md 的 Zed Agent 行）。
-    支持并行 agent（`parallel-agents.md`），线程类型分三类。
-    **上下文窗口大小与压缩策略本次未核验，记为未知。**
+    （见 agents.md 的 Zed Agent 行）。**压缩策略已核到**：官方称
+    线程接近阈值时自动 compact（`agent.auto_compact` 默认 90% 触发），
+    把较早消息摘要后替换进模型上下文，线程显示 "Context Compacted" 可展开；
+    也可 `/compact` 手动压缩，阈值可配（百分比 / 正 token / 负剩余 token）。
+    模型窗口太小（<80000 tokens）时自动压缩失效，官方提示用
+    New From Summary 新开线程。@-mention 可加文件、目录、符号、历史线程、
+    skills、diagnostics、分支 diff 与 URL。支持并行多线程（各自上下文窗口）
+    与 Checkpoints 逐消息回滚。
   permissions: >-
-    **权限边界跟随所选的 agent path**——
-    Zed Agent 用 Zed 配置的 provider 与原生工具；
-    External Agents 用 ACP agent 进程**自己的 auth/config**；
-    Terminal Threads 用**原生 CLI 的 auth/config**。
-    也就是说选了外部 agent，权限就由那个工具决定。
-    **沙箱与审批的具体形态本次未核验，记为未知。**
+    **工具权限设置已核到**（官方 `tool-permissions` 页，v0.224.0+ 由
+    `agent.tool_permissions.default` 控制）。三档 `"allow"` / `"deny"` /
+    `"confirm"`（default 默认 confirm），可按工具配正则模式
+    `always_allow` / `always_deny` / `always_confirm`；优先级
+    always_deny > always_confirm > always_allow > 工具 default > 全局 default。
+    另有硬编码安全规则（`rm -rf /`、`rm -rf ~` 等）**不可覆盖**。
+    受管控工具含 terminal、edit_file、write_file、delete_path、move_path、
+    copy_path、create_directory、fetch、search_web、skill 与 MCP
+    （`mcp:<server>:<tool>`）。**另有 OS 级沙箱**（`sandboxing` 页）：
+    仅 Zed Agent，覆盖 `terminal` 与 `fetch`，默认限制项目外写入与出网。
+    **权限边界跟随 agent path**（agents.md）——Zed Agent 用 Zed 配置的
+    provider 与原生工具；External Agents 用 ACP agent 进程自己的 auth/config；
+    Terminal Threads 用原生 CLI 的 auth/config。
+    隐私：官方称 Zed 不存 prompt 与代码上下文，遥测可关。
   fit: >-
     重视编辑器性能（Rust 实现）、语法解析准确度（Tree-sitter）与多人协作的场景。
     **想在一个编辑器里同时用 Zed 原生 Agent 和外部 CLI Agent（Claude / Codex / OpenCode / Copilot / Cursor）的用户**
@@ -86,6 +106,7 @@ pitfalls:
   - 选了 External Agent 后以为权限由 Zed 管，实际由那个 agent 自己的 auth/config 决定
 
 tags: [编程, IDE, 本地, 协作]
+related: [filesystem]
 
 sources:
   - label: Zed · LLM Providers（五条模型接入路径）
@@ -106,13 +127,28 @@ sources:
   - label: Zed · 文档站
     url: https://zed.dev/docs
     kind: docs
+  - label: Zed · Agent Panel（线程、checkpoints、自动压缩、@-mention、token 用量）
+    url: https://zed.dev/docs/ai/agent-panel
+    kind: docs
+  - label: Zed · Tool Permissions（allow/deny/confirm、正则模式、内置安全规则）
+    url: https://zed.dev/docs/ai/tool-permissions
+    kind: docs
+  - label: Zed · Agent Sandboxing（仅 Zed Agent、terminal/fetch、默认项目外写入与出网受限）
+    url: https://zed.dev/docs/ai/sandboxing
+    kind: docs
+  - label: Zed · Tools（内置 read/search/edit/terminal 工具清单）
+    url: https://zed.dev/docs/ai/tools
+    kind: docs
+  - label: Zed · Remote Development（远端 SSH server、v0.157 起不经 Zed 中转、大目录限制）
+    url: https://zed.dev/docs/remote-development
+    kind: docs
 
 link:
   url: https://zed.dev
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-08
+last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
 ---
@@ -203,24 +239,21 @@ Zed 的 External Agents 直接涉及本仓库收录的多个对象：
 
 | Zed 里的 agent path | 对应本仓库条目 |
 |---|---|
-| External Agents 列表 | [Claude Code](./claude-code.md) · [Codex IDE](./codex-ide.md) · [Cline](./cline.md) · [Copilot](./copilot.md) · [Cursor](./cursor.html) |
-| Terminal Threads | 本仓库 [cli 赛道](../cli/_track.md) 全部对象 |
-| MCP 扩展 | [mcp 赛道](../mcp/_track.md) |
+| External Agents 列表 | [Claude Code](./claude-code.md) · [Codex IDE](./codex-ide.md) · [Cline](./cline.md) · [Copilot](./copilot.md) · [Cursor](./cursor.md) |
+| Terminal Threads | 本仓库 [agents 分区](../_track.md) 的 CLI 形态对象 |
+| MCP 扩展 | [tools 分区](../../tools/_track.md) |
 
-**这意味着 Zed 是本仓库三赛道的一个交叉点** ——
-它把 ide / cli / mcp 三层的边界画得比任何一家都清楚。
+**这意味着 Zed 是本仓库的交叉点** ——
+它把 agents 分区两种形态（IDE 扩展 / 终端）与 tools 分区（MCP 扩展）的边界画得比任何一家都清楚。
 
 ## 采集限制（诚实说明）
 
 **本次从 `zed-industries/zed` 仓库的 `docs/src/ai/` 逐篇读取官方文档**，
-已补齐 6 个维度中的 5 个。
+八维已全部核到官方机制（模型接入 5 路径、工具权限与 OS 级沙箱、自动压缩、MCP、多根与远端开发）。
 
-**仍未核验**：
-- 索引算法与大仓库表现（`edit-prediction.md` 讲的是编辑预测，不是全库索引）
-- 上下文窗口与压缩策略
-- 沙箱与审批的具体形态
-- 编辑器免费/付费分层与模型额度的关系
+**仍未核验**（官方未给或需实测）：
 - 三类 agent path 在「客户端关闭后」的实际行为
+  （Zed Agent 已知绑定客户端在线，External / Terminal 取决于所挂 agent 自己的配置）
 
 ## 实测记录
 
@@ -232,11 +265,8 @@ Zed 的 External Agents 直接涉及本仓库收录的多个对象：
 
 ## 未知项清单
 
-- 索引算法与大仓库表现
-- 上下文窗口与压缩策略
-- 沙箱与审批的具体形态
-- 编辑器定价与模型额度的关系
-- 客户端关闭后各 agent path 的行为
+- 三类 agent path 在「客户端关闭后」的实际行为
+  （Zed Agent 已知绑定客户端在线；External / Terminal 取决于所挂 agent）
 
 ## 相关条目
 
