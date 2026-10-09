@@ -23,31 +23,65 @@ pricing_pitfalls:
 
 axes:
   model_access: >-
-    多 provider 接入的编程 harness。
-    **README 提到 provider 支持列表较长**，
-    但**具体可接入的 provider 清单本次未核验**，记为未知。
-    是否支持本地模型本次未核验。
+    多 provider 接入的编程 harness。官方 `models` 与 `providers` 页原文：
+    OpenCode 用 AI SDK 与 Models.dev，**支持 75+ LLM 提供商，
+    也支持运行本地模型**。目录含 302.AI、Amazon Bedrock、Anthropic、
+    Azure OpenAI、DeepSeek、Google Vertex AI、Groq、Hugging Face、
+    llama.cpp、LM Studio、Ollama、OpenAI、OpenRouter、xAI、Z.AI、ZenMux 等。
+    凭据经 `/connect` 存入 `~/.local/share/opencode/auth.json`；
+    可用 `enabled_providers` / `disabled_providers` 白黑名单，
+    也能自定义 provider（`npm` + `baseURL`，含 OpenAI 兼容）；
+    另有官方精选清单 OpenCode Zen。**本地模型可接**——
+    官方点名 llama.cpp、LM Studio、Ollama、Atomic Chat。
+    注意：用 Claude Pro/Max 订阅接入「不是 Anthropic 官方支持的用法」。
   runtime: >-
     本地进程，在终端运行。提供多平台安装方式（macOS Homebrew / Windows Scoop 等）。
     生命周期绑定终端会话。
   local_files: >-
-    面向真实代码仓库的编程能力。
-    **索引策略与大仓库表现本次未核验，记为未知。**
+    面向真实代码仓库的编程能力。`read`/`edit`/`write`/`grep`/`glob`
+    直接读写工作区；`grep`/`glob` 底层用 ripgrep，**默认遵循 `.gitignore`**。
+    **访问范围默认限定在启动时的工作目录**——越界路径须在 `permission`
+    里用 `external_directory` 显式放行（如 `~/projects/personal/**`）。
+    `read` 默认 allow，但 **`.env` / `.env.*` 默认 deny**（`.env.example` allow）。
+    `@` 键可模糊搜索项目文件；文件变动有 `watcher`（可配 `ignore`）。
+    符号能力来自 **LSP 工具（实验性）**：需 `OPENCODE_EXPERIMENTAL_LSP_TOOL=true`
+    并自配 LSP 服务器，支持 goToDefinition / findReferences / hover 等。
+    **官方未见代码库向量化索引的描述**（已查 tools / config / permissions 页）。
   background: >-
-    不支持终端形态的后台长任务。
-    **是否有其他形态（本地服务 / 远程）本次未核验。**
+    终端形态，本地进程，生命周期绑定会话。官方另有 `opencode serve`
+    （无头 HTTP 服务器）与 `opencode web` / 桌面应用——**都跑在你自己的机器上**，
+    为客户提供会话 API（含 `prompt_async` 异步发送），执行环境归你自己，
+    不是厂商托管云。**官方未见「客户端关闭后仍继续 / 关机续跑」的云端后台能力**
+    （已查 server 页与 docs 概览）。
   tools: >-
-    工具链包含 bash 命令执行、子代理能力。
-    **README 明确提到内置一个「通用子代理」用于复杂搜索与多步任务**。
-    MCP 接入方式本次未核验。
+    **内置工具官方逐项列出**：bash、edit、write、read、grep、glob、
+    lsp（实验性）、patch、skill、todowrite、webfetch、
+    websearch（Exa，需 OpenCode 提供商或 `OPENCODE_ENABLE_EXA`）、question，
+    另有 `task` 派发子代理。内置代理含 build、plan、general、explore、
+    scout、compaction、title、summary。**MCP 接入方式已核到**：
+    本地 `type:"local"` 与远程 `type:"remote"` 两类，支持 OAuth
+    动态客户端注册（RFC 7591）与 `opencode mcp auth` 等命令；
+    还支持自定义工具与插件（hooks）。
   context: >-
     **ACP（Agent Client Protocol）载入能力是其差异化设计**——
     在恢复与分叉时保留模型、effort 与模式边界。
-    具体上下文窗口与压缩策略本次未核验。
+    会话机制已核到：`/session` API 支持创建、**fork（在某条消息处分叉）**、
+    revert/unrevert 与 summarize；TUI 有 `/undo`、`/redo`、`/share`。
+    **压缩策略官方给了配置**——`compaction` 项：`auto`（默认 true，
+    上下文满时自动压缩会话）、`prune`（删旧工具输出省 token，默认 false）、
+    `reserved`（压缩缓冲）。另有 compaction / title / summary 三个内置代理。
   permissions: >-
-    **README 记录了「YOLO」模式相关内容，并提到运行 bash 命令前会询问权限**。
-    这是与多数工具默认自动执行不同的设计。
-    **具体审批粒度与是否可配置本次未核验，记为未知。**
+    **权限策略已核到**：`permission` 配置决定每个操作是自动运行、
+    提示审批还是阻止，三档 `"allow"` / `"ask"` / `"deny"`。
+    可按工具细粒度配置，支持通配符与对象语法（如 bash 的
+    `git *` allow、`rm *` deny，**最后匹配的规则优先**）。
+    可配权限键：read / edit（涵盖 edit、write、patch）/ glob / grep /
+    bash / task / skill / lsp / webfetch / websearch /
+    external_directory / doom_loop。**默认值宽松**：多数 allow，
+    `doom_loop` 与 `external_directory` 为 ask；`read` 为 allow 但
+    `.env` / `.env.*` 默认 deny。官方 config 页亦称「默认允许所有操作，
+    无需明确批准」。审批 UI 给 once / always / reject，
+    且可对每个代理单独覆盖。v1.1.1 起旧版 `tools` 布尔配置并入 `permission`。
   fit: >-
     需要多 provider 可切换、且重视命令执行前确认的用户。
     ACP 生态参与者。
@@ -58,6 +92,7 @@ pitfalls:
   - 以为可以用某个 provider 就免费，模型费用仍需自付
 
 tags: [编程, 终端, 本地, 开源]
+related: [filesystem]
 
 sources:
   - label: OpenCode · 仓库 README
@@ -72,13 +107,34 @@ sources:
   - label: OpenCode · 官方文档
     url: https://opencode.ai/docs
     kind: docs
+  - label: OpenCode · 官方文档 · 提供商（75+ provider、目录、自定义 provider、凭据存储）
+    url: https://opencode.ai/docs/providers
+    kind: docs
+  - label: OpenCode · 官方文档 · 模型（75+ provider、本地模型、默认模型与变体）
+    url: https://opencode.ai/docs/models
+    kind: docs
+  - label: OpenCode · 官方文档 · 权限（allow/ask/deny、细粒度规则、external_directory、默认值）
+    url: https://opencode.ai/docs/permissions
+    kind: docs
+  - label: OpenCode · 官方文档 · 工具（内置工具清单、子代理、MCP、自定义工具）
+    url: https://opencode.ai/docs/tools
+    kind: docs
+  - label: OpenCode · 官方文档 · MCP 服务器（本地/远程、OAuth、管理）
+    url: https://opencode.ai/docs/mcp-servers
+    kind: docs
+  - label: OpenCode · 官方文档 · 配置（compaction、watcher、permission、server）
+    url: https://opencode.ai/docs/config
+    kind: docs
+  - label: OpenCode · 官方文档 · 服务器（opencode serve、会话 API、fork/summarize）
+    url: https://opencode.ai/docs/server
+    kind: docs
 
 link:
   url: https://opencode.ai
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-08
+last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
 ---
@@ -149,8 +205,8 @@ ACP 载入、恢复、分叉时保留模型、effort 和模式边界
 
 `confidence: partial` 的原因：
 
-- ✅ 已核验：仓库、许可（MIT）、最新版本与日期、star 数（210,642，本赛道最高）、权限设计、子代理、ACP、安装方式
-- ❌ 未核验：完整 provider 清单、本地模型支持、索引策略、上下文策略、YOLO 开关方式、MCP 接入
+- ✅ 已核验：仓库、许可（MIT）、最新版本与日期、star 数（210,642，本赛道最高）、权限策略（allow/ask/deny 细粒度）、ACP、安装方式；**A6.2 本轮补**：75+ provider 与本地模型、内置工具清单与 MCP 接入方式、`compaction` 上下文策略
+- ❌ 未核验：YOLO 模式的具体开关方式、子代理的调度细节与 token 开销
 
 ## 适合与不适合
 
@@ -170,11 +226,9 @@ ACP 生态参与者。
 
 ## 未知项清单
 
-- 完整 provider 清单与各 provider 的接入方式
-- 是否支持本地模型
-- 索引策略与大仓库表现
 - YOLO 模式的具体开关与风险
-- MCP 接入方式
+- 子代理的调度方式与 token 开销
+- 大仓库在「无向量化索引（靠 ripgrep / LSP）」路线下的实际表现
 
 ## 相关条目
 
