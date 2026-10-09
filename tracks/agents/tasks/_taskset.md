@@ -1,4 +1,4 @@
-# 实测任务集 · IDE / CLI 赛道
+# 实测任务集 · IDE / CLI 形态
 
 **基线仓库**：`keel3d`（Three.js + TypeScript + Vite）
 **规模**：248 个 TS 文件 / 32,291 行 / 12 个模块（blocks · catalog · engine · game · physics · recipes · net · i18n …）
@@ -180,7 +180,7 @@ tsconfig 的路径配置问题），但不制造纯语法错误。
 
 ---
 
-## CLI 赛道附加三项
+## CLI 形态附加三项
 
 ### C01 · 非交互模式可用性
 
