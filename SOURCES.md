@@ -179,11 +179,20 @@ MCP 赛道的源以**仓库 README + releases/commits** 为主。
 | `playwright` | https://github.com/microsoft/playwright-mcp |
 | `context7` | https://github.com/upstash/context7 |
 
+### 厂商官方 server
+
+| id | 源 |
+|---|---|
+| `github-mcp` | https://github.com/github/github-mcp-server |
+
+> ⚠ 下表已归档里的 `github` 指 **MCP 组织的旧参考 server**；
+> GitHub 官方自己的 server（上表）是另一条活跃产品线，**不要混淆**（2026-10-08 修正）。
+
 ### 已归档（收录时须标注归档状态）
 
 | 原 id | 归档位置 |
 |---|---|
-| `github` | https://github.com/modelcontextprotocol/servers-archived/tree/main/src/github |
+| `github`（旧参考 server） | https://github.com/modelcontextprotocol/servers-archived/tree/main/src/github |
 | `postgres` | https://github.com/modelcontextprotocol/servers-archived/tree/main/src/postgres |
 | `puppeteer` | https://github.com/modelcontextprotocol/servers-archived/tree/main/src/puppeteer |
 | `slack` | https://github.com/modelcontextprotocol/servers-archived/tree/main/src/slack |
