@@ -1,5 +1,7 @@
 # ai-agent-guide
 
+> English version: [README.en.md](./README.en.md)
+
 **AI agent 地图集** · 纯 Markdown · 开源
 
 记录 **AI coding agent / agent runtime / MCP server** 的能力边界、运行位置、真实价格与官方证据，
