@@ -143,6 +143,7 @@ pitfalls:
   - 以为后台工作会一直跑到底 —— 官方明写安全监控可在执行中暂停它
 
 tags: [编程, 编码agent, 云端, 厂商云, 常驻, 审批, 订阅制]
+related: [playwright]
 
 sources:
   - label: OpenAI · Introducing Dot（官方发布页，2026-09-29，正文 5,166 字逐节取）
