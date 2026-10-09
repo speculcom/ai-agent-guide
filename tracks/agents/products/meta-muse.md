@@ -184,6 +184,7 @@ pitfalls:
   - 以为 forget skill 是保证抹净 —— 官方措辞是 to the best of its ability
 
 tags: [编码agent, 云端, 厂商云, 常驻, 审批, 记忆, 支付, 免费档]
+related: [crewai]
 
 sources:
   - label: Meta · Introducing Muse: The World's First Personal AI Agent Built for Everyone（官方 Newsroom 发布页，2026-09-08，正文 7,655 字逐节取）
