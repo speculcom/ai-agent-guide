@@ -1,0 +1,33 @@
+{
+  "_comment": "agent 站 pitfalls 英文 · 第 2 批（MCP 分区的补充条目）。与 _pitfalls-a.en.json 合并使用。",
+  "_principles": "同第1 批：判断强度与未核验标记必须保留；参数原样。",
+  "git": [
+    "Assuming it is read-only — it can commit and switch branches",
+    "Assuming a container deployment can reach the host repo without help — without a mount it cannot read it",
+    "Assuming it can push or open PRs — this server only does local operations"
+  ],
+  "memory": [
+    "Assuming memory lives only in the current session — it is disk-persisted global state",
+    "Assuming deletes need approval — they do not, and a mistaken delete affects every later session",
+    "Assuming it is a simple key-value store — it is a knowledge-graph structure"
+  ],
+  "playwright": [
+    "Assuming allowed-origins works as an access allowlist — the official docs state it is not a security boundary and does not guard redirects",
+    "Assuming headless mode stays resident — headless closes after an hour idle by default; headed never closes",
+    "Driving MCP in a high-throughput coding workload — the official guidance is to use the CLI + SKILLS instead"
+  ],
+  "sequential-thinking": [
+    "Assuming it makes the model smarter — it only constrains the output structure; the reasoning ability is the model's own",
+    "Assuming it remembers earlier thinking — every call must carry its own full context",
+    "Assuming more tools is better — this server has exactly one tool, and that is deliberate"
+  ],
+  "time": [
+    "Assuming the model knows the exact time itself — it needs the system time rather than guessing",
+    "Assuming it can schedule tasks — it only queries the time, it does not schedule"
+  ],
+  "github-mcp": [
+    "Confusing it with the archived MCP-org reference server — that one lives in servers-archived; this is GitHub's own actively maintained product.",
+    "Treating lockdown mode as a security boundary — the official docs say it is a best-effort content filter that does not change what the credential can read or write.",
+    "Thinking read-only is just a default — it is an enforced filter: write tools are disabled even when explicitly requested via --tools."
+  ]
+}
