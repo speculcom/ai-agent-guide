@@ -53,16 +53,18 @@ pitfalls:
 
 mcp:
   transport: >-
-    仅 stdio。**是否支持 Streamable HTTP，仓库未声明。**
+    仅 stdio。npx / Docker 本地进程（2026-10-08 README 全文核验）；
+    没有远程传输的官方启动方式。Docker 镜像为 mcp/sequentialthinking。
   auth: >-
     无独立认证层，但**这是本赛道唯一无实质权限边界的 server**——
     无文件、无网络、无状态，认证与否不影响安全。
   scope: >-
     **无文件与网络访问，不读不写任何外部资源**。
-    权限范围为空，是 MCP 赛道上权限风险最低的一类。
+    权限范围为空，是 MCP server 里权限风险最低的一类。
     可放心在敏感环境使用。
 
 tags: [推理, 本地, 只读]
+related: [langgraph]
 
 sources:
   - label: MCP · Sequential Thinking Server
@@ -82,8 +84,8 @@ link:
   url: https://www.npmjs.com/package/@modelcontextprotocol/server-sequential-thinking
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-08
+last_updated: 2026-10-08
 lifecycle: active
 confidence: verified
 ---
@@ -143,7 +145,7 @@ confidence: verified
 
 ## 权限评价
 
-**MCP 赛道上权限风险最低的一类**，可以放心在敏感环境使用：
+**MCP server 里权限风险最低的一类**，可以放心在敏感环境使用：
 
 | 检查项 | 结果 |
 |---|---|
