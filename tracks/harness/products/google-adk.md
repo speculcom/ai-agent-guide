@@ -16,7 +16,7 @@ language: Python（主）/ TypeScript（1,426★）
 providers:
   - 优化对象是 Gemini（README 原文 "While optimized for Gemini"）
   - 官方称 model-agnostic（README 原文 "ADK is model-agnostic, deployment-agnostic"）
-  - 具体非 Gemini 模型的支持清单，本次未核验
+  - 非 Gemini 模型：官方 LiteLLM 适配层（LiteLlm 包装类）覆盖第三方 provider（2026-10-08 核验）
 
 pricing:
   model: open-source
@@ -63,7 +63,7 @@ layer_position: >-
   **关键词是 deterministic**：它要解决的不是「agent 能不能干活」，
   而是「多个 agent 组成的流程在多次运行之间是否可重复、可预期」。
   **这与本站反复讲的分野直接对应**：图执行引擎管的是控制流（状态），
-  而长上下文压缩（上下文）是另一件事 —— ADK 在后者上的手段本站未核验。
+  而长上下文压缩是另一件事 —— ADK 在 1.16+ 给出 Context Compaction（滑动窗口，2026-10-08 核验）。
   ⚠ **同厂还有 TypeScript 版**（`google/adk-js`，Apache-2.0，1,426★，独立仓，
   核验 2026-10-01），按本站「一个对象 = 一套决策依据」的粒度，本档只收录 Python 主体。
   另有样例仓 `google/adk-recipes`（10,404★，README 里叫 adk-recipes，
@@ -71,12 +71,19 @@ layer_position: >-
 
 axes:
   model_access: >-
-    **官方口径：optimized for Gemini，但 model-agnostic。**
+    **官方口径：optimized for Gemini，但 model-agnostic，且有官方
+    LiteLLM 适配层（本轮已核验实现路径）。**
     README 原文："While optimized for Gemini, ADK is **model-agnostic**,
     deployment-agnostic, and compatible with other frameworks."
-    ⚠ **未核验**：model-agnostic 的具体实现路径（是否有 LiteLLM 一类适配层）、
-    非 Gemini 模型下工具调用与 structured output 的可靠性、
-    以及「optimized for Gemini」到底优化了什么。
+    官方「Models for Agents」页给出三条接入机制：
+    ① 直接字符串 / 注册表（Gemini、Claude、Agent Platform 托管模型）；
+    ② model connectors，即 `LiteLlm` / `ApigeeLlm` 包装类——官方原文
+    LiteLLM "providing a standardized, OpenAI-compatible interface to
+    over 100+ LLMs"；③ 模型路由（运行时动态选型 + 出错自动切换）。
+    本地/自托管模型有官方专页：Ollama、vLLM、LiteRT-LM。
+    ⚠ 官方未说明 "optimized for Gemini" 优化了什么，也未给出
+    非 Gemini 模型下工具调用与 structured output 的可靠性对比
+    （已查 Models 页与 LiteLLM 页）。
   runtime: >-
     **四种运行形态，全部由 `adk` CLI 或容器提供**（README 核验）：
     **① 交互式 CLI**（`adk run <agent-folder>` 段落）；
@@ -88,60 +95,86 @@ axes:
     ⚠ 这四种都是**你本地或你的云上进程**，ADK 本身不提供托管服务
     （托管要靠 Vertex AI Agent Engine 或 Cloud Run，那是 Google 的产品而非本框架的）。
   local_files: >-
-    **⚠ 本维度是本站最明显的证据缺口。**
-    README 讲工具生态时列的是pre-built tools、custom functions、**OpenAPI specs**、
-    MCP tools 与既有工具接入（"all for tight integration with the Google ecosystem"），
-    **全文没有把「读写本地文件」列为一项能力，也没有描述默认的文件访问边界**。
-    它给的是「怎么把工具接进来」，不是「文件访问受什么约束」。
-    **未核验**：默认沙箱机制、文件系统权限模型、是否需要自行处理容器挂载。
+    **官方对「文件」的答案是抽象层 Artifacts，不是裸文件系统（本轮已核验）。**
+    官方 Artifacts 页原文：Artifacts "represent a crucial mechanism for
+    managing named, versioned binary data associated either with a
+    specific user interaction session or persistently with a user".
+    落盘位置由你选的 ArtifactService 决定——"Their storage and retrieval
+    are managed by a dedicated Artifact Service"：InMemoryArtifactService
+    （重启即丢）或 GcsArtifactService（持久、带版本）。
+    ADK 是库、不内置 Read/Write/Bash 这类文件工具：磁盘访问要靠自己写
+    function tool，或接 MCP——官方 MCP 页示例正是 filesystem MCP server。
+    ⚠ 官方未提供沙箱机制或文件系统权限模型（已查 Artifacts、tools、
+    deploy 各页）；默认访问边界取决于你自己接的工具。
   background: >-
-    **图执行引擎本身就是「可靠运行」的答案** —— 官方列出的能力里，
-    `retry`、`state management`、`human-in-the-loop`、`nested workflows`
-    都是控制流层面的原语，**这正是「可靠长期运行」需要的构件**。
-    单个 agent 内部的重试与循环可以由框架管（loops、retry 在特性列表里）。
-    ⚠ **未核验**：跨进程/跨机的任务续跑语义（断掉后从哪个节点恢复）、
-    分布式部署时的状态存储方案（官方给了 Cloud Run / Agent Engine 两条路，
-    但状态持久化机制本文未核验）。
+    **官方有两条明确证据：会话/状态持久化 + 中断续跑（Resume）。**
+    **① 持久化**：SessionService 分三档——InMemorySessionService
+    （"All conversation data is lost if the application restarts"）、
+    DatabaseSessionService（"Data survives application restarts"）、
+    VertexAiSessionService（托管）；MemoryService 另有 InMemory 与
+    Vertex AI Memory Bank 两档。
+    **② 续跑**：ADK Python 1.16+ 可给 App 配
+    `ResumabilityConfig(is_resumable=True)`，官方原文 "allows an agent
+    workflow to pick up where it left off"，用 Invocation ID 经
+    `/run_sse` 或 `runner.run_async` 恢复。
+    **ADK 本身是库、不托管**：真后台要靠部署到 Cloud Run / Vertex AI
+    Agent Engine（你的云资源）。⚠ 官方两条边界：Resume 目前
+    "not currently supported" 从 Web UI / CLI 触发；工具可能被重复执行
+    （官方提醒有副作用的工具要自己防重）。
   tools: >-
-    **工具生态是它最强调的部分，且MCP 是一等能力。**
+    **工具生态是它最强调的部分，MCP 在官方文档里是一等能力。**
     README 原文："Utilize pre-built tools, custom functions, **OpenAPI specs**,
     **MCP tools** or integrate existing tools"。
-    ⚠ 但这里有个**本站必须标出的判断**：README 把MCP 与 OpenAPI specs 并列，
-    说明它接MCP 的方式是**把 MCP 当作一种工具来源**，而不是像
-    [OpenAI Agents SDK](openai-agents-sdk.md)（`mcp>=1.19.0` 在 `dependencies` 里）
-    那样把 MCP 客户端做成框架级依赖。**两者不是同一量级的一等公民，本站标记为推断，未核验实现。**
-    **另有一项官方独有能力：Tool Confirmation（HITL）** ——
-    官方原文"a tool confirmation flow (HITL) that can guard tool execution with
-    explicit confirmation and custom input"，对应文档 `tools/confirmation`。
-    **这是本站已收录对象里少见的「工具级人工确认」**，与 OpenAI Agents SDK 的
-    input/output guardrail 是不同层次的东西。
+    官方另有专门的 MCP tools 文档页，给出 `McpToolset` 类，且**双向**：
+    既让 ADK 作 MCP 客户端接外部 MCP server（示例含 filesystem /
+    Google Maps MCP server），也能把 ADK 工具包成 MCP server 对外暴露；
+    传输覆盖 stdio 与 Streamable HTTP。
+    **工具级人工确认（HITL）**：官方原文 "a tool confirmation flow (HITL)
+    that can guard tool execution with explicit confirmation and custom
+    input"，对应文档 `tools/confirmation`，机制细节见 permissions 轴。
+    **这是本站已收录对象里少见的「工具级人工确认」**，与 OpenAI Agents
+    SDK 的 input/output guardrail 是不同层次的东西。
   context: >-
-    **⚠ 未核验，本站不下结论。**
-    README 的特性列表里没有上下文压缩、摘要或落盘的任何表述。
-    图执行引擎的状态管理（`state management`）管的是**流程状态**，
-    按本站「状态 ≠ 上下文」的主张，**不能据此推断它有上下文管理**。
-    长任务里工具输出的落盘、对话历史的裁剪，官方文档本文未取到，标记为未核验。
+    **官方对 session / memory 有清晰区分，且有专门的上下文压缩特性。**
+    官方 sessions 页原文：`Session` 是 "single, ongoing interaction"，
+    `State` 是 "data within the current conversation"，
+    `Memory` 是 "searchable, cross-session information"；前两者由
+    `SessionService` 管，长期知识由 `MemoryService` 管。
+    **压缩**：ADK Python 1.16.0+ 提供 Context Compaction，官方原文
+    "reduce the size of context as an agent is running by summarizing
+    older parts of the agent workflow event history"，用**滑动窗口**：
+    配 `EventsCompactionConfig(compaction_interval, overlap_size)`，
+    到阈值即摘要更早的 event，`summarizer` 可换模型。
+    ⚠ 按本站「状态 ≠ 上下文」：`state` 管流程数据、Compaction 管历史
+    压缩，是两套机制，官方也分开描述。
   permissions: >-
-    **官方给的是「工具级人工确认」这一个明确机制**：
-    Tool Confirmation / HITL（文档 `tools/confirmation`），原文
-    "can guard tool execution with explicit confirmation and custom input"。
-    **但这只是「执行前问一下」，不是边界划定**：
-    README 未提及沙箱机制、未提及文件系统权限模型、未提及网络访问控制
-    （对比本站收录的 OpenHands 提供了明确的 Docker 沙箱与 API key 机制，
-    Codex SDK 源码里有三档SandboxMode 枚举）。
-    ⚠ **未核验**：容器部署时的默认权限、是否支持网络白名单、是否有其它隔离层。
+    **官方明确的机制是「工具级人工确认」Tool Confirmation（HITL）。**
+    文档 `tools/confirmation`（v1.14.0 起，标注 **Experimental**）原文：
+    "allows an ADK Tool to pause its execution and interact with a user or
+    other system for confirmation"。
+    两种用法已核验：① `FunctionTool(..., require_confirmation=True)`
+    要一次 yes/no，也可传入返回布尔值的函数（如"金额 > 1000 才问"）；
+    ② 高级确认 `tool_context.request_confirmation(hint, payload)`，
+    可暂停工具、收集结构化数据（如审批天数）后再续跑；无 UI 时可用
+    ADK server 的 `/run` 或 `/run_sse` REST 端点远程确认。
+    **这只是「执行前问一下」，不是边界划定**：官方未提供沙箱或文件系统
+    权限模型（已查 confirmation、Artifacts、deploy 各页）。
+    ⚠ 官方已知限制：DatabaseSessionService 与 VertexAiSessionService
+    不支持该特性。
   fit: >-
     **适合**：需要把多个 agent 组织成**有分支、有循环、有人工介入的确定性流程**；
     要用代码优先（code-first）定义 agent 与工具，便于测试与版本管理；
     团队在 Google 生态内（Cloud Run / Vertex / Gemini）；
-    需要内建 eval 与开发 UI；希望用同一套框架覆盖 Python 与 TypeScript。
-    **不适合**：只跑单个 agent、不需要图结构（用 OpenAI Agents SDK 或 Deep Agents 更轻）；
-    运行时需要文件级/网络级沙箱边界且不想自己实现（本站未核验其沙箱能力）；
-    长上下文的压缩与落盘是硬需求（本站未核验其手段）。
+    需要内建 eval 与开发 UI；希望用同一套框架覆盖 Python 与 TypeScript；
+    需要工具级人工确认、会话持久化与中断续跑。
+    **不适合**：只跑单个 agent、不需要图结构（用 OpenAI Agents SDK
+    或 Deep Agents 更轻）；需要框架内置的文件/网络沙箱边界——官方未提供
+    （文件访问靠 Artifacts 抽象或自接工具）；想开箱即用接自托管权重
+    又不愿经 LiteLLM 适配层。
 
 pitfalls:
   - 以为是「Google 版 OpenAI Agents SDK」—— **它是编排框架**，核心资产是 Workflow Runtime 的图执行引擎，不是单 agent 原语
-  - 把 `state management` 读成「有上下文管理」—— 前者是流程状态，后者本站未核验
+  - 把 `state management` 读成「有上下文管理」—— 前者是流程状态；后者是独立的 Context Compaction 机制（1.16+）
   - 把 MCP 当成它的核心依赖 —— README 只把 MCP 列为工具来源之一，与 OpenAI Agents SDK 把 `mcp>=1.19.0` 放进 `dependencies` 不是一回事
   - 以为 Tool Confirmation 等于沙箱 —— 它是「执行前问一句」，不是边界划定
   - 以为开源免费等于零成本 —— Cloud Run / Vertex Agent Engine 的云费用自理，且有 `GOOGLE_GENAI_USE_ENTERPRISE` 开关
@@ -149,6 +182,7 @@ pitfalls:
   - 搞混仓库名 —— 样例仓显示为 `google/adk-recipes`，描述里写的是 adk-samples
 
 tags: [Python, TypeScript, 开源, Apache-2.0, 编排框架, 图执行, 工作流, 多Agent, HITL, 工具确认, eval, CloudRun, MCP]
+related: [gemini-cli]
 
 sources:
   - label: google/adk-python · 仓库（21,688★，Apache-2.0，核验 2026-10-01）
@@ -160,8 +194,29 @@ sources:
   - label: 官方文档首页
     url: https://google.github.io/adk-docs/
     kind: docs
-  - label: 官方文档 · Tool Confirmation（HITL）
+  - label: 官方文档 · Tool Confirmation（HITL）（require_confirmation / request_confirmation 机制、Experimental、已知限制，核验 2026-10-08）
     url: https://google.github.io/adk-docs/tools/confirmation/
+    kind: docs
+  - label: 官方文档 · Models for Agents（三条模型接入机制：直接注册表 / model connectors / 模型路由，核验 2026-10-08）
+    url: https://google.github.io/adk-docs/agents/models/
+    kind: docs
+  - label: 官方文档 · LiteLLM connector（`LiteLlm` 包装类，OpenAI-compatible，over 100+ LLMs，核验 2026-10-08）
+    url: https://google.github.io/adk-docs/agents/models/litellm/
+    kind: docs
+  - label: 官方文档 · Sessions & Memory（Session/State/Memory 区分、SessionService 三档持久化，核验 2026-10-08）
+    url: https://google.github.io/adk-docs/sessions/
+    kind: docs
+  - label: 官方文档 · Context Compaction（滑动窗口摘要，v1.16.0+，核验 2026-10-08）
+    url: https://google.github.io/adk-docs/context/compaction/
+    kind: docs
+  - label: 官方文档 · Artifacts（ArtifactService、InMemory/GCS 落盘，核验 2026-10-08）
+    url: https://google.github.io/adk-docs/artifacts/
+    kind: docs
+  - label: 官方文档 · Resume stopped agents（ResumabilityConfig、Invocation ID 续跑，核验 2026-10-08）
+    url: https://google.github.io/adk-docs/runtime/resume/
+    kind: docs
+  - label: 官方文档 · MCP tools（McpToolset、ADK 作 MCP 客户端 / ADK 工具暴露为 MCP server，核验 2026-10-08）
+    url: https://google.github.io/adk-docs/tools/mcp-tools/
     kind: docs
   - label: 官方文档 · Agent Config（不写代码建agent）
     url: https://google.github.io/adk-docs/agents/config/
@@ -215,7 +270,7 @@ confidence: partial
 | 本站关注的面 | ADK 给的 |
 |---|---|
 | **状态**（流程控制） | ✅ 图执行引擎：routing / loops / retry / state management / nested workflows |
-| **上下文**（长任务压缩） | ❓ 未核验 —— 特性列表里没有任何压缩、摘要或落盘表述 |
+| **上下文**（长任务压缩） | ✅ 1.16+ 的 Context Compaction：滑动窗口摘要更早 event（`EventsCompactionConfig(compaction_interval, overlap_size)`），`summarizer` 可换模型 |
 
 ⚠ **不要把 `state management` 读成「有上下文管理」** —— 这正是本站反复强调的那条分野。
 
@@ -302,7 +357,7 @@ README 讲工具生态时列的是 pre-built tools、custom functions、OpenAPI 
 - **Codex SDK** 源码里有三档 `SandboxMode` 枚举
 - **ADK 这边本站没有拿到任何沙箱或权限边界的官方表述**
 
-⚠ **未核验**：默认沙箱机制、文件系统权限模型、网络访问控制。
+⚠ **官方未提供**：默认沙箱机制、文件系统权限模型、网络访问控制。
 **如果你选它，容器隔离要自己确认。**
 
 ## 同厂双版本 + 样例仓
@@ -321,15 +376,17 @@ README 讲工具生态时列的是 pre-built tools、custom functions、OpenAPI 
 要 code-first 定义逻辑便于测试与版本管理；团队在 Google 生态内；
 需要内建 eval 与开发 UI。
 **不适合**：只跑单个 agent、不需要图结构（用 OpenAI Agents SDK 更轻）；
-需要文件级/网络级沙箱边界但不想自己实现；长上下文压缩是硬需求（本站未核验其手段）。
+需要文件级/网络级沙箱边界但不想自己实现（官方未提供沙箱）；长上下文压缩依赖 1.16+ 的 Context Compaction（滑动窗口）。
 
 ## 核验说明
 
 `confidence: partial` 的依据：
 
-**为什么不是 verified**：八维度里 `local_files`、`context`、`permissions` 三维证据不足 ——
-没有拿到沙箱机制、文件权限模型、上下文压缩策略的官方表述，
-且 `permissions` 维度能确认的只有「有 Tool Confirmation」这一项机制。
+**为什么不是 verified**：`local_files`、`context`、`permissions` 三维本轮已核到官方机制
+（Artifacts 抽象、1.16+ 的 Context Compaction、Tool Confirmation），
+但 `permissions` 只有「执行前确认」、官方未提供沙箱或文件系统权限模型；
+其余缺口集中在**费率与部署语义**：Gemini 单价 / Vertex AI Agent Engine 与 Cloud Run 的实际费率、
+跨进程跨机续跑语义、分布式状态存储。
 
 已核验：仓库存在与星数（21,688）、许可（Apache-2.0，经 license API）、
 最近推送（2026-10-01，仍活跃）、最新版 **v2.10.0**（releases @ 2026-09-25）、
@@ -342,8 +399,8 @@ README 全文的六项特性列表与四类运行形态、两种 `adk deploy` �
 不是企业功能开关；官方把 "enable billing" 挂在 `GOOGLE_CLOUD_PROJECT` 上，
 三个变量须成组设置。来源为 Google 官方 codelab 与 Cloud 文档。
 
-未核验：model-agnostic 的实现路径与实际对齐度、非 Gemini 模型下的工具调用可靠性、
-默认沙箱与文件权限模型、网络访问控制、上下文压缩与落盘策略、
+未核验：非 Gemini 模型下的工具调用与 structured output 可靠性（对齐度）、
+默认沙箱与文件权限模型、网络访问控制、
 跨进程/跨机续跑语义、分布式状态存储、MCP 接入的实现层次（框架级依赖 vs 工具来源）、
 Gemini 单价与 Vertex AI Agent Engine / Cloud Run 的实际费率
 
@@ -365,7 +422,6 @@ Gemini 单价与 Vertex AI Agent Engine / Cloud Run 的实际费率
 ## 未知项清单
 
 - 默认沙箱机制、文件系统权限模型、网络访问控制
-- 对话上下文压缩 / 摘要 / 落盘策略
 - 跨进程、跨机的任务续跑与恢复粒度
 - 分布式部署下的状态存储方案
 - MCP 接入的实现层次（框架级依赖 vs 工具来源）
