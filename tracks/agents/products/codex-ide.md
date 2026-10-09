@@ -2,6 +2,7 @@
 id: codex-ide
 track: ide
 name: Codex IDE 扩展
+nameEn: Codex (IDE extension)
 vendor: OpenAI
 homepage: https://developers.openai.com/codex/ide
 mark: C
@@ -12,21 +13,29 @@ pricing:
   monthly_usd: null
   monthly_label: 随 ChatGPT 套餐，档位见定价页
   annual_usd: null
-  annual_label: 未核验年付报价
+  annual_label: 未收录年付报价
   note: >-
-    与 [CLI 形态](../cli/products/codex-cli.md) 共享同一授权：
+    与 [CLI 形态](./codex-cli.md) 共享同一授权：
     随 ChatGPT 订阅。
     **API 计费与订阅不是同一额度。**
-    官方 IDE 文档站在本次采集环境对 curl 返回 403，
-    定价与额度细节本次未核验，记为未知。
+    官方 IDE 文档站对 curl 返回 403（2026-10-08：改用 WebFetch 取到定价页，
+    模型档位已核）；额度细则未逐档录入，以官方定价页为准。
 pricing_pitfalls:
   - 把 IDE 扩展当成独立产品付费，它与 CLI 共享同一授权
   - 以为买了订阅就含 API 额度，API 单独计费
 
 axes:
   model_access: >-
-    与 CLI 形态相同：OpenAI 自家模型。
-    **具体模型清单与 IDE 形态下的映射本次未核验。**
+    与 CLI 形态同一套 agent 与配置（官方 IDE 页原文：
+    "It uses the same agent as the Codex CLI and shares the same
+    configuration"）。官方定价页列出可用模型：GPT-5.5、GPT-5.4、
+    GPT-5.4 mini，Pro 另有 GPT-5.3-Codex-Spark（research preview）。
+    聊天输入框下有 **模型切换器**，并可调 reasoning effort
+    （low / medium / high）。**默认模型在共享 config.toml 里设**
+    （`model = "..."`），IDE 与 CLI 共用，故自定义 provider 走同一套
+    `model_providers` 配置（见 CLI / SDK 档案）。
+    **BYOK 可用**：官方支持用 API key 登录；JetBrains 集成还可走
+    JetBrains AI 订阅；API key 路径下模型可用范围跟随该 key 的 API 模型。
   runtime: >-
     **IDE 形态是扩展，不是独立编辑器。**
     官方 README 原文：
@@ -35,25 +44,55 @@ axes:
     即**装进 VS Code / Cursor / Windsurf 这类已有编辑器**。
     这与 Zed（独立编辑器）、Cline Desktop（原生应用）是不同形态。
   local_files: >-
-    通过宿主编辑器访问工作区文件。
-    **索引与上下文构建策略本次未核验**——
-    需查 developers.openai.com/codex/ide，该站在本环境 curl 返回 403。
+    通过宿主编辑器访问工作区文件；上下文来自打开的文件、选区与
+    `@file` 引用，另有 **Auto Context**（自动带入最近文件与 IDE 上下文，
+    见 `/auto-context`）。官方口径：工作区 = 当前目录加临时目录
+    （如 `/tmp`），写入默认限工作区。Windows 上可原生运行（走
+    Windows 沙箱）或改用 WSL2（设置项
+    `chatgpt.runCodexInWindowsSubsystemForLinux`）。
+    官方 IDE 文档**未描述独立语义索引**——本地文件检索由同一 agent
+    的工具完成（已查官方 features 与 settings 两页）。
   background: >-
-    依赖宿主编辑器进程，编辑器关闭即停止。
-    **是否有云端任务形态本次未核验。**
+    **有云端形态，官方称可从 IDE 委派任务到 Codex Cloud。**
+    IDE 页原文："delegate tasks to Codex Cloud"；功能页原文
+    "Offload longer jobs to a cloud environment"，可用 `/cloud`
+    与 `/local` 切换。云任务在 **OpenAI 托管的容器**里后台运行
+    （含并行），因此**本地编辑器关闭后云任务仍继续**；
+    **本地任务依赖宿主编辑器进程，关闭即停止**。
+    云任务与本地消息共享套餐用量（官方定价页称共用 5 小时窗口）。
   tools: >-
-    **具体工具集本次未核验。**
-    可参考 [CLI 形态](../cli/products/codex-cli.md) 的架构信息：
-    app server 架构意味着 IDE 扩展与 CLI 共享同一后端。
+    **内置第一方工具与命令已核验**：网页搜索（官方称默认启用，
+    走 OpenAI 维护的搜索缓存，可配 `web_search = "live" | "disabled"`）、
+    图像生成（`$imagegen`，模型 `gpt-image-2`，计入用量且更快耗尽额度）、
+    代码审查（`/review`）、编辑器上下文（`@file`、选区、拖拽图片），
+    以及命令面板命令（`chatgpt.newChat` / `addToThread` /
+    `addFileToThread` / `implementTodo`）与 TODO CodeLens。
+    **MCP 官方明确支持 IDE 扩展**：原文
+    "Codex supports MCP servers in both the CLI and the IDE extension"，
+    支持 STDIO 与 Streamable HTTP，CLI 与 IDE 共享 `config.toml` 里的
+    `[mcp_servers.<name>]`（含 `enabled_tools` 与逐 server、逐 tool 的
+    `approval_mode`）。
   context: >-
-    **app server 架构是本工具的关键设计**——
-    线程可启动、续接与恢复，
-    IDE 扩展与 CLI 通过 app server 共享同一套会话机制。
-    **具体上下文窗口与压缩策略本次未核验。**
+    **app server 架构仍是关键设计**——线程可启动、续接与恢复，
+    IDE 与 CLI 共享同一套会话机制与同一份配置。
+    官方另补三点：从本地会话发起云任务会记住会话上下文
+    （云任务转回本地续聊也保留上下文）；`/status` 显示 thread ID、
+    上下文用量与速率限额；`/goal` 可设持久目标。
+    上下文窗口的具体数值与自动压缩策略，官方未在 IDE 文档单列
+    （压缩在 CLI / SDK 侧经 `compact_prompt` 等配置项，
+    已查官方 features 与 slash-commands 两页）。
   permissions: >-
-    **审批与沙箱的具体形态本次未核验。**
-    CLI 形态已确认「沙箱与审批边界跟随运行环境」，
-    但 IDE 扩展形态是否一致，**不能假设，需单独核验**。
+    **IDE 与 CLI 共用同一套沙箱与审批——官方 settings 页明说
+    "The Codex IDE extension uses the Codex CLI"，审批与沙箱在共享
+    `~/.codex/config.toml` 里配置。** UI 侧有三档审批模式：
+    `Chat` / `Agent` / `Agent (Full Access)`；默认 `Agent`：
+    在工作目录内自动读写并执行命令，**工作目录外或联网仍需审批**；
+    只有 `Full Access` 才免审批联网。官方安全页口径（含 IDE
+    extension）：默认 **无网络 + 写入限当前工作区**，
+    `.git` / `.agents` / `.codex` 递归只读；审批与沙箱键同 CLI
+    （`approval_policy` / `sandbox_mode` /
+    `[sandbox_workspace_write] network_access` 与 `network_proxy`
+    域名清单）；Windows 原生沙箱默认 `elevated`。
   fit: >-
     已在用 VS Code / Cursor / Windsurf 等编辑器，
     希望在同一环境里用 Codex 而不切换工具的人。
@@ -62,18 +101,46 @@ axes:
 pitfalls:
   - 把它当成独立 IDE，其实质是装进已有编辑器的扩展
   - 以为 IDE 扩展与 CLI 是两套独立系统，app server 架构让它们共享会话
-  - 套用 CLI 的权限行为到 IDE 扩展，本次未核验两者是否一致
+  - 以为 IDE 扩展的权限体系与 CLI 不同——两者共用 config.toml，沙箱与审批一致
 
 tags: [编程, IDE, 本地]
+related: [codex-sdk]
 
 sources:
-  - label: OpenAI · Codex IDE 文档
+  - label: OpenAI · Codex IDE 文档（扩展形态、云委派总览）
     url: https://developers.openai.com/codex/ide
     kind: docs
+  - label: OpenAI · Codex IDE Features（模型切换、审批模式、云委派、web search、图像生成）
+    url: https://developers.openai.com/codex/ide/features
+    kind: docs
+  - label: OpenAI · Codex IDE Settings（共享 config.toml、Windows/WSL 设置）
+    url: https://developers.openai.com/codex/ide/settings
+    kind: docs
+  - label: OpenAI · Codex IDE Slash commands（/cloud /local /status /goal）
+    url: https://developers.openai.com/codex/ide/slash-commands
+    kind: docs
+  - label: OpenAI · Codex Cloud（云任务后台运行、@codex、PR）
+    url: https://developers.openai.com/codex/cloud
+    kind: docs
+  - label: OpenAI · Codex Cloud environments（托管容器、setup/agent 两阶段）
+    url: https://developers.openai.com/codex/cloud/environments
+    kind: docs
+  - label: OpenAI · Codex Agent approvals & security（沙箱默认、审批策略、受保护路径）
+    url: https://developers.openai.com/codex/agent-approvals-security
+    kind: docs
+  - label: OpenAI · Codex MCP（CLI 与 IDE extension 支持 STDIO/Streamable HTTP）
+    url: https://developers.openai.com/codex/mcp
+    kind: docs
+  - label: OpenAI · Codex Config basics（默认模型、approval_policy、sandbox_mode）
+    url: https://developers.openai.com/codex/config-basic
+    kind: docs
+  - label: OpenAI · Codex Pricing（可用模型与套餐）
+    url: https://developers.openai.com/codex/pricing
+    kind: pricing
   - label: OpenAI · Codex 仓库 README（含 IDE 安装说明）
     url: https://github.com/openai/codex
     kind: repo
-  - label: OpenAI · Codex CLI Releases（rust-v0.158.0 @ 2026-09-28）
+  - label: OpenAI · Codex CLI Releases
     url: https://github.com/openai/codex/releases
     kind: changelog
 
@@ -81,8 +148,8 @@ link:
   url: https://developers.openai.com/codex/ide
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-08
+last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
 ---
@@ -103,7 +170,7 @@ install in your IDE.
 **关键信息**：它明确列出支持的三种宿主编辑器。
 这说明 **Codex IDE 形态是"扩展"而非"编辑器"**。
 
-### IDE 赛道三种形态对比
+### IDE 形态三种对比
 
 | 形态 | 代表 | 含义 |
 |---|---|---|
@@ -122,7 +189,7 @@ install in your IDE.
 
 **两个条目，不同赛道，但共享后端**：
 
-| | [CLI 形态](../../cli/products/codex-cli.md) | IDE 形态（本条目） |
+| | [CLI 形态](../../agents/products/codex-cli.md) | IDE 形态（本条目） |
 |---|---|---|
 | 形态 | 终端进程 | 编辑器扩展 |
 | 授权 | 随 ChatGPT 订阅 | **同一授权** |
@@ -142,21 +209,26 @@ install in your IDE.
 
 **不适合**需要独立编辑器的人——
 本形态必须依附已有编辑器，无法单独使用。
-也不适合要求「权限行为在 IDE 与 CLI 严格一致」的场景，
-本次未核验两者是否一致。
+另需注意：本地任务依赖编辑器进程常驻，
+要「关机后继续跑」须改用云委派（Codex Cloud）。
 
 ## 采集限制
 
-官方 IDE 文档站 `developers.openai.com/codex/ide`
-在本次采集环境对 curl 返回 **403（CDN 拦截）**。
+本次（2026-10-08）已取到官方 IDE 文档站正文
+`developers.openai.com/codex/ide` 及其
+features / settings / slash-commands 子页，
+并交叉核对了 cloud、config-basic、安全与 MCP 页
+（此前一度取不到，属取证故障，非官方缺页）。
 
-**已核验的部分**（来自 GitHub 仓库）：
-- IDE 形态是扩展，且支持 VS Code / Cursor / Windsurf
-- 与 CLI 共享授权与 app server 后端
-- 许可证 Apache-2.0，star 126,988，2026-09-28 有 release
+**已核验**：
+- 工具集（web search、图像生成、code review、编辑器上下文）与 MCP 支持
+- 三档审批模式（Chat / Agent / Agent Full Access）与沙箱默认值
+- 云委派（Codex Cloud）与本地 / 云端会话上下文保留
+- 模型切换器、可用模型清单与 API key 登录
+- 授权随 ChatGPT 订阅；许可证 Apache-2.0
 
-**未核验的部分**：
-- 工具集、索引策略、上下文机制、审批形态（均需 IDE 文档站）
+**官方未说明**：
+- IDE 与 CLI 沙箱的逐平台实现差异（官方只说 OS 级强制）
 
 ## 实测记录
 
@@ -168,11 +240,10 @@ install in your IDE.
 
 ## 未知项清单
 
-- IDE 形态的完整工具集
-- 索引与上下文构建策略（部分由宿主编辑器决定）
-- 审批与沙箱在 IDE 形态下的具体行为
-- 上下文窗口与压缩策略
-- 是否支持自带 provider
+- 沙箱在 Windows / macOS / Linux 的逐平台实现差异
+- 上下文窗口的具体数值与自动压缩触发阈值
+- app server 的并发写与跨机迁移语义
+- 换用非 OpenAI provider 后工具调用的质量对齐度
 
 ## 相关条目
 
