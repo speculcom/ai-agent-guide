@@ -26,7 +26,7 @@ pricing:
   note: >-
     **框架免费 ≠ 运行免费。** README 原文推荐搭配 LangSmith 做 tracing / evaluation / monitoring，
     LangSmith 是商业产品。另：模型推理费用自理，官方举例用 `model="openai:gpt-6-astra"`。
-    README 的 Quickstart 示例里没提 Deep Agents 自身有托管服务。
+    README 的 Quickstart 示例里没提 Deep Agents 自身有托管服务。LangSmith 的具体定价未核验（商业条款不在本档范围）。
 pricing_pitfalls:
   - 以为用了开源框架就零成本，模型推理与 LangSmith 都是要付费的
   - 以为"production-ready"等于"开箱零配置上生产"，README 另给了 Going to production 专门指南
@@ -53,10 +53,13 @@ axes:
     Deep Agents 预置了规划、上下文管理、子代理委派。
   local_files: >-
     **Filesystem 能力是核心卖点**：read / write / edit / search，
-    且**后端可插拔**（pluggable local, sandboxed, or remote backends）。
+    且**后端可插拔**（pluggable local, sandboxed, or remote backends）；
+    官方另设独立 Sandboxes 页讲隔离执行环境与 `execute` 工具
+    （`SandboxBackendProtocolV2`，仅 sandbox 后端暴露 shell）。
     **重要边界**：官方安全声明原文说「**Enforce boundaries at the tool/sandbox level,
     not by expecting the model to self-police**」—— 即官方明确不提供一层权限护栏，
-    边界要靠你自己在 tool/sandbox 层实现。多 agent 并发时的文件冲突处理本次未核验。
+    边界要靠你自己在 tool/sandbox 层实现。**多 agent 并发写同一文件的冲突处理官方未说明
+    （已查 overview / backends 页）。**
   background: >-
     自托管 = **关了就停**，没有托管执行选项（README 无相关承诺）。
     **但断点续跑有官方支撑**：built on LangGraph 的 persistence + checkpointing，
@@ -96,6 +99,7 @@ pitfalls:
   - 以为最新版是 0.7.0 —— 竞品站的快照记的是 0.7.0，**实际已 0.7.20**（核验 2026-09-30）
 
 tags: [Python, 开源, MIT, 通用harness, 长任务, 子代理]
+related: [amp]
 
 sources:
   - label: LangChain · Deep Agents 仓库
@@ -116,6 +120,12 @@ sources:
   - label: Deep Agents Releases（0.7.20 @ 2026-09-29）
     url: https://github.com/langchain-ai/deepagents/releases
     kind: changelog
+  - label: Deep Agents · Backends（可插拔文件系统后端、permission 规则与边界，核验 2026-10-08）
+    url: https://docs.langchain.com/oss/python/deepagents/backends
+    kind: docs
+  - label: Deep Agents · Sandboxes（隔离执行环境、`execute` 工具）
+    url: https://docs.langchain.com/oss/python/deepagents/sandboxes
+    kind: docs
 
 link:
   url: https://github.com/langchain-ai/deepagents
