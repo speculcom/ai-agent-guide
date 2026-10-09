@@ -2,6 +2,7 @@
 id: aider
 track: ide
 name: Aider Watch 模式
+nameEn: Aider (Watch mode)
 vendor: Aider-AI
 homepage: https://aider.chat/docs/usage/watch.html
 mark: A
@@ -14,7 +15,7 @@ pricing:
   annual_usd: null
   annual_label: 开源免费，模型费用另计
   note: >-
-    Apache-2.0 开源。与 [CLI 形态](../../cli/products/aider-cli.md) 同一项目，
+    Apache-2.0 开源。与 [CLI 形态](../../agents/products/aider-cli.md) 同一项目，
     **无额外授权费用**。模型调用费用由用户自付。
 pricing_pitfalls:
   - 以为 IDE 形态是插件，它其实是 watch 模式 + 浏览器 UI
@@ -34,14 +35,23 @@ axes:
     但实现上跑的是 **Aider 自己的浏览器 UI**。
     **这与 Cline / Codex 的「编辑器扩展」是不同的形态。**
   local_files: >-
-    watch 文件变化并响应 AI 注释。
+    watch 模式监听 **git 仓库内所有文件**的变化并响应 AI 注释——
+    官方 `docs/usage/watch.html`：`--watch-files` 会
+    "watch all files in your repo"。
+    范围受 `.gitignore` / `.aiderignore` 约束
+    （`--aiderignore` 指定忽略文件，默认 git 根目录的 `.aiderignore`；
+    `--subtree-only` 只考虑当前子树）；
+    仓库须是 git 仓库——官方 `docs/git.html`：无 git 时会先问你是否新建。
     **核心的 Repo Map 能力与 CLI 形态完全相同**（同一项目的同一机制，
-    官方文档 `docs/repomap.md`）：用「一份简洁的整个 git 仓库的地图」提供上下文，
-    含最重要的类与函数及其类型与调用签名；每次改动请求都随附该 map。
+    官方文档 `docs/repomap.md`）：用「一份简洁的整个 git 仓库的地图」
+    提供上下文，含最重要的类与函数及其类型与调用签名；
+    每次改动请求都随附该 map。
     **它的第二个作用在 watch 模式下尤其有用**——
     帮助写新代码时复用代码库里已有的库、模块与抽象。
     支持 100+ 编程语言。
-    **大仓库的 repo map 耗时与 token 开销本次未实测，记为未知。**
+    **map 的 token 预算由 `--map-tokens` 控制、刷新频率由 `--map-refresh`
+    （auto/always/files/manual）控制；大仓库的实际耗时与 token 开销
+    官方未给数字，本站未实测。**
   background: >-
     **需要 Aider 进程常驻**才能响应注释——
     这与「后台云端任务」不是一回事。
@@ -49,18 +59,39 @@ axes:
     也不存在客户端关闭后继续运行的云端形态。
   tools: >-
     文件编辑 + Git 自动提交（与 CLI 形态相同的核心机制）。
+    **可配置 lint / 测试命令自动运行**（官方 `docs/usage/lint-test.html`）：
+    `--lint-cmd` / `--auto-lint`（默认对编辑过的文件跑 lint）、
+    `--test-cmd` / `--auto-test`；另有 `/run` 跑 shell 命令、
+    `/web` 抓网页转 markdown、`/paste` 贴图。
     watch 模式下可从编辑器直接拖文件到智能体面板，
-    或把编辑器选区发送到对话。
-    **MCP 支持本次未核验，记为未知。**
+    或把编辑器选区发送到对话；在文件里加 `# AI` 注释即可把该文件加入 chat。
+    **无内置 MCP 支持**——官方选项表与文档站导航都没有任何 MCP 条目
+    （已查 `config/options.html` 与 docs 目录），故不能接 MCP server。
   context: >-
     Repo Map 提供全库结构视图，每次请求随附（见 local_files）。
-    **上下文窗口大小与压缩策略本次未核验。**
+    **上下文超限用「摘要压缩」而非简单截断**：官方选项
+    `--max-chat-history-tokens` 描述为
+    "Soft limit on tokens for chat history, after which summarization begins"
+    （超过软上限即开始摘要，摘要由 `--weak-model` 生成）。
+    `--map-tokens` 控 repo map 的 token 预算；
+    每个模型的上下文窗口与费用由 `--model-metadata-file` 提供。
+    会话内可用 `/tokens` 查看用量、`/drop`、`/clear`、`/reset` 腾空间；
+    **默认不跨启动恢复**（`--restore-chat-history` 默认 False），
+    chat 历史默认写 `.aider.chat.history.md`。
   permissions: >-
-    **具备自动提交能力**（与 CLI 形态一致）——
-    AI 的改动会直接进入 git 历史。
-    **watch 模式下是否每次询问本次未核验。**
-    这是本条目最需要补全的一项：
-    常驻进程 + 自动提交 + 无确认，风险叠加。
+    **默认自动提交**：官方 `--auto-commits`（默认 True）——
+    每次编辑都用合理的 commit message 提交；
+    `--dirty-commits`（默认 True）会先把已有的未提交改动也提交，
+    让你的改动与 AI 的改动分开。撤销路径是 **git 本身**（`/undo`）。
+    **存在确认环节**：官方提供 `--yes-always`（别名 `--yes`），
+    描述为 "Always say yes to every confirmation"——
+    即默认会对某些操作询问，加此开关才全自动；
+    `--dry-run` 可不改文件地预演。
+    提交时默认跳过 pre-commit hook（`--git-commit-verify` 默认 False，
+    即用 `--no-verify`）；**无沙箱机制**（官方选项表无任何沙箱项）。
+    watch 模式复用同一 coder（官方 watch 页：用 `/undo` 撤销、
+    `/tokens` 管上下文），故上述自动提交与确认机制同样适用。
+    **常驻进程 + 自动提交 + 需显式开关才不询问，三者叠加风险高。**
   fit: >-
     习惯在任意编辑器里工作，不愿切换到专门的 Agent 界面的人。
     需要「加注释 → 自动响应」这种轻量交互的人。
@@ -71,6 +102,7 @@ pitfalls:
   - 没意识到自动提交在 watch 模式下同样生效，常驻进程下风险更高
 
 tags: [编程, IDE, 本地, 开源]
+related: [git]
 
 sources:
   - label: Aider · Watch 模式官方文档（Aider in your IDE）
@@ -82,13 +114,25 @@ sources:
   - label: Aider · Releases（最新 v0.86.0 @ 2025-08-09）
     url: https://github.com/Aider-AI/aider/releases
     kind: changelog
+  - label: Aider · 选项参考（--aiderignore/--auto-commits/--yes-always/--map-tokens/--max-chat-history-tokens）
+    url: https://aider.chat/docs/config/options.html
+    kind: docs
+  - label: Aider · Git 集成（自动提交、dirty 提交、/undo、默认跳过 pre-commit hook）
+    url: https://aider.chat/docs/git.html
+    kind: docs
+  - label: Aider · Linting and testing（--lint-cmd/--test-cmd/--auto-lint/--auto-test）
+    url: https://aider.chat/docs/usage/lint-test.html
+    kind: docs
+  - label: Aider · Scripting（--yes/--auto-commits/--dry-run 官方帮助文本）
+    url: https://aider.chat/docs/scripting.html
+    kind: docs
 
 link:
   url: https://aider.chat
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-08
+last_updated: 2026-10-08
 lifecycle: maintenance
 confidence: partial
 ---
@@ -97,9 +141,9 @@ confidence: partial
 
 **不是编辑器插件，是一种使用模式**——Aider 常驻 watch 你的文件，你在任意编辑器里加 AI 注释，它就响应。
 
-## 形态澄清（本赛道第四种形态）
+## 形态澄清（IDE 形态的第四种）
 
-IDE 赛道到目前为止有四种形态，本条目是第四种：
+IDE 形态到目前为止有四种，本条目是第四种：
 
 | 形态 | 代表 | 实质 |
 |---|---|---|
@@ -127,7 +171,7 @@ you add in your favorite IDE or text editor.
 
 ## 与 CLI 形态的关系
 
-| | [CLI](../../cli/products/aider-cli.md) | Watch 模式（本条目） |
+| | [CLI](../../agents/products/aider-cli.md) | Watch 模式（本条目） |
 |---|---|---|
 | 交互 | 终端对话 | 加 AI 注释 |
 | 界面 | 终端 | Aider 的浏览器 UI |
@@ -145,10 +189,10 @@ you add in your favorite IDE or text editor.
 | 因素 | 状态 |
 |---|---|
 | 进程常驻 | 需要一直运行才能响应 |
-| 自动提交 | AI 改动直接进 git 历史 |
-| 每次询问 | **本次未核验** |
+| 自动提交 | AI 改动直接进 git 历史（`--auto-commits` 默认 True） |
+| 每次询问 | 有确认开关 `--yes-always`（默认关）；**默认会对某些操作询问** |
 
-**常驻进程 + 自动提交 + 未确认是否每次询问**——
+**常驻进程 + 默认自动提交 + 需显式 `--dry-run` / 关自动提交才可预演**——
 这三个叠加起来，风险高于手动启动的 CLI 用法。
 
 **建议**：第一次用 watch 模式时，在小仓库里试，并先确认 git 状态干净。
@@ -159,7 +203,7 @@ you add in your favorite IDE or text editor.
 需要「加注释 → 自动响应」这种轻量交互的人。
 
 **不适合**要求严格审批的场景——
-watch 模式的确认机制本次未核验，
+watch 模式默认会对某些操作询问，但仍会自动提交，
 且常驻进程下更容易产生未经确认的改动。
 也不适合需要云端后台运行的场景，它依赖本机进程。
 
@@ -168,11 +212,12 @@ watch 模式的确认机制本次未核验，
 Aider 的文档站在本次采集环境 curl 可达，
 已确认 watch 模式的官方描述。
 
-**未核验**：
-- watch 模式下是否每次询问
-- MCP 支持情况
-- 上下文窗口与压缩策略
-- 大仓库的 Repo Map 表现
+**A6.2（2026-10-08）本轮补齐**：watch 模式的文件范围与忽略规则、
+自动提交与 `--yes-always` 确认机制、lint/测试命令、
+上下文摘要压缩（`--max-chat-history-tokens`）、以及
+**官方文档与选项表均无 MCP 条目**这一结论，均已从官方源核实并写进 axes。
+
+**仍待实测**：大仓库 Repo Map 的实际耗时与 token 开销（官方未给数字）。
 
 ## 实测记录
 
@@ -184,10 +229,8 @@ Aider 的文档站在本次采集环境 curl 可达，
 
 ## 未知项清单
 
-- watch 模式下是否每次询问
-- MCP 支持情况
-- 上下文窗口与压缩策略
-- 大仓库 Repo Map 表现
+- 大仓库 Repo Map 的实际耗时与 token 开销（官方未给数字，待实测）
+- `--yes-always` 默认会就哪些具体操作询问（官方未逐项列举）
 
 ## 相关条目
 
