@@ -32,8 +32,15 @@ axes:
   background: >-
     不支持。随客户端进程结束。
   tools: >-
-    工具清单较长，涵盖 MCP 各协议特性的演示用途。
-    **完整清单见仓库 docs/features.md**，本站未逐条核验。
+    共 19 个工具，**本站已按仓库 docs/features.md 逐条核对**（2026-10-08）：
+    echo、get-annotated-message、get-env、get-resource-links、
+    get-resource-reference、get-roots-list、gzip-file-as-resource、
+    get-structured-content、get-sum、get-tiny-image、
+    trigger-long-running-operation、toggle-simulated-logging、
+    toggle-subscriber-updates、trigger-elicitation-request、
+    trigger-url-elicitation、trigger-sampling-request、
+    simulate-research-query，以及 sampling / elicitation 的两个 async 变体。
+    另有 4 个 prompt 与一批 resource 模板（同见 features.md）。
     输出结构按演示目标设计，**不适合直接消费**。
   context: >-
     无跨会话记忆。测试 server，不提供实用记忆能力。
@@ -51,7 +58,10 @@ pitfalls:
 
 mcp:
   transport: >-
-    支持 stdio。**是否支持 Streamable HTTP，仓库未声明。**
+    支持 stdio（默认，npx 启动）。
+    **仓库 README 另文档了两种远程形态**（2026-10-08 核验）：
+    Streamable HTTP（`npx @modelcontextprotocol/server-everything streamableHttp`）
+    与 SSE（`sse` 子命令；官方标注自 2025-03-26 规范起已弃用）。
   auth: >-
     无独立认证层。**不适用于生产环境**——
     权限设计不是本 server 的目标。
@@ -63,10 +73,14 @@ mcp:
     启用前请确认你的环境不会因此暴露风险。
 
 tags: [本地, 只读]
+related: [zed]
 
 sources:
   - label: MCP · Everything Server（官方声明为测试 server）
     url: https://github.com/modelcontextprotocol/servers/tree/main/src/everything
+    kind: docs
+  - label: MCP · Everything Server Features（19 个工具逐条清单，2026-10-08 核对）
+    url: https://github.com/modelcontextprotocol/servers/blob/main/src/everything/docs/features.md
     kind: docs
   - label: MCP · Everything 目录变更历史
     url: https://github.com/modelcontextprotocol/servers/commits/main/src/everything
@@ -82,10 +96,10 @@ link:
   url: https://github.com/modelcontextprotocol/servers/tree/main/src/everything
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-08
+last_updated: 2026-10-08
 lifecycle: active
-confidence: partial
+confidence: verified
 ---
 
 ## 一句话定位
@@ -134,7 +148,7 @@ confidence: partial
 | `git` | 参考实现 | ✅ |
 | `memory` | 参考实现 | ✅ |
 | `sequential-thinking` | 参考实现 | ✅ |
-| `fetch` | 参考实现 | ⚠️ 需评估安全 |
+| `fetch` | 参考实现 | △ 需评估安全 |
 | `time` | 参考实现 | ✅ |
 | **`everything`** | **测试工具** | ❌ |
 
@@ -158,14 +172,12 @@ confidence: partial
 
 ## 未知项清单
 
-> `confidence: partial` 的依据（2026-10-03 由 verified 降级）：
-> 下方第 1 条的主语是**本站的取证缺口**（「本站未逐条核验」），
-> 不是「官方未提供」。按 v3 铁律「未知就说未知」，标 verified 属于虚高，故降为 partial。
-> 若后续读完仓库 `docs/features.md` 补齐了该清单，可重新评估是否升回 verified。
+> 2026-10-08 A6.2：工具清单已按仓库 `docs/features.md` 逐条核对（19 个工具 + 4 个 prompt），
+> transport 也已核到 README 的 Streamable HTTP / SSE 启动文档 ——
+> 原降级原因消失，`confidence` 升回 `verified`。
 
-- 完整的 tool / resource / prompt 清单（需读仓库 docs/features.md，本站未逐条核验）← **这条是降级的直接原因**
-- 是否支持 Streamable HTTP（仓库未声明）← 官方未提供，不影响 confidence
-- 协议特性覆盖的完整范围
+- 协议特性覆盖的完整范围（features.md 已读；其余细节随 SDK 版本演进，以仓库为准）
+- SSE 子命令在新版规范下的维护状态（官方已标注弃用，未见移除计划）
 
 ## 相关条目
 
