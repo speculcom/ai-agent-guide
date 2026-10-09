@@ -126,6 +126,7 @@ pitfalls:
   - 混淆 Security Review 与 Bugbot，一个管可利用缺陷，一个管风格与质量问题
 
 tags: [编程, IDE, 混合, 云端]
+related: [context7]
 
 sources:
   - label: Cursor · Changelog（Projects / 自托管 / Rollouts + Security Review）
@@ -280,7 +281,8 @@ Cursor Router 按 cost / balance / intelligence 三档路由，**按被路由到
 | Changelog | ✅ 取到三条完整条目（09-23 / 09-10 / 09-02） |
 
 **因此本条目标 `confidence: partial`**——
-能力侧证据充分，价格侧缺失。
+能力侧证据充分，各档月付价格已补齐，
+但额度倍数（1x / 3x / 20x）无具体数值、自托管部署细节未核。
 
 ## 实测记录
 
@@ -292,12 +294,10 @@ Cursor Router 按 cost / balance / intelligence 三档路由，**按被路由到
 
 ## 未知项清单
 
-- 各档位的具体价格数字
-- 完整模型清单与切换机制
+- 各档额度倍数（1x / 3x / 20x）对应的具体请求数或 token 量
 - 自托管形态的具体部署方式与前置条件
-- 索引策略与大仓库表现
+- 大仓库的索引性能与规模上限（官方未给数字）
 - 「项目」beta 的功能边界
-- MCP 接入的具体方式
 
 ## 相关条目
 
