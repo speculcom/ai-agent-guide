@@ -48,7 +48,14 @@ axes:
     as well as **100+ other LLMs**.」
     实现路径有两层证据：核心依赖是 `openai>=3.0.0`；可选依赖里有
     `litellm`（`openai-agents[litellm]`）与 `any-llm`（`openai-agents[any-llm]`，要求 Python ≥3.11）。
-    **换 provider 的实际改动量本站未核验**（文档说 provider-agnostic，但没给「零改动」的量化承诺）。
+    **官方 `models` 页给出完整接入面（已核验）**：官方专列"Non-OpenAI models"
+    与"Third-party adapters"两节 —— **内置 provider 接入点**可指向 OpenAI 兼容端点
+    （示例 `MultiProvider(openai_base_url="https://openrouter.ai/api/v1")`），
+    另有 **Any-LLM / LiteLLM 两个 beta 适配器**；LiteLLM 页原文：
+    "allows you to use **100+ models** via a single interface ... use **any AI model**
+    in the Agents SDK"，示例直接给 `anthropic/claude-3-5-sonnet`。
+    **换 provider 的改动量 = 换 `model`**（字符串名 / `LitellmModel(...)` / provider 前缀），
+    但官方**没有"零改动"的量化承诺**，各家能力对齐度需实测。
   runtime: >-
     **你自己运营进程** —— 它是库不是服务。README 的四种运行方式全部是本地代码调用
     （`Runner.run_sync` / `RealtimeRunner.run` / `VoicePipeline.run` / sandbox client）。
@@ -81,12 +88,23 @@ axes:
     本站的「状态 ≠ 上下文」主张里，**把大工具输出落盘**这类手段在本 SDK 属用户自建
     （SandboxAgent 的沙箱工作区可以承担这个角色，但官方没有把它宣传成 context 管理层）。
   permissions: >-
-    **内建 Guardrails（输入 + 输出双向校验）+ Human in the loop（跨多次运行引入人工）**
+    **内建 Guardrails（输入 + 输出双向校验）+ Human in the loop（工具级审批）**
     —— 这是本站目前见到的**权限面最完整**的内建方案：
     「Configurable safety checks for input and output validation」与
     「Built-in mechanisms for involving humans across agent runs」。
+    **机制细节已核验**（官方 `guardrails` 与 `human_in_the_loop` 专章）：
+    ① 三类 guardrail —— **input**（只在链条第一个 agent 跑）、**output**
+    （只在产出最终输出的 agent 跑）、**tool**（包 `FunctionTool`，执行前后各校验一次，
+    可 skip/replace/raise tripwire）；命中即抛 tripwire 异常并**立即中止**，
+    input 侧可选 `run_in_parallel=False` 在 agent 启动前拦截。
+    ② **工具级审批**：`needs_approval=True|callable` 可用在 `function_tool`、
+    `ShellTool`、`ApplyPatchTool`、`Agent.as_tool`，MCP server 用 `require_approval`；
+    审批以 run-wide `interruptions` 暂停，`RunState` 可序列化/恢复，
+    参数无法安全解析时 **fail closed**，`always_approve` 可固化决策。
+    **边界要说清**：官方**没有**内建文件/网络沙箱 —— guardrails 是**用户可编程的
+    校验钩子**；真正的沙箱边界交宿主机或 SandboxAgent 容器，不在 guardrail 层
+    （已查 guardrails、human_in_the_loop、Sandbox agents 三页）。
     与 Deep Agents 的「trust the LLM，边界责任交给你」形成鲜明对照。
-    **具体边界强度本次未核验**（guardrail 能否拦住文件/网络访问类型的越权，文档未在README 展开）。
   fit: >-
     **适合**：想要「薄 harness」—— 只要 agent loop 原语，filesystem / 规划 / 记忆都想自己挑；
     需要 guardrails 与 human-in-the-loop 是内建的；需要 MCP 一等支持；团队是 Python 栈。
@@ -100,6 +118,7 @@ pitfalls:
   - 以为这是 OpenAI 闭源 SDK 的「官方壳」 —— 它本身是 MIT 开源框架，官方明确「committed to continuing to build the Agents SDK as an open source framework」
 
 tags: [Python, 开源, MIT, 编程底座, 通用harness, guardrails, MCP, human-in-the-loop, sandbox]
+related: [codex-cli]
 
 sources:
   - label: OpenAI Agents SDK · 仓库（Python）
@@ -107,6 +126,12 @@ sources:
     kind: repo
   - label: 官方文档首页
     url: https://openai.github.io/openai-agents-python/
+    kind: docs
+  - label: Models（provider-agnostic、Non-OpenAI models、Any-LLM / LiteLLM 适配器）
+    url: https://openai.github.io/openai-agents-python/models/
+    kind: docs
+  - label: Using any model via LiteLLM（"use any AI model"、100+ models）
+    url: https://openai.github.io/openai-agents-python/models/litellm/
     kind: docs
   - label: Sandbox agents（官方专章）
     url: https://openai.github.io/openai-agents-python/sandbox_agents
@@ -214,7 +239,10 @@ agent = SandboxAgent(
 **这两句话就是本站「权限归属」这个问题的两种答案**，也是一个真实的选择依据：
 > **你要内建的输入输出校验，还是你要自己划沙箱边界？**
 
-⚠ 未核验：guardrail 对「文件/网络访问类越权」的拦截能力（README 未展开，需读官方 guardrails 专章）。
+**机制已核验（见 axes.permissions）**：guardrails 分 input / output / tool 三类、命中抛 tripwire 中止；
+工具级审批 `needs_approval` 覆盖 function_tool / ShellTool / ApplyPatchTool / MCP。
+**边界：官方无内建文件/网络沙箱** —— guardrail 是用户可编程校验钩子，
+真正的沙箱边界交宿主机或 SandboxAgent 容器。
 
 ## 「状态 ≠ 上下文」在这两个 SDK 里的不同答案
 
@@ -253,12 +281,12 @@ README 里明确指向 `openai/openai-agents-js`（核验 2026-09-30：MIT，3,8
 
 > **为什么降级**：下方 ❌ 项的主语是**本站的取证缺口**，不是「官方未提供」。
 > 按 v3 铁律「未知就说未知」，这些条目存在时标 verified 属于虚高，故降为 partial。
-> 主要缺口：100+ provider 的实际能力对齐度、guardrail 对文件/网络越权的拦截强度。
+> 主要缺口：100+ provider 的实际能力对齐度（A6.2 已补：guardrail 三类机制与工具级审批已核验）。
 - ✅ 已核验：仓库存在与星数（29,792）、许可（MIT，经 license API）、最近推送（2026-10-01，仍活跃）、
   最新版本 **0.22.3**（releases @ 2026-09-17）、`pyproject.toml` 全文关键项（`requires-python >=3.10`、
   `mcp>=1.19.0,<3` 是核心依赖、litellm/any-llm/sqlalchemy 均为可选 extra）、README 全文十项核心概念、
   四种运行方式代码示例、SandboxAgent 段落与平台差异、JS 版仓元数据
-- ❌ 未核验：100+ provider 的实际能力对齐度、guardrail 对文件/网络越权的拦截强度、
+- ❌ 未核验：100+ provider 的实际能力对齐度、
   hosted sandbox client 的定价与可用性、Sessions 的具体后端语义、Realtime/Voice 路径的成本
 
 ## 实测记录
@@ -278,7 +306,6 @@ README 里明确指向 `openai/openai-agents-js`（核验 2026-09-30：MIT，3,8
 ## 未知项清单
 
 - 100+ provider 各自的能力对齐度矩阵
-- guardrail 与沙箱边界的职责划分边界
 - hosted sandbox client 的定价、可用区域、配额
 - Sessions 后端在多进程/多机下的并发写语义
 - litellm / any-llm extra 的实际依赖体积与升级冲突
