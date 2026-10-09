@@ -143,7 +143,7 @@ const AXIS_DESC = {
   fit: '最擅长什么任务？什么情况下别用它？',
   transport: '客户端怎么连上它：stdio / SSE / Streamable HTTP / 远程。',
   auth: '怎么证明身份。注意认证 ≠ 授权，前者是「你是谁」，后者是「你能做什么」。',
-  scope: '能碰到多少东西？能改吗？能删吗？能收紧吗？这是 MCP 赛道第一优先级。',
+  scope: '能碰到多少东西？能改吗？能删吗？能收紧吗？这是 MCP 分区第一优先级。',
 };
 
 /* ============================================================
@@ -271,6 +271,14 @@ const only = args.filter(a => !a.startsWith('--'));
 const targets = only.length ? only : Object.keys(SITES);
 
 // ── YAML 子集解析（与 validate.mjs 同源，避免两套解析逻辑漂移）──────────────
+/* ⚠ 这两份解析器是**复制关系**，没有机制保证同步 —— 改一份必须改另一份。
+ *   2026-10-09 就踩到了：修了 validate.mjs 的数组判别、忘了这里，构建仍然报
+ *   「缺维度 axes.*」。根因见下面 isListBlock 的注释。 */
+function isListBlock(blockLines) {
+  const first = blockLines.find((l) => l.trim());
+  return !!first && (first.trim().startsWith('- ') || first.trim() === '-');
+}
+
 function parseFrontmatter(text) {
   if (!text.startsWith('---\n')) return null;
   const end = text.indexOf('\n---\n', 4);
@@ -308,8 +316,10 @@ function parseFrontmatter(text) {
     }
     while (blockLines.length && !blockLines[blockLines.length - 1].trim()) blockLines.pop();
     if (info.block) {
-      data[key] = info.fold ? blockLines.map(l => l.trim()).join(' ').trim() : blockLines.map(l => l.trim()).join('\n').trim();
-    } else if (blockLines.some(l => l.trim().startsWith('- ') || l.trim() === '-')) {
+      /* ⚠ fold 时用 `\n` 而不是空格（2026-10-09 修）：见下方 folded 的注释 ——
+       * 折成空格会把 `- ` 清单并成一行，也会让「行首是 - 」这个信息丢失。*/
+      data[key] = info.fold ? blockLines.map(l => l.trim()).join('\n').trim() : blockLines.map(l => l.trim()).join('\n').trim();
+    } else if (isListBlock(blockLines)) {
       data[key] = blockLines.map(l => l.trim().replace(/^-\s*/, '').trim().replace(/^["']|["']$/g, '')).filter(Boolean);
     } else {
       const sub = {};
@@ -326,7 +336,25 @@ function parseFrontmatter(text) {
             if (indentOf(nl) <= indentOf(l)) break;
             parts.push(nl.trim()); k++;
           }
-          sub[sm[1]] = cinfo.fold ? parts.filter(Boolean).join(' ') : parts.join('\n').trim();
+          /* ⚠ 空行必须是**段落边界**，不能丢（2026-10-09 修）。
+           * 旧写法 `parts.filter(Boolean).join(' ')` 把空行过滤掉，于是
+           * `>-` 折叠标量里「一个意思一段」的写法（_plan/文风规范-说人话.md 第 3、5、6 条）
+           * 在页面上**全部压成一整块**：结论、清单、原文引用连成一行流水文字，
+           * markdown 列表退化成正文里的「- xxx - yyy」。
+           * 实测 kiro.md（已按新规范改完）的 model_access 渲染后 0 个 <p>、0 个 <ul> ——
+           * 探针按空行分段量是达标的，页面却看不见分段。
+           * 现在空行一律留成 `\n\n`，段落与列表还原交给渲染处的 blockMd()。*/
+          const folded = (() => {
+            const paras = [[]];
+            for (const p of parts) {
+              if (p) paras[paras.length - 1].push(p);
+              else if (paras[paras.length - 1].length) paras.push([]);
+            }
+            /* 段内换行留 `\n`（不折成空格）：清单项的续行与下一个 `- ` 行
+             * 一旦被折成空格，整份清单会并成单个 `- ` 行 → 渲染成一个 <li>。*/
+            return paras.filter((a) => a.length).map((a) => a.join('\n')).join('\n\n');
+          })();
+          sub[sm[1]] = cinfo.fold ? folded : parts.join('\n').trim();
         } else sub[sm[1]] = cinfo.val;
       }
       data[key] = sub;
@@ -529,6 +557,28 @@ try {
       const m = new RegExp(`^##\\s+${name}\\s*\\r?\\n([\\s\\S]*?)(?=\\r?\\n##\\s|$(?![\\s\\S]))`, 'm').exec(body);
       return m ? m[1].trim() : '';
     };
+    /* ⚠ **正文其余小节的兜底**（2026-10-09 加）。
+     *   实测：**546 个小节里 463 个的正文在产物里根本不存在** ✗ —— 模板只渲染 5 个具名面板
+     *   （一句话定位 / 适合与不适合 / 实测记录 / 未知项清单 / 相关条目），
+     *   其余 `## 安装方式` / `## 架构关键` / `## 三种形态` / `## 核验说明` … 全被丢掉 ✗✗。
+     *   **这是「探针读源文件、读者看页面」这一类问题里最严重的一次** ——
+     *   我前几轮改写的正文，大部分读者一个字都看不到；而所有探针都读源文件，所以一路全绿 ✗。
+     *   （我先前验过「每篇正文的**最后**一个小节在不在产物里」→ 52/52 ✓ —— 那个检查是**空洞的** ✗，
+     *    因为最后一个恰好总是会被渲染的 `未知项清单` ✓。）
+     *
+     *   这里把除那 5 个之外的小节**按原顺序**收进 `extraSections`，模板里依次渲染。 */
+    const NAMED = ['一句话定位', '适合与不适合', '实测记录', '未知项清单', '相关条目'];
+    const extraSections = [];
+    {
+      const re = /^##\s+(.+?)\s*\r?\n([\s\S]*?)(?=\r?\n##\s|$(?![\s\S]))/gm;
+      let m;
+      while ((m = re.exec(body))) {
+        const title = m[1].trim();
+        if (NAMED.includes(title)) continue;
+        const content = m[2].trim();
+        if (content) extraSections.push({ title, content });
+      }
+    }
 
     entries.push({
       id, name: fm.name, nameEn: fm.nameEn || '', vendor: fm.vendor, homepage: fm.homepage,
@@ -536,7 +586,7 @@ try {
       tagline: fm.tagline || '', summary: fm.summary || '',
       tags: fm.tags || [], related: fm.related || [],
       pricing: fm.pricing || {}, pricingPitfalls: fm.pricing_pitfalls || [],
-      axes, mcp: mcpBlock, sources,
+      axes, mcp: mcpBlock, sources, extraSections,
       pitfalls: fm.pitfalls || [],
       lastVerified: fm.last_verified, lastUpdated: fm.last_updated,
       lifecycle: fm.lifecycle, confidence: fm.confidence,
@@ -624,10 +674,31 @@ console.log(`  · 维度英文：${Object.keys(AXES_EN).length} 个维度已加�
 
 // 保留 Markdown 里的 **加粗** 与 `代码`
 function mdInline(s) {
-  return esc(s)
+  /* ⚠ **先把代码段挖出来保护**（2026-10-09 修，第 15 次「渲染器与内容谁该改」）。
+   *   原写法是「先转加粗、后认反引号」✗ —— 加粗的正则先跑，反引号后认，
+   *   于是**反引号里的两个星号已经被转成 strong** ✗，产出**非法嵌套**：
+   *     `<code>~/projects/personal/<strong></code>`（`<code>` 里套 `<strong>`）。
+   *   实测六个站产物共 **20 处**（continue / crush / cursor-cli / factory-droid / …），
+   *   典型是命令行里的 glob 与参数。
+   *
+   *   ⚠ **第一版修法是错的，记在这里免得再犯**：我改成「按反引号 split 成段，奇数段当代码」✗ ——
+   *   那会**切断跨代码段的加粗** ✗：`**由 `--map-tokens` 控制。**` 的两个星号落在不同段里，
+   *   配对失败 → 页面上直接露出字面 `**` ✗（实测全站 **145 处** ✗）。
+   *   正确做法是**占位符**：把代码段换成不会出现在正文里的私有区字符，
+   *   让加粗正则看到**完整的一行**，替换完再把占位符换回 `<code>` ✓。
+   *
+   *   规程上这属于**渲染器的错**，不是内容的错 ✓ —— 按本站规矩「规则跟着渲染器走，
+   *   先改渲染器而不是把内容绕开」✓，所以在这里修，不在文章里绕。
+   *   ⚠ 写这条注释时注意：正文里不要出现「星号 + 斜杠」连着写，那会提前闭合块注释 ✗（我踩过两次）。 */
+  const codes = [];
+  const withPlaceholders = String(s ?? '').replace(/`([^`]+)`/g, (_, inner) => {
+    codes.push(inner);
+    return `\uE000${codes.length - 1}\uE001`;      // 私有区占位符，正文里不会自然出现
+  });
+  const rendered = esc(withPlaceholders)
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/`(.+?)`/g, '<code>$1</code>')
     .replace(/&gt;(.+?)&lt;/g, '<strong>$1</strong>');
+  return rendered.replace(/\uE000(\d+)\uE001/g, (_, i) => `<code>${esc(codes[Number(i)])}</code>`);
 }
 
 /* 档案正文里的相对链接是按**内容仓**的目录关系写的，站点里没有这些目录，
@@ -664,6 +735,24 @@ function rewriteInternal(href) {
   // 3. 实测协议文档 —— 站内没有，链到内容仓
   m = /^(?:\.\.\/)+tasks\/(_protocol\.md)$/.exec(href);
   if (m) return `${SITE.repo}/blob/main/tracks/agents/tasks/${m[1]}`;
+  /* ⚠ **分区索引 `_track.md`** 要映射到**站点自己的分区首页**（2026-10-09 补，修 3 条死链）。
+   *   实测 `zed.html -> ../_track.md` 与 `-> ../../tools/_track.md` 是站上真死链 ✗ ——
+   *   因为 `_track.md` 只存在于内容仓。但它的**语义目标**正是站上的分区列表页 ✓：
+   *     `../_track.md`          → 当前分区首页（agents 是根 → `/index.html`）
+   *     `../../tools/_track.md` → `/tools/index.html`
+   *   所以这不是「外链到 GitHub」了事，而是把读者送到他真正想去的那一页 ✓。
+   *   ⚠ 判据要**先**匹配带分区名的形态，再匹配裸 `_track.md` ——
+   *   否则 `../../tools/_track.md` 会被后一条吃掉、当成当前分区 ✗。 */
+  m = /^(?:\.\.\/)+([A-Za-z]+)\/_track\.md$/.exec(href);
+  if (m && TRACK_TO_PART[m[1]]) {
+    const s = SITES[TRACK_TO_PART[m[1]]];
+    return s.dir ? `/${s.dir}/index.html` : '/index.html';
+  }
+  m = /^(?:\.\.\/)+_track\.md$/.exec(href);
+  if (m) return '/index.html';
+  /* `METHODOLOGY.md` 同样只在内容仓里（实测 `windsurf.html -> ../METHODOLOGY.md`）✗ → 链回内容仓 ✓。 */
+  m = /^(?:\.\.\/)+METHODOLOGY\.md$/.exec(href);
+  if (m) return `${SITE.repo}/blob/main/tracks/METHODOLOGY.md`;
   return href;
 }
 
@@ -1228,6 +1317,13 @@ function plain(s, max = 160) {
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')   // [text](url) → text
     .replace(/\*\*([^*]+)\*\*/g, '$1')          // **bold** → bold
     .replace(/`([^`]+)`/g, '$1')                // `code` → code
+    /* ⚠ **行首的块级标记也要剥**（2026-10-09 加）。
+     *   卡片摘要用 `tagline || oneline`，而这两处现在可能有 markdown 列表 / 引用块
+     *   （正文小节上页后才暴露）—— 不剥就会在列表页上显示成
+     *   「适合四类情况： - 要把 Codex 塞进自己的 Node 应用 - 需要非交互执行 …」✗
+     *   实测 agent 站列表页 100 处。摘要本来就该是**纯散文** ✓。 */
+    .replace(/^[-*]\s+/gm, '')                  // 行首清单标记
+    .replace(/^>\s?/gm, '')                     // 行首引用标记
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, max);
@@ -1261,22 +1357,125 @@ function renderDetail(site, partKey, e) {
   if (isTools) {
     for (const [k, label] of MCP_AXES) axisKeys.push({ k, label, v: e.mcp[k] });
   }
+  /* 一个维度单元格的正文渲染（2026-10-09 加）。
+   * 为什么需要它：解析器修好之后（保留空行，见 parseFrontmatter 里 folded 的注释），
+   * 维度正文里出现了「空行分段的段落」与「`- ` 开头的清单」两种结构。
+   * 直接丢给 mdLinks() 会把它们压成一段流水文字 —— 清单就退化成正文里的「- xxx - yyy」，
+   * 而这正是 _plan/文风规范-说人话.md 第 2 条要消灭的形态。
+   * 这里用**最小**的块级规则（段落 / 无序清单 / 引用块 / 空行），不引入完整 markdown 解析。*/
+  const blockMd = (s) => {
+    const out = [];
+    let mode = null;                       // 'p' 段落 · 'ul' 清单 · 'bq' 引用块 · 'tbl' 表格
+    let buf = [];                          // 当前块累积的行
+    let items = [];                        // 清单项（每项是若干行的数组）
+    let rows = [];                         // 表格行（原始 | 行）
+    const flush = () => {
+      if (mode === 'p' && buf.length) out.push(`<p>${mdLinks(buf.join(' '))}</p>`);
+      else if (mode === 'bq' && buf.length) out.push(`<blockquote>${mdLinks(buf.join(' '))}</blockquote>`);
+      else if (mode === 'ul' && items.length) {
+        /* 清单项内的换行用空格接起来 —— 那是排版折行，不是新的一句。
+         * 但**一行的正文折行**同理，所以段落也是 join(' ')。*/
+        out.push(`<ul>${items.map((it) => `<li>${mdLinks(it.join(' '))}</li>`).join('')}</ul>`);
+      }
+      else if (mode === 'tbl' && rows.length) {
+        /* ⚠ **markdown 表格**（2026-10-09 加）。
+         *   起因：48 篇文章的正文里有 markdown 表格（主要是「实测记录」），
+         *   而渲染路径只走 `mdLinks()`（行内）→ 表格在页面上变成
+         *   「| # | 测什么 | 为什么值得测 | |:--:|---|---| | 1 | …」**一整行竖线文本** ✗。
+         *   实测 agent 站 **23 页 / 143 处**表格流（www / learn / nav 都是 0 ✓）。
+         *   规则：第一个 `|` 行是表头；形如 `|---|:--:|` 的**分隔行**丢掉（它只定义对齐）；
+         *   其余每行一格。不做对齐方式解析（`<td>` 默认左对齐，够用）。 */
+        const cells = (r) => r.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map((c) => c.trim());
+        const sep = /^\s*\|?[\s:|-]+\|[\s:|-]*$/.test(rows[1] || '') && /-/.test(rows[1] || '');
+        const head = cells(rows[0]);
+        const bodyRows = rows.slice(sep ? 2 : 1);
+        /* ⚠ 表格要包一层**可横向滚动的容器**（2026-10-09 补，修 `responsive-overflow` 的 3 处失败）。
+         *   门禁实测 `grok-bot.html` 在 320 / 375 / 390px 下页面宽度被撑到 402–405 ✗，
+         *   越界元素就是 `TABLE` / `THEAD` / `TR` ✓ —— 宽表格在窄屏上把**整页**顶出横向滚动条 ✗。
+         *   这是**渲染层的错**（表格天生会宽 ✓，不该让读者为它横滚整页 ✓），
+         *   所以在这里包容器 + 在 site.css 里给它 `overflow-x:auto` ✓ ——
+         *   表格在**自己的框里**滚，页面不动 ✓。 */
+        out.push('<div class="tbl-wrap"><table><thead><tr>' + head.map((h) => `<th>${mdLinks(h)}</th>`).join('') + '</tr></thead><tbody>'
+          + bodyRows.map((r) => '<tr>' + cells(r).map((c) => `<td>${mdLinks(c)}</td>`).join('') + '</tr>').join('')
+          + '</tbody></table></div>');
+      }
+      mode = null; buf = []; items = []; rows = [];
+    };
+    for (const line of String(s || '').split('\n')) {
+      const t = line.trim();
+      if (!t) { flush(); continue; }                     // 空行 = 块边界
+      const isLi = /^[-*]\s+/.test(t);
+      const isBq = /^>\s?/.test(t);
+      /* ⚠ **小标题**（`### …` / `#### …`）必须渲染成标题（2026-10-09 加）。
+       *   正文按 `## ` 切小节之后，节**内部**还能有 `###` / `####` ——
+       *   而 `blockMd` 原先不认它们 ✗，于是它们掉进 `p` 分支、变成**字面文本**：
+       *   页面上直接显示 `<p>### 记忆是明文的…</p>` ✗。实测 **15 页 / 33 处**。
+       *   这是「探针读源文件 ≠ 读者看页面」的第 14 次 ✓（源文件里是标题、页面里是井号）。 */
+      if (/^#{3,4}\s+\S/.test(t)) {
+        flush();
+        const lvl = t.startsWith('####') ? 4 : 3;
+        const text = t.replace(/^#{3,4}\s+/, '').replace(/\s*#+\s*$/, '');
+        out.push(`<h${lvl} class="sub-h">${mdLinks(text)}</h${lvl}>`);
+        continue;
+      }
+      /* ⚠ **清单项的续行**（2026-10-09 修，第二次）。
+       *   折叠标量里段落分隔**必须**有空行；没有空行就说明「还在同一段里」。
+       *   所以：正在渲染 `<ul>`、而本行既不是新清单项也不是引用块 → 它是上一项的后半段 ✓。
+       *
+       *   旧写法只认「上一项最后一行以 `、` `/` `·` 收尾」✗ —— 判据太窄，
+       *   于是**以句号 / 引号 / 括号收尾的续行被甩出 `<ul>`，变成独立 `<p>`** ✗，
+       *   清单结构在页面上碎掉。实测 `openai-agents-sdk` 的 `axes.model_access` 就中招：
+       *   「与 `any-llm`（…）」「（示例 `MultiProvider…`）」三行全变成独立段落。
+       *   **而 7 项检查全绿** —— 因为没有任何一项验渲染产物（见 _audit/structure-fidelity.mjs）。 */
+      const isTbl = /^\|/.test(t);
+      /* 表格里的续行统一按「行」处理，不做续行合并 */
+      if (isTbl) { if (mode !== 'tbl') flush(); mode = 'tbl'; rows.push(t); continue; }
+      const isListCont = mode === 'ul' && !isLi && !isBq && items.length > 0;
+      if (isListCont) { items[items.length - 1].push(t); continue; }
+      const next = isLi ? 'ul' : isBq ? 'bq' : 'p';
+      if (next === 'ul') {
+        if (mode !== 'ul') flush();
+        mode = 'ul';
+        items.push([t.replace(/^[-*]\s+/, '')]);
+      } else {
+        if (mode !== next) flush();
+        mode = next;
+        buf.push(t.replace(/^>\s?/, ''));
+      }
+    }
+    flush();
+    return out.join('\n            ');
+  };
+
   const axesHtml = axisKeys.map(({ label, k, v }) => {
     return `        <div class="axis">
           <dt>${bi(label, AXES_EN[k]?.name || label)}</dt>
-          <dd>${mdLinks(v)}</dd>
+          <dd>${blockMd(v)}</dd>
         </div>`;
   }).join('\n');
 
+  /* ⚠ `label` 走 `mdLinks` 而不是 `esc`（2026-10-09 改）。
+   *   出处表的备注列里常写 `**补上审批必审动作清单**` 这类加粗说明 ✗ ——
+   *   用 `esc` 是**原样转义**，于是星号直接显示给读者 ✗（实测 grok-bot / llamaindex /
+   *   openhands / context7 等页共 5 处）。
+   *   `mdLinks` 同样会做转义（它内部处理），只是额外认链接 / 加粗 / 代码 ✓。 */
   const srcRows = e.sources.map(s =>
-    `            <tr><td>${esc(s.kind)}</td><td>${esc(s.label)}</td><td><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.url)}</a></td></tr>`
+    `            <tr><td>${esc(s.kind)}</td><td>${mdLinks(s.label)}</td><td><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.url)}</a></td></tr>`
   ).join('\n');
 
   const priceRows = [];
-  if (e.pricing.monthly_label) priceRows.push([bi('月度入口','Monthly entry'), bi(e.pricing.monthly_label, e.pricing.monthly_label)]);
+  /* ⚠ 这三行原先直接传原始文本给 `bi()` ✗ —— 而 `bi()` 只做中英双槽包裹、**不渲染 markdown**，
+   *   于是 `**加粗**` 在页面上显示成**字面星号**、`- ` 清单塌成一行。
+   *   实测：**全 55 页共 1403 处字面 `**`**，即每篇文章的「额度说明」都是这个状态。
+   *   （`axes` 走 `blockMd()` 所以没事，这里漏了 —— 同一套 `**官方原文**：` 写法在两处表现不同。）
+   *   现在包一层 `blockMd()`：段落 / 清单 / 引用都能正确渲染 ✓。
+   *
+   *   ⚠ 另一个既有问题**未修**（属内容缺口，不是渲染问题）：英文槽目前传的仍是**中文字符串**
+   *   （`bi(note, note)`）—— 所以英文态会显示中文。要修得先有各篇 note 的英文译文。 */
+  if (e.pricing.monthly_label) priceRows.push([bi('月度入口','Monthly entry'), bi(blockMd(e.pricing.monthly_label), blockMd(e.pricing.monthly_label))]);
   if (e.pricing.monthly_usd) priceRows.push([bi('月度数值','Monthly price'), `${e.pricing.monthly_usd}`]);
-  if (e.pricing.annual_label) priceRows.push([bi('年付','Annual'), bi(e.pricing.annual_label, e.pricing.annual_label)]);
-  if (e.pricing.note) priceRows.push([bi('额度说明','Quota note'), bi(e.pricing.note, e.pricing.note)]);
+  if (e.pricing.annual_label) priceRows.push([bi('年付','Annual'), bi(blockMd(e.pricing.annual_label), blockMd(e.pricing.annual_label))]);
+  if (e.pricing.note) priceRows.push([bi('额度说明','Quota note'), bi(blockMd(e.pricing.note), blockMd(e.pricing.note))]);
 
   /* 「相关条目」渲染 —— 36 份档案全都有这一章，是访客在同一赛道横向对比的入口。
    *
@@ -1381,7 +1580,12 @@ ${crumb}
          * ⚠ 原为 bi(leadEn||oneline, onelineEn||oneline) —— leadEn 被放进了中文槽，
          *   36 个详情页的中文首段都显示英文；而探针只查英文态中文残留，一直是绿的。
          *   `_i18n-render-audit.mjs` 已补「中文态槽位必须含中文」的反向检查守这类错位。*/
-        ? `      <p class="panel-lead">${bi(mdLinks(e.sec.oneline), mdLinks(e.sec.leadEn || e.sec.onelineEn || e.sec.oneline))}</p>\n`
+        /* ⚠ 引言也走 `blockMd`（2026-10-09 改）。
+         *   原先只有 `mdLinks`（行内）✗ —— 而「一句话定位」小节里现在可能有 markdown 清单，
+         *   于是引言的清单会显示成字面「- a - b - c」✗（实测占 agent 站残留的绝大部分：
+         *   `llamaindex` 的「…但编排能力没有离开 OSS： - README 把 Workflows…」就是它）。
+         *   改成 `<div>` 而不是 `<p>` —— `blockMd` 会产出 `<ul>` / `<p>`，塞进 `<p>` 是非法 HTML ✗。 */
+        ? `      <div class="panel-lead">${bi(blockMd(e.sec.oneline), blockMd(e.sec.leadEn || e.sec.onelineEn || e.sec.oneline))}</div>\n`
         : ''}
       ${e.sec.fit ? (() => {
         /* 「适合与不适合」双语（2026-10-04）。
@@ -1390,16 +1594,31 @@ ${crumb}
          *   「未核验」→ not verified（见 _fits.en.json 的 _rules）。
          * 段落以空行分隔；「不适合」段用警示色 —— 英文侧同样要识别
          * "Not a fit"，否则警示色丢失、语气被磨平。*/
+        /* ⚠ 段落 / 清单 / 引用都要走 blockMd（2026-10-09 修）。
+         *   旧写法把每个「空行分隔的块」都包成 `<p>${mdLinks(p)}</p>` ✗ ——
+         *   而 `mdLinks` 是**行内**渲染器（只处理链接 / 加粗 / 代码 / 转义），
+         *   不认行首 `- `，于是 `fit` 里的清单在页面上变成
+         *   「- 任务能被表述成… - 需要业务逻辑留在…」**一行流水文字** ✗
+         *   —— 正是文风规范第 2 条要消灭的形态。
+         *   `axes` 侧走 `blockMd()`（见 L1298）所以没事，`fit` 侧漏了。
+         *   实测受影响：`crewai`（已改好的范例）等所有在 `fit` 里写 `- ` 的档案。
+         *
+         *   警示色仍按「块首」判定 ✓（`renderFit` 的第一行判据不变）。 */
         const renderFit = (txt, warnRe) => {
           const paras = String(txt).split(/\n{2,}/).map(s => s.trim()).filter(Boolean);
           return paras.map(p => {
             const isWarn = warnRe.test(p);
             const cls = isWarn ? ' class="warn-p"' : '';
-            return `        <p${cls}>${mdLinks(p)}</p>`;
+            return `        <div${cls}>${blockMd(p)}</div>`;
           }).join('\n');
         };
-        const zh = renderFit(e.sec.fit, /^(\*\*)?不适合/);
-        const en = e.sec.fitEn ? renderFit(e.sec.fitEn, /^(\*\*)?Not a fit/i) : '';
+        /* ⚠ 警示色判据要容忍「也 / Also」这类连接词（2026-10-09 补）。
+         *   子代理报回：把「适合与不适合」拆段之后，第二段写的是
+         *   `也不适合需要真正网络隔离的场景：…` ✗ —— 而原判据是 `/^(\*\*)?不适合/`，
+         *   匹配不到「也不适合」，于是**那一整段丢了警示色** ✗（拆段是好事，却带来视觉副作用）。
+         *   现在允许开头有个「也 / 而 / 另外」。 */
+        const zh = renderFit(e.sec.fit, /^\s*(\*\*)?(也|而|另外)?不适合/);
+        const en = e.sec.fitEn ? renderFit(e.sec.fitEn, /^\s*(\*\*)?(also |and |otherwise )?not a fit/i) : '';
         const body = en
           ? `<span data-zh>${zh}</span><span data-en>${en}</span>`
           : zh;
@@ -1410,7 +1629,7 @@ ${body}
 
       <div class="block-head">
         <h2 class="t-h2">${bi('固定坐标系','Fixed coordinate system')}</h2>
-        <p class="t-section-lead">${axisKeys.length} ${bi('个维度','dimensions')}, ${bi('与同赛道其他对象逐项可比','each comparable item by item against others in the same track')}.</p>
+        <p class="t-section-lead">${axisKeys.length} ${bi('个维度','dimensions')}, ${bi('与同分区其他对象逐项可比','each comparable item by item against others in the same section')}.</p>
       </div>
       <dl class="axes">
 ${axesHtml}
@@ -1476,8 +1695,13 @@ ${srcRows}
 
       ${e.sec.runs ? `      <div class="panel is-slim">
         <h2>${bi('实测记录','Measured runs')}</h2>
-        <p>${mdLinks(e.sec.runs)}</p>
+        ${blockMd(e.sec.runs)}
       </div>\n` : ''}
+
+      ${(e.extraSections || []).map((s) => `      <div class="panel is-slim">
+        <h2>${mdLinks(s.title)}</h2>
+        ${blockMd(s.content)}
+      </div>`).join('\n')}
 
       ${relatedHtml}
 
