@@ -25,48 +25,67 @@ pricing_pitfalls:
 axes:
   model_access: >-
     Anthropic 自家 Claude 系列。
+
     **v2.1.284（2026-09-28）新增 Claude Sonnet 5.5（`claude-sonnet-5-5`），
     官方标注为 Anthropic API 上的默认 Sonnet 模型：1M 上下文、
     $2/$10 per Mtok、缓存读取 $0.20/Mtok。**
+
   runtime: >-
     本地进程，在终端运行。生命周期绑定终端会话。
     仓库含 `.devcontainer`，说明支持容器化开发环境。
+
   local_files: >-
     **权限模型与工作目录强绑定**——
+
     CHANGELOG 记录 auto 模式在「读取工作目录之外的文件前」会询问，
-    且新增了「Yes, but ask again next time」选项：
-    **允许这一次读取，之后仍继续询问**。
+    且新增了「Yes, but ask again next time」选项：**允许这一次读取，之后仍继续询问**。
+
     1M 上下文档位（见 model_access）。
+
   background: >-
     **终端形态需客户端常驻，但官方有云端形态可关机续跑。**
+
     官方 `claude-code-on-the-web` 原文：
     "A cloud session is a Claude Code session that runs on cloud
     infrastructure instead of on your machine... The session keeps
     running after you close your laptop."
+
     CLI 用 `claude --cloud` 创建云会话（旧 `--remote` 为别名），
     `claude --teleport` 把云会话拉回终端继续；
+
     Routines（在 CLI 里用 `/schedule` 创建）跑在 Anthropic 托管云上，
-    官方原文 "they keep working when your laptop is closed"。
+    **官方原文**："they keep working when your laptop is closed"。
+
     云会话与 routines 需 Pro / Max / Team 或 Enterprise 付费席位。
+
     额度与限额跟随套餐（官方 routines 页单列 Usage and limits）。
+
   tools: >-
     **MCP 支持完整且在持续加强**——
-    v2.1.284 新增 `/mcp reconnect all`：
-    一次性重试所有连接失败或待认证的 MCP server。
+
+    v2.1.284 新增 `/mcp reconnect all`：一次性重试所有连接失败或待认证的 MCP server。
+
     同版本修复了「恢复会话时 MCP 工具调用报 No such tool available
     但 server 其实仍在连接」的问题，现在会**等待最多 10 秒**。
+
   context: >-
     **上下文压缩机制有明确的边界处理**——
+
     v2.1.284 修复了「压缩后仍超长导致 Prompt is too long 持久报错」的问题：
     现在会**再压缩一次，并保留更少的近期对话**。
+
     这说明它确实有多轮压缩能力，且边界情况在持续修补。
+
   permissions: >-
-    **权限设计的颗粒度在本赛道里最细**：
-    auto 模式按路径询问（工作目录外读取需确认），
-    且提供「允许这一次」的中间选项；
-    托管策略支持 `availableModels` 与 `enforceAvailableModels` 控制可用模型，
-    并在策略不匹配时**启动即警告**；
-    `/usage` 显示额度消耗与上限。
+    **权限设计的颗粒度在本分区里最细**：
+
+    - auto 模式按路径询问（工作目录外读取需确认），且提供「允许这一次」的中间选项；
+
+    - 托管策略支持 `availableModels` 与 `enforceAvailableModels` 控制可用模型，
+      并在策略不匹配时**启动即警告**；
+
+    - `/usage` 显示额度消耗与上限。
+
   fit: >-
     重视权限可控性、需要 MCP 生态、希望用 Anthropic 官方模型的用户。
     **不适合需要开源许可或自托管的场景**（许可明确 proprietary）。
@@ -83,24 +102,31 @@ sources:
   - label: Anthropic · Claude Code 仓库
     url: https://github.com/anthropics/claude-code
     kind: repo
+
   - label: Anthropic · Claude Code CHANGELOG
     url: https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
     kind: changelog
+
   - label: Anthropic · Claude Code Releases（v2.1.284 @ 2026-09-28）
     url: https://github.com/anthropics/claude-code/releases
     kind: changelog
+
   - label: Anthropic · Claude Code Atom feed（可直接订阅更新）
     url: https://github.com/anthropics/claude-code/blob/main/feed.xml
     kind: changelog
+
   - label: Anthropic · 官方文档
     url: https://code.claude.com/docs/en/overview
     kind: docs
+
   - label: Anthropic · Commercial Terms of Service
     url: https://www.anthropic.com/legal/commercial-terms
     kind: docs
+
   - label: Anthropic · Claude Code on the web（云会话，关机后仍续跑）
     url: https://code.claude.com/docs/en/claude-code-on-the-web
     kind: docs
+
   - label: Anthropic · Routines（云端定时 / API / GitHub 触发任务）
     url: https://code.claude.com/docs/en/routines
     kind: docs
@@ -117,7 +143,7 @@ confidence: partial
 
 ## 一句话定位
 
-**本赛道数据质量最高、发布最频繁的条目** —— 自带 CHANGELOG + Atom feed，权限设计颗粒度最细。
+**本分区数据质量最高、发布最频繁的条目** —— 自带 CHANGELOG + Atom feed，权限设计颗粒度最细。
 
 ## ⚠ 许可状态（最重要的前提）
 
@@ -138,7 +164,7 @@ confidence: partial
 **这一点必须在选型前说清楚**——
 「工具在 GitHub 上」不等于「你可以自由使用」。
 
-## 变更记录：三种订阅方式（本赛道唯一）
+## 变更记录：三种订阅方式（本分区唯一）
 
 本条目有**三条** changelog 入口：
 
@@ -153,7 +179,7 @@ confidence: partial
       href="https://raw.githubusercontent.com/anthropics/claude-code/main/feed.xml"/>
 ```
 
-**这是本赛道唯一自带 Atom feed 的项目。**
+**这是本分区唯一自带 Atom feed 的项目。**
 如果你想订阅某个 CLI 工具的更新，直接指向这个 feed。
 
 **注意**：本站 `mcp.specul.com` 曾评估过「加 RSS」这项改进，
@@ -170,7 +196,7 @@ confidence: partial
 | `v2.1.281` | 2026-09-23 |
 | `v2.1.280` | 2026-09-22 |
 
-**5 天内 5 个版本**。这是本赛道最快的迭代节奏。
+**5 天内 5 个版本**——本分区里可核实的最密节奏之一。
 
 ## 模型与定价（v2.1.284 原文）
 
@@ -191,7 +217,7 @@ $0.20/Mtok cache reads
 **这是本次采集中唯一拿到具体模型定价的条目**，
 因为它写在了 CHANGELOG 里而不是价格页。
 
-## 权限设计：本赛道最细
+## 权限设计：本分区最细
 
 ### ① 按路径询问，且能"只允许这一次"
 
@@ -207,6 +233,7 @@ read and still be asked about later ones
 Claude Code 提供了第三态：**允许这一次，但保持询问**。
 
 这解决了真实场景里的两难：
+
 - 全局允许 → 失去保护
 - 每次确认 → 流程被打断
 
@@ -219,6 +246,7 @@ without setting model or enforceAvailableModels
 ```
 
 企业场景下：
+
 - 可用模型由 `availableModels` 策略控制
 - `enforceAvailableModels` 决定是否强制
 - **策略不匹配时启动即警告**，不静默降级
