@@ -42,50 +42,59 @@
 
 ---
 
-## 收录对象（10 个 · 2026-09-30 经 GitHub API 核验存在且活跃）
+## 收录对象（15 个 · 2026-10-08 扩至 15；初版 10 个于 2026-09-30 经 GitHub API 核验）
 
-### 编程底座（4）
+> 分组与数据里的 `family` 字段**逐条对齐**（`scripts/audit.mjs` 校验「声明 vs 实际文件」）。
+> 2026-10-08 修正：原文档把 OpenHands 放在「编程底座」、把 ADK / CrewAI 放在「通用」——
+> 那是 09-30 的旧分组；数据早已改为按**抽象层**分（coding-base / orchestration / general-harness）。
 
-在你自己的机器/进程上跑，交互形态与编程任务高度相关。
+### 编程底座（5）
+
+给你 agent loop 或把现成 CLI 包成编程接口的一层。
 
 | id | 名称 | 厂商 | 仓库 | ★ | 许可 | 最新版本 |
 |---|---|---|---|---|---|---|
 | `openai-agents-sdk` | OpenAI Agents SDK | OpenAI | `openai/openai-agents-python` | 29.8k | MIT | v0.22.3 |
 | `claude-agent-sdk` | Claude Agent SDK | Anthropic | `anthropics/claude-agent-sdk-python` | 8.2k | MIT | v0.2.163 |
 | `codex-sdk` | Codex SDK | OpenAI | `openai/codex` | 127k | Apache-2.0 | rust-v0.159.2 |
-| `openhands` | OpenHands | All-Hands-AI | `OpenHands/OpenHands` | 89.6k | MIT | v1.24.0 |
+| `pydantic-ai` | Pydantic AI | Pydantic | `pydantic/pydantic-ai` | 13.0k | MIT | 2.54.0（2026-10-02） |
+| `smolagents` | smolagents | Hugging Face | `huggingface/smolagents` | 29.7k | Apache-2.0 | 1.26.0（2026-05-29） |
 
-### 通用 Harness（4）
+### 编排框架（7）
 
-通用型 Agent 任务，不预设编程场景。
+把多步骤、多 Agent、要中断恢复的流程显式建成图。
 
 | id | 名称 | 厂商 | 仓库 | ★ | 许可 | 最新版本 |
 |---|---|---|---|---|---|---|
-| `hermes-agent` | Hermes Agent | Nous Research | `NousResearch/hermes-agent` | 250k | MIT | v2026.9.24 |
-| `deepagents` | Deep Agents | LangChain | `langchain-ai/deepagents` | 29.9k | MIT | 0.7.20 |
+| `langgraph` | LangGraph | LangChain | `langchain-ai/langgraph` | 42.5k | MIT | 1.2.12 |
 | `google-adk` | Google ADK | Google | `google/adk-python` | 21.7k | Apache-2.0 | v2.10.0 |
 | `crewai` | CrewAI | CrewAI Inc | `crewAIInc/crewAI` | 59.2k | MIT | 1.15.23 |
+| `llamaindex` | LlamaIndex | LlamaIndex | `run-llama/llama_index` | 52.4k | MIT | v0.14.25 |
+| `microsoft-agent-framework` | Microsoft Agent Framework | Microsoft | `microsoft/agent-framework` | 14.0k | MIT | python-1.20.0 |
+| `ag2` | AG2 | ag2ai | `ag2ai/ag2` | 5.0k | Apache-2.0 | v1.1.2 |
+| `mastra` | Mastra | Mastra AI | `mastra-ai/mastra` | 28.6k | Apache-2.0 核心 + `ee/` 企业许可 | 1.75.0（@mastra/core，2026-10-07） |
 
-### 编排框架（2）
+### 通用 Harness（3）
 
-底层编排，不预装工具。
+预置规划 / 文件系统 / 记忆等一整套，或自带完整运行时。
 
 | id | 名称 | 厂商 | 仓库 | ★ | 许可 | 最新版本 |
 |---|---|---|---|---|---|---|
-| `llamaindex` | LlamaIndex | LlamaIndex | `run-llama/llama_index` | 52.4k | MIT | v0.14.25 |
-| `langgraph` | LangGraph | LangChain | `langchain-ai/langgraph` | 42.5k | MIT | 1.2.12 |
+| `openhands` | OpenHands | All-Hands-AI | `OpenHands/OpenHands` | 89.6k | MIT | v1.24.0 |
+| `hermes-agent` | Hermes Agent | Nous Research | `NousResearch/hermes-agent` | 250k | MIT | v2026.9.24 |
+| `deepagents` | Deep Agents | LangChain | `langchain-ai/deepagents` | 29.9k | MIT | 0.7.20 |
 
 > ★ 数与版本为快照值，会变。以各条目页的 `last_verified` 为准。
 
 ### 编程底座的三种形态（本站核心区分点）
 
-同为「在你自己的机器上跑」，这四个对象的技术路线**根本不同**，不是同一层的不同实现：
+同为「在你自己的机器上跑」，编程底座内部的技术路线**根本不同**，不是同一层的不同实现：
 
 | 形态 | 含义 | 代表 | 你能改什么 |
 |---|---|---|---|
-| **① 自建 loop 框架** | 框架给原语，agent loop 由你定义 | OpenAI Agents SDK | loop 形状、要不要加层 |
+| **① 自建 loop 框架** | 框架给原语，agent loop 由你定义 | OpenAI Agents SDK（pydantic-ai、smolagents 同属这一路线） | loop 形状、要不要加层 |
 | **② 包装既有 CLI** | 能力来自一个成熟 CLI，SDK 只是驱动它 | Claude Agent SDK | 只能配options，loop 由 CLI 定 |
-| **③ 自带完整运行时** | 产品级运行时，多用户/服务化 | OpenHands、Codex SDK | 部署形态，能力已打包 |
+| **③ 自带完整运行时** | 产品级运行时，多用户/服务化 | Codex SDK | 部署形态，能力已打包 |
 
 **这个区分直接决定选型**：
 选 ① 你得到控制权；选 ② 你得到成熟度；
@@ -119,7 +128,7 @@
 | **Cursor / Windsurf / Copilot / Zed / Cline** | 已在 `ide.specul.com` |
 | **各 MCP server** | 已在 `mcp.specul.com`。MCP 是叠加层，不是 Harness |
 | **Qoder Cloud Agents / Claude Managed Agents 等托管执行服务** | **v3 决定不收**：这类是**厂商托管服务**（不自建那一侧），属产品层/云服务。用户来本站是为了自建决策，收进来会让核心问题失焦 |
-| **AutoGen** | ★61.2k，但 `pushed_at` 停在 2026-04-15（**5 个月无更新**），社区已转向 AG2 项目。违反收录标准第 3 条。**待决项 D2** |
+| **AutoGen（微软原仓库）** | **D2 已结案（2026-10-08）**：社区线以 `ag2` 收录；微软官方线（AutoGen + Semantic Kernel 合并）以 `microsoft-agent-framework` 收录。原仓库本身 `pushed_at` 停在 2026-04-15，不再单列 |
 | **CAMEL / OWL** | 论文导向的研究框架，非产品选型对象 |
 
 ---
