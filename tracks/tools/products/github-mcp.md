@@ -15,6 +15,7 @@ pricing:
   annual_label: 无商业费用（MIT）
   note: >-
     GitHub 官方仓库，MIT 许可（经 GitHub license API 核验 2026-10-08），无授权费。
+
     本地形态（Docker 镜像 ghcr.io/github/github-mcp-server）与远程托管形态（api.githubcopilot.com/mcp/）
     均不单独收费；实际成本来自使用的 GitHub 账号本身（私有仓库 / Copilot / Actions 等按其各自计费），
     以及你自行部署 HTTP 模式的机器成本。
@@ -24,58 +25,116 @@ pricing_pitfalls:
 
 axes:
   model_access: >-
-    本身不调用模型，是被客户端调用的接口实现。它把 GitHub 平台能力（仓库、issue、PR、Actions、
-    code scanning 等）以 MCP 工具形式暴露给任意 MCP 客户端；
-    工具 schema 在协议版本 `2026-07-28` 及以后返回带类型化 `structuredContent` 的输出，老客户端退回纯文本。
-    官方在 README 明说工具描述可用 `github-mcp-server-config.json` 或 `GITHUB_MCP_*` 环境变量覆写，
-    便于本地化；这与「接什么模型」无关，模型选择在客户端侧。
+    **它自己不调模型。** 它是被客户端调用的接口实现 —— **选哪个模型是客户端的事。**
+
+    它把 GitHub 平台能力包装成 MCP 工具：仓库、issue、PR、Actions、code scanning 等。
+
+    两个细节：
+
+    - 工具 schema 在协议版本 `2026-07-28` 及以后返回带类型的 `structuredContent`，
+      老客户端退回纯文本
+
+    - 工具描述可以用 `github-mcp-server-config.json` 或 `GITHUB_MCP_*` 环境变量覆写（便于本地化）
   runtime: >-
-    **两种运行形态。** 远程托管形态由 GitHub 运营（`https://api.githubcopilot.com/mcp/`），
-    官方称「the easiest method for getting up and running」「no local setup or runtime required」；
-    本地形态是本地进程，官方给 Docker（`ghcr.io/github/github-mcp-server`）、`go build` 二进制、
-    以及自带 HTTP 模式（`github-mcp-server http`，默认端口 8082）。
-    **注意 GitHub Enterprise Server 不支持远程托管**（官方明写），只能用本地形态；ghe.com 走远程但有独立端点。
+    **两种运行形态：远程托管，或本地进程。**
+
+    **远程托管**由 GitHub 自己运营，端点 `https://api.githubcopilot.com/mcp/`。
+
+    **本地形态**有三种跑法：
+
+    - Docker 镜像 `ghcr.io/github/github-mcp-server`
+    - `go build` 出来的二进制
+    - 自带 HTTP 模式 `github-mcp-server http`（默认端口 8082）
+
+    ⚠ **GitHub Enterprise Server 不支持远程托管**（官方明写）—— 只能用本地形态。
+    `ghe.com` 可以走远程，但有独立端点。
+
+    **官方对远程形态的说法**：「the easiest method for getting up and running」
+    「no local setup or runtime required」
   local_files: >-
-    **不访问本机文件系统**——它操作的是 GitHub 平台（远程仓库、issue、PR 等），
-    与本地 git 仓库无直接关系（本地 git 操作见本站 git 条目）。
-    唯一贴近「文件」的能力是**操作远端仓库内容**：`get_file_contents` 读文件/目录、
-    `create_or_update_file` 与 `push_files` 写文件、`delete_file` 删文件，作用域是 GitHub 上的 repo/branch。
-    容器形态下也无需挂载本地仓库。
+    **不碰你本机的文件系统。**
+
+    它操作的是 GitHub 平台（远程仓库、issue、PR），跟你本地的 git 仓库没有直接关系。
+    本地 git 操作见本站的 git 条目。
+
+    唯一贴近「文件」的能力，是**操作远端仓库内容**：
+
+    - `get_file_contents` —— 读文件或目录
+    - `create_or_update_file` / `push_files` —— 写文件
+    - `delete_file` —— 删文件
+
+    作用域是 GitHub 上的 repo / branch。**容器形态下也不需要挂载本地仓库。**
   background: >-
-    **远程托管形态与客户端进程生命周期无关**（服务在 GitHub 侧，关机后仍在线）；
-    **本地形态随客户端生死**（stdio 子进程退出即停止）。自托管 HTTP 模式则是你运营的常驻服务，
-    可用 `github-mcp-server http` 配合反向代理部署。
-    **不提供「后台任务续跑」语义**——它的模式是有状态 HTTP / stdio 会话，没有官方断点续跑机制；
-    但有持续可用性的是远程托管形态。可用性依赖 GitHub 侧服务状态。
+    **远程托管形态与你的客户端进程无关** —— 服务在 GitHub 那边，你关机它还在线。
+
+    **本地形态随客户端生死** —— stdio 子进程退出就停。
+    自托管 HTTP 模式则是你自己运营的常驻服务（`github-mcp-server http` + 反向代理）。
+
+    ⚠ **它不提供「后台任务续跑」语义。** 它的模式是有状态 HTTP / stdio 会话，
+    官方没有断点续跑机制。所谓「一直在」指的是远程托管形态的可用性，
+    而这个可用性取决于 GitHub 侧的服务状态。
   tools: >-
-    **工具集（toolsets）是本条目的核心机制。** 官方支持用 `--toolsets` / `GITHUB_TOOLSETS`
-    （远程用 `X-MCP-Toolsets` 头或 `/x/{toolset}` URL）裁剪可用能力，
-    还能用 `--tools` / `GITHUB_TOOLS` 精确到单个工具、用 `--exclude-tools` 排除工具。
-    **默认工具集**是 context / repos / issues / pull_requests / users；另有 actions、code_security、
-    dependabot、discussions、gists、git、governance、labels、notifications、orgs、projects、
-    secret_protection、security_advisories、stargazers、code_quality、copilot 等，共 20+ 组；
-    远程形态另有 Copilot Spaces、GitHub Support Docs Search 等专属工具集。
-    远程工具集随「每个 toolset 一个 URL」暴露，官方称便于按场景组合。
+    **工具集（toolsets）是这条目的核心机制。**
+
+    裁剪能力有四层手段：
+
+    - `--toolsets` / `GITHUB_TOOLSETS`（远程用 `X-MCP-Toolsets` 头，或 `/x/{toolset}` 路径）
+    - `--tools` / `GITHUB_TOOLS` —— 精确到单个工具
+    - `--exclude-tools` —— 排除工具
+    - 远程形态下每个 toolset 一个 URL，便于按场景组合
+
+    **默认工具集**是 5 组：context · repos · issues · pull_requests · users。
+
+    另有 20+ 组可开：actions · code_security · dependabot · discussions · gists · git ·
+    governance · labels · notifications · orgs · projects · secret_protection ·
+    security_advisories · stargazers · code_quality · copilot 等。
+
+    远程形态还有专属工具集，如 Copilot Spaces、GitHub Support Docs Search。
   context: >-
-    **无跨会话记忆**。每一次会话独立，状态体现在 GitHub 平台本身（仓库、issue、PR 的持久状态），
-    而不在 server 内。**但有一条官方特有的上下文控制**：Insiders 模式下 `list_*` 工具可返回 CSV
-    以压缩列表类响应（`csv_output` 特性标志），目的是「reduce response context for agents」；
-    这属于响应格式优化，不是记忆机制。README 未提供任何内建记忆 / 检索层。
+    **没有跨会话记忆。** 每次会话独立 —— 状态在 GitHub 平台本身（仓库、issue、PR 的持久状态），
+    不在 server 里。
+
+    有一条官方特有的上下文控制：**Insiders 模式下 `list_*` 工具可以返回 CSV**
+    （`csv_output` 特性标志），用来压缩列表类响应。
+
+    ⚠ 那是**响应格式优化，不是记忆机制**。
+
+    **官方对它的说法**：「reduce response context for agents」
+
+    README 没有提供任何内建记忆或检索层。
   permissions: >-
-    **权限由 GitHub token 决定，且官方给了三层收紧手段。**
-    ① **read-only 模式**（`--read-only` / `GITHUB_READ_ONLY` / `X-MCP-Readonly`）：官方称它是
-    「strict security filter」，优先级最高——即使显式请求写工具也会被禁用。
-    ② **lockdown 模式**（`--lockdown-mode` / `X-MCP-Lockdown`）：仅过滤公开仓库中无 push 权限用户产出的内容，
-    官方**明确它只是 best-effort 内容过滤器、不是授权边界**，不能限制凭据本身能读写什么。
-    ③ **scope filtering**：经典 PAT 启动时按 token scope 隐藏无权限工具；OAuth 走按需 scope challenge。
-    **能做写与删除**（create/update/delete file、push_files、merge_pull_request、create_repository、
-    delete_repository 等），高危工具需按需授权（如 `delete_repo`）。
+    **权限由 GitHub token 决定，官方另给三层收紧手段。**
+
+    - **① read-only 模式** —— `--read-only` / `GITHUB_READ_ONLY` / `X-MCP-Readonly`
+    - **② lockdown 模式** —— `--lockdown-mode` / `X-MCP-Lockdown`
+    - **③ scope filtering** —— 经典 PAT 在启动时按 token scope 隐藏无权限工具；
+      OAuth 走按需 scope challenge
+
+    read-only 是**强制过滤且优先级最高**：即使你显式请求写工具，也会被禁用。
+
+    ⚠ **lockdown 不是授权边界。** 官方明确它只是 best-effort 的内容过滤器
+    （过滤公开仓库里无 push 权限用户产出的内容），**不改变凭据本身能读写什么**。
+
+    **写与删除能力是齐全的**：create / update / delete file、`push_files`、
+    `merge_pull_request`、`create_repository`、`delete_repository` 等。
+
+    高危工具要按需授权（例如 `delete_repo` scope）。
+
+    官方称 read-only 是**「strict security filter」**
   fit: >-
-    让任意 MCP 客户端（VS Code / Claude Desktop / Cursor / Windsurf / Codex / Gemini CLI 等）
-    用自然语言操作 GitHub：读代码与仓库结构、管 issue 与 PR、监控 Actions、查 code scanning /
-    dependabot 安全告警、读通知。**远程托管形态适合「不想自己运维」的用户**；
-    **本地 Docker 形态适合 GitHub Enterprise Server、需要自托管 HTTP 或要离线可控的用户**。
-    不适合需要本地文件系统操作（那是 filesystem / git server 的活）或需要跨会话记忆的场景。
+    **一句话：让任意 MCP 客户端用自然语言操作 GitHub。**
+
+    客户端包括 VS Code、Claude Desktop、Cursor、Windsurf、Codex、Gemini CLI 等。
+
+    能做的事：读代码与仓库结构 · 管 issue 与 PR · 监控 Actions ·
+    查 code scanning / dependabot 安全告警 · 读通知。
+
+    **远程托管形态适合「不想自己运维」的人。**
+    **本地 Docker 形态适合**：GitHub Enterprise Server 用户 · 需要自托管 HTTP 的人 ·
+    要离线可控的人。
+
+    **不适合**两类场景：需要操作本地文件系统（那是 filesystem / git server 的活）；
+    以及需要跨会话记忆的场景。
 
 pitfalls:
   - 误以为它是已归档的旧 MCP 组织参考 server——那是 servers-archived 里的 github server，本 server 是 GitHub 官方活跃产品线
@@ -84,25 +143,59 @@ pitfalls:
 
 mcp:
   transport: >-
-    **双形态。** 本地形态走 **stdio**（Docker `ghcr.io/github/github-mcp-server` 或 `github-mcp-server stdio` 二进制）；
-    远程托管形态走 **Streamable HTTP**，端点为 `https://api.githubcopilot.com/mcp/`
-    （官方 README 与 remote-server.md 核验 2026-10-08）。
-    另可自托管 HTTP 模式（`github-mcp-server http`，支持 OAuth 元数据端点与 scope challenge）。
-    远程形态还支持 URL 路径修饰（`/readonly`、`/insiders`、`/x/{toolset}`）与二者组合。
-    多形态权限边界不同，须分别配置。
+    **两种形态：本地 stdio，或远程托管 HTTP。**
+
+    本地形态走 **stdio**，两种跑法：Docker 镜像
+    `ghcr.io/github/github-mcp-server`，或 `github-mcp-server stdio` 二进制。
+
+    远程托管形态走 **Streamable HTTP**，端点是 `https://api.githubcopilot.com/mcp/`。
+
+    还能自托管 HTTP 模式（`github-mcp-server http`），支持 OAuth 元数据端点与 scope challenge。
+
+    远程形态可以加 URL 路径修饰：
+
+    - `/readonly` —— 只读
+    - `/insiders` —— 内部特性
+    - `/x/{toolset}` —— 只暴露某个 toolset
+    - 以上可以互相组合
+
+    **⚠ 不同形态的权限边界不一样，必须分别配置。**
+
+    **核验**：官方 README 与 remote-server.md（2026-10-08）
   auth: >-
-    **本地 stdio**：可走浏览器 OAuth（github.com 上官方镜像自带 app 凭据，token 仅存内存），
-    或 **PAT**（`GITHUB_PERSONAL_ACCESS_TOKEN`，**优先于 OAuth**）；另有 GitHub App 认证用于非交互式 stdio。
-    **远程托管**：OAuth（用 GitHub 凭据，缺 scope 时按需 scope challenge）或 PAT（`Authorization: Bearer`）。
-    **细粒度 PAT（github_pat_）不做 scope 过滤**——所有工具都显示，权限由 API 侧强制；
-    经典 PAT（ghp_）才在启动时按 scope 隐藏工具。GitHub Enterprise Server / ghe.com 需自带 OAuth App 或 GitHub App。
+    **本地 stdio 有三种认证方式。**
+
+    - **浏览器 OAuth** —— github.com 上官方镜像自带 app 凭据，token 只存内存
+    - **PAT** —— 环境变量 `GITHUB_PERSONAL_ACCESS_TOKEN`，**优先级高于 OAuth**
+    - **GitHub App** —— 给非交互式的 stdio 用
+
+    **远程托管**两种：OAuth（用 GitHub 凭据，缺 scope 时按需 scope challenge），
+    或 PAT（请求头 `Authorization: Bearer`）。
+
+    ⚠ **一个容易踩的坑：两类 PAT 的行为不同。**
+
+    - **细粒度 PAT（`github_pat_`）不做 scope 过滤** —— 所有工具都显示，
+      权限由 API 侧强制
+
+    - **经典 PAT（`ghp_`）** 才在启动时按 scope 隐藏工具
+
+    GitHub Enterprise Server / ghe.com 需要自带 OAuth App 或 GitHub App。
   scope: >-
-    **作用域 = GitHub token 的权限范围，能读也能写和删。**
-    可收紧：read-only 模式强制只读（优先级最高）；toolsets 裁剪可减少暴露面；lockdown 模式过滤不可信内容
-    （但官方强调它不是授权边界）。**写 / 删除能力齐全**：`create_or_update_file`、`push_files`、`delete_file`、
-    `create_repository`、`delete_repository`（需 `delete_repo`）、`merge_pull_request`、
-    `create_pull_request`、`label_write`、`projects_write`、`create_repository_ruleset` 等。
-    无独立审批机制（`delete_repository` 走多轮确认，属交互式 elicitation 而非审批层）。
+    **作用域就是 GitHub token 的权限范围 —— 能读，也能写和删。**
+
+    可以收紧的有三层：**read-only 模式**强制只读（优先级最高）·
+    **toolsets 裁剪**缩小暴露面 · **lockdown 模式**过滤不可信内容
+    （⚠ 官方强调它**不是授权边界**）。
+
+    **写 / 删除能力是齐全的**，例如：
+
+    - 文件：`create_or_update_file` / `push_files` / `delete_file`
+    - 仓库：`create_repository` / `delete_repository`（需 `delete_repo`）
+    - PR：`create_pull_request` / `merge_pull_request`
+    - 其它：`label_write` / `projects_write` / `create_repository_ruleset`
+
+    **没有独立的审批机制。** `delete_repository` 会走多轮确认，
+    但那是交互式 elicitation，不是审批层 —— 别把它当审批用。
 
 tags: [版本控制, API, 读写, 远程, 本地, 多平台]
 related: [copilot]
@@ -111,24 +204,31 @@ sources:
   - label: github/github-mcp-server · 仓库（33,446★，MIT，核验 2026-10-08）
     url: https://github.com/github/github-mcp-server
     kind: repo
+
   - label: 主 README（远程/本地两形态、toolsets 全表、read-only / lockdown、i18n 覆写、认证）
     url: https://github.com/github/github-mcp-server/blob/main/README.md
     kind: docs
+
   - label: Remote Server 文档（远程端点 api.githubcopilot.com/mcp/、URL 路径修饰、X-MCP-* 头）
     url: https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md
     kind: docs
+
   - label: Server Configuration 指南（toolsets / tools / exclude / read-only / lockdown / insiders / scope filtering 的配置矩阵）
     url: https://github.com/github/github-mcp-server/blob/main/docs/server-configuration.md
     kind: docs
+
   - label: PAT Scope Filtering（经典 PAT 按 scope 隐藏工具、OAuth scope challenge、细粒度 PAT 不过滤）
     url: https://github.com/github/github-mcp-server/blob/main/docs/scope-filtering.md
     kind: docs
+
   - label: Streamable HTTP Server（自托管 HTTP 模式、OAuth 元数据端点、scope challenge）
     url: https://github.com/github/github-mcp-server/blob/main/docs/streamable-http.md
     kind: docs
+
   - label: Insiders Features（CSV 输出压缩列表响应、实验特性标志）
     url: https://github.com/github/github-mcp-server/blob/main/docs/insiders-features.md
     kind: docs
+
   - label: Releases（最新 v2.0.2 @ 2026-10-08）
     url: https://github.com/github/github-mcp-server/releases
     kind: changelog
@@ -253,4 +353,4 @@ docs/scope-filtering.md、docs/streamable-http.md、docs/insiders-features.md、
 
 - [Git MCP Server](./git.md) — **最该对照的一条**：git server 只做**本地**仓库操作、不含 push/PR，并明确提到原 github 参考 server 已归档；本条目正是那个「远程 GitHub 操作」的官方替代。
 - [Filesystem MCP Server](./filesystem.md) — 作用域/权限设计对照：filesystem 是本地目录白名单，github-mcp 是远端 GitHub token 作用域。
-- [Context7](./context7.md) — 同赛道对照：Context7 是纯远程托管、无本地权限风险；github-mcp 是「本地 + 远程」双形态且具完整写/删能力。
+- [Context7](./context7.md) — 同类对照：Context7 是纯远程托管、无本地权限风险；github-mcp 是「本地 + 远程」双形态且具完整写/删能力。
