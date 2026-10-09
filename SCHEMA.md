@@ -12,7 +12,7 @@ tracks/<track>/products/<id>.md
 
 | 规则 | 说明 |
 |---|---|
-| `<track>` | `ide` / `cli` / `mcp` |
+| `<track>`（**目录名 = 分区**）| `agents` / `harness` / `tools` —— ⚠ 这里是**分区**，不是 frontmatter 的 `track`（**形态**）。两级命名的区别见 §2.5.1；旧写法 `ide` / `cli` / `mcp` 已在 v4 改为分区目录，勿再照抄 |
 | `<id>` | 小写字母 + 连字符，全仓库唯一。例：`claude-code`、`sequential-thinking` |
 
 ---
@@ -24,8 +24,9 @@ tracks/<track>/products/<id>.md
 | 字段 | 类型 | 必填 | 约束 |
 |---|---|:---:|---|
 | `id` | string | ✓ | `^[a-z0-9]+(-[a-z0-9]+)*$`，全仓库唯一 |
-| `track` | enum | ✓ | `ide` / `cli` / `mcp` |
-| `name` | string | ✓ | 产品官方名 |
+| `track` | enum | ✓ | **形态**分类（不是分区）：`ide` / `cli` / `cloud` / `harness` / `mcp` |
+| `name` | string | ✓ | 产品官方名；本站为区分同一产品的不同形态而加的中文后缀也写在这里（如「Claude Code IDE 扩展」） |
+| `nameEn` | string | | `name` 含中文时的英文名（2026-10-08 起）。英文态渲染 `nameEn`，缺失则回落中文并在英文页露出中文 —— 有中文后缀的条目**必须**填 |
 | `vendor` | string | ✓ | 厂商；个人项目填作者或组织名 |
 | `homepage` | url | ✓ | 官方主页 |
 | `mark` | string | | 1-2 字符标识符，用于 UI 展示 |
@@ -71,9 +72,9 @@ tracks/<track>/products/<id>.md
 
 | 字段 | 必填 | 说明 |
 |---|:---:|---|
-| `mcp.transport` | ✓ | 见 [taxonomy/transport.md](./tracks/mcp/taxonomy/transport.md) |
-| `mcp.auth` | ✓ | 见 [taxonomy/auth.md](./tracks/mcp/taxonomy/auth.md) |
-| `mcp.scope` | ✓ | 见 [tracks/mcp/taxonomy/scope.md](./tracks/mcp/taxonomy/scope.md) |
+| `mcp.transport` | ✓ | 见 [taxonomy/transport.md](./tracks/tools/taxonomy/transport.md) |
+| `mcp.auth` | ✓ | 见 [taxonomy/auth.md](./tracks/tools/taxonomy/auth.md) |
+| `mcp.scope` | ✓ | 见 [tracks/tools/taxonomy/scope.md](./tracks/tools/taxonomy/scope.md) |
 
 **非 MCP 赛道的条目禁止使用 `mcp` 字段。**
 IDE / CLI 工具不是 MCP server，不适用这三个维度。
@@ -101,13 +102,44 @@ axes:
 |---|---|:---:|---|
 | `pitfalls` | string[] | ✓ | 头号误解，1-3 条，每条 ≤60 字 |
 | `tags` | string[] | | 能力标签，从赛道标签池取 |
-| `related` | string[] | | 同赛道相关条目的 id |
+| `related` | string[] | ✓ | **跨分区**条目 id，≥1 条（A6.3 起为硬要求；守卫见下方 2.5.1） |
 
 **`pitfalls` 是本站最有价值的原创字段**，要求：
 - 每条是一个**具体的误解**，不是泛泛的提醒
 - 反例：`注意性能问题`（太空泛）
 - 正例：`以为索引是实时的，大仓库首次打开需等`（具体）
 - 正例：`把活动赠送额度当成永久套餐额度`（具体）
+
+#### 2.5.1 两级命名：分区 vs 形态（容易混，先读这条）
+
+| 概念 | 取值 | 谁决定 | 用在哪 |
+|---|---|---|---|
+| **分区**（3 个） | `agents` / `harness` / `tools` | **目录**：`tracks/<分区>/products/` | 站点落点、面包屑、`related` 的「跨分区」判定 |
+| **形态**（5 个） | `ide` / `cli` / `cloud` / `harness` / `mcp` | frontmatter `track:` | 首页分组、形态标签（`FORM_LABEL`） |
+
+`ide` / `cli` / `cloud` 三种形态**都落在 `agents` 分区**（v4 把原 ide 站与 cli 站合并成一个分区）。
+所以「跨分区」不等于「跨形态」：`claude-code.md`（`track: ide`）与 `claude-code-cli.md`（`track: cli`）
+是**同一分区内的两个形态** —— 这类对照写在正文 `## 相关条目` 里，不写进 `related`。
+
+#### 2.5.2 `related` 与正文「相关条目」的分工
+
+| | 正文 `## 相关条目` | frontmatter `related` |
+|---|---|---|
+| 谁写 | 人工，逐条写理由 | 只给 id，理由由构建器生成 |
+| 格式 | `- [名](./x.md 或 ../../<分区>/products/x.md) — 哪一维不同` | `related: [id, id]` |
+| 装什么 | 同分区对照（含同产品不同形态） | **只装跨分区** id |
+| 页面呈现 | 理由原样显示 | 「另一层 · <分区名>」 |
+
+三条纪律：
+1. **`related` 不表示兼容性**。它回答的是「读完这页，另一层最该看什么」；
+   兼容性（这个 agent 能不能装这个 server）由 `axes.tools` 里的 MCP 事实负责。
+2. **按目标 id 去重**：正文已链到的对象，`related` 不重复列（构建器自动跳过）。
+3. **两边都要真**：正文链接与 `related` 的 id 都会进产物；指向不存在的 id 由
+   `sites/build.mjs` 构建期报出，`_audit/link-graph.mjs` 再复核一次。
+
+**守卫**：`node _audit/link-graph.mjs`（`--self-test` 为阴性对照）双口径各要求 100% ——
+数据层（`related` 含跨分区 id）与**渲染层**（产物「相关条目」面板里真有跨分区出链）。
+只看数据层会漏掉本仓犯过两次的老毛病：字段采集了却从不渲染。
 
 ### 2.6 证据
 
@@ -489,33 +521,59 @@ CLI包装 · 仅Claude · 商业平台 · 战略转移 · eval · CloudRun · �
 
 ## 七、交叉引用规则
 
-同一个产品可能出现在多个赛道（如 `claude-code` 同时在 `ide` 和 `cli`）。
+同一个产品的多种形态现在**同属一个分区**（v4 合并后 `ide` / `cli` 都落在 `agents`，
+用 frontmatter `track:` 区分形态 —— 见 §2.5.1）。但 **`id` 仍必须全仓库唯一**。
 
 **约定**：
 
 | 规则 | 说明 |
 |---|---|
-| **id 必须跨赛道唯一** | 文件名不同，`id` 也不同 |
-| **命名加形态后缀** | `claude-code-cli` / `claude-code-ide` / `aider-cli` / `aider-ide` |
+| **id 必须跨分区唯一** | 文件名不同，`id` 也不同；重复由 `sites/build.mjs` 构建期硬失败 |
+| **命名加形态后缀** | `claude-code-cli` / `aider-cli` 等；同分区内的形态差异靠后缀，不靠目录 |
 | **`name` 可相同或加形态说明** | 如「Claude Code CLI」/「Claude Code 扩展」 |
-| **用 `related` 字段互链** | 指向另一赛道的条目 id |
+| **`related` 指向另一分区** | `agents` / `harness` / `tools` 三者之一，见 §2.5.2 |
 | **共享数据不许复制** | 构建时若两个条目的 `vendor` 或底层仓库不一致会报错 |
 
 ### 实例
 
+同一产品的两种形态（都在 `agents` 分区）：
+
 ```
-tracks/cli/products/claude-code-cli.md   id: claude-code-cli
-tracks/ide/products/claude-code-ide.md   id: claude-code-ide
-                                        related: [claude-code-cli]
+tracks/agents/products/claude-code-cli.md   id: claude-code-cli   track: cli
+tracks/agents/products/claude-code.md       id: claude-code       track: ide
+```
+
+跨分区互链写进 `related`（这里指向 `harness` 分区它自己的官方 SDK）：
+
+```
+tracks/agents/products/claude-code-cli.md
+  id: claude-code-cli
+  track: cli
+  related: [claude-agent-sdk]      # harness 分区
 ```
 
 **为什么 id 必须不同**：构建脚本把 `id` 当全局主键。
 两个条目同 id 会导致：
-- 跨赛道引用指向错误对象
-- 三站渲染时数据串位
+- 跨分区引用指向错误对象
+- 三分区渲染时数据串位
 - 贡献者 PR 冲突
 
-**校验器会强制这条**：id 重复直接硬失败。
+**校验器会强制这条**：id 重复直接硬失败（`scripts/validate.mjs` + `sites/build.mjs` 双重）。
+
+### 路径写法（A6.3 修）
+
+正文里引用另一个分区的档案，路径用**当前目录名**：
+
+```
+../../harness/products/codex-sdk.md      ✅
+../../agents/products/aider.md           ✅
+../../tools/products/filesystem.md       ✅
+../../cli/products/aider-cli.md          ❌ 旧目录名，仓里没有这个路径
+```
+
+`rewriteInternal()`（`sites/build.mjs`）同时认旧名（`ide` / `cli` / `mcp`）以便存量正文仍可构建，
+但**新写一律用当前目录名** —— 旧名在站点上能跳、在内容仓里是死链，两个方向都不对。
+2026-10-09 已把全仓 27 条旧名引用归一化（逐条验证目标存在）。
 
 ### 可复用的数据怎么写
 
@@ -524,7 +582,7 @@ tracks/ide/products/claude-code-ide.md   id: claude-code-ide
 **做法 A · 引用 + 简述**
 ```yaml
 runtime: >-
-  本地进程，在终端运行（详见 [CLI 条目](../../cli/products/codex-cli.md)）。
+  本地进程，在终端运行（详见 [CLI 条目](../../agents/products/codex-cli.md)）。
   **本条目只记录 IDE 形态的差异点**：装进 VS Code / Cursor / Windsurf。
 ```
 
