@@ -1,22 +1,22 @@
-# ai-coding-agent-atlas
+# ai-agent-guide
 
-**AI coding agent 地图集** · 纯 Markdown · 开源
+**AI agent 地图集** · 纯 Markdown · 开源
 
-记录 **AI coding agent / IDE / CLI / MCP server / agent harness** 的能力边界、运行位置、真实价格与官方证据，
+记录 **AI coding agent / agent runtime / MCP server** 的能力边界、运行位置、真实价格与官方证据，
 用一套固定坐标系组织，让选型变成可回溯的判断而不是感觉。
 
-这个仓库**只存数据，不出结论页面**。结论层由四个分站消费：
+这个仓库**只存数据，不出结论页面**。结论层由一站三分区消费（2026-10-04 起 v4 架构，
+旧的 ide / cli / mcp / harness 四个独立子域已合并）：
 
-| 分站 | 主题 | 收录对象 |
+| 分区 | 主题 | 收录对象 |
 |---|---|---|
-| `ide.specul.com` | AI 编程 IDE / 编码工具 | Cursor · Claude Code · Copilot · Windsurf · Zed · Cline · Aider · Codex IDE |
-| `cli.specul.com` | 终端 AI 编码工具 | Claude Code CLI · Codex CLI · Gemini CLI · OpenCode · Aider · Crush |
-| `mcp.specul.com` | MCP 服务器 / 工具生态 | filesystem · git · memory · sequential-thinking · fetch · time · playwright · context7 · everything |
-| `harness.specul.com` | Agent Harness / 编程底座 | Claude Agent SDK · Codex SDK · OpenAI Agents SDK · CrewAI · Google ADK · LangGraph · LlamaIndex · Deep Agents · Hermes Agent · OpenHands |
+| `agent.specul.com/` | 成品 agent（含 IDE / CLI / 厂商云三种形态） | Cursor · Claude Code · Copilot · Windsurf · Zed · Cline · Aider · Codex · OpenCode · Crush · Gemini CLI · Kiro · Goose · Warp · Jules · Dot · Muse · Grok Bot 等 27 份 |
+| `agent.specul.com/harness/` | Agent 运行时 / 编排框架 / SDK | Claude Agent SDK · Codex SDK · OpenAI Agents SDK · Pydantic AI · smolagents · CrewAI · Google ADK · LangGraph · LlamaIndex · Microsoft Agent Framework · AG2 · Mastra · Deep Agents · Hermes Agent · OpenHands |
+| `agent.specul.com/tools/` | MCP 服务器 / 工具生态 | filesystem · git · memory · sequential-thinking · fetch · time · playwright · context7 · everything · github-mcp |
 
-**为什么叫 atlas**：不是给你一堆工具名，是给你一张能给 33 个对象定位的地图。
+**为什么叫 atlas**：不是给你一堆工具名，是给你一张能给 52 个对象定位的地图。
 
-**harness 赛道为什么单列**：IDE 与 CLI 是「用户直接用的产品」，harness 是「你拿来自己搭 agent 的底座」。
+**harness 分区为什么单列**：成品 agent 是「用户直接用的产品」，harness 是「你拿来自己搭 agent 的底座」。
 两者的选型问题完全不同——前者问「哪个好用」，后者问「状态存哪、上下文怎么压、权限给到哪一档」。
 
 ---
@@ -30,7 +30,7 @@
 | 按 star / 流行度排序 | **不给总分排名** |
 | 抄官网宣传语 | 只记官方源可核验的能力边界 |
 | 没查到就留空 | **「未知」是合法答案**，并说明为什么 |
-| 一份名单 | **固定 8 维度 × 33 个对象**，可横向对比 |
+| 一份名单 | **固定 8 维度 × 52 个对象**，可横向对比 |
 | 链接失效无人知 | 每条判断挂官方源，附核验日期 |
 
 **核验快照，不冒充实时实测。**
@@ -83,7 +83,7 @@
 ## 目录结构
 
 ```
-ai-coding-agent-atlas/
+ai-agent-guide/
 ├── METHODOLOGY.md              方法论总纲
 ├── SCHEMA.md                   数据格式规范
 ├── CONTRIBUTING.md             贡献指引
@@ -98,14 +98,13 @@ ai-coding-agent-atlas/
 │   ├── permissions.md          权限与限制
 │   └── fit.md                  适合什么任务
 ├── tracks/
-│   ├── ide/                    IDE / 编码工具赛道
+│   ├── agents/                 成品 agent 赛道（v4：含原 ide / cli / cloud 三种形态）
 │   │   ├── _track.md           赛道定义与收录标准
-│   │   ├── products/           8 个对象
+│   │   ├── products/           27 个对象
 │   │   ├── tasks/              实测任务集
 │   │   └── runs/               实测记录
-│   ├── cli/                    终端工具赛道
-│   ├── mcp/                    MCP 生态赛道（多 3 个特有维度）
-│   └── harness/                Agent Harness / 编程底座赛道
+│   ├── harness/                Agent 运行时 / 编排框架 / SDK 赛道
+│   └── tools/                  MCP 生态赛道（多 3 个特有维度）
 │       ├── _track.md           赛道定义与收录标准
 │       ├── products/           10 个对象
 │       └── tasks/              实测协议（未开跑）
@@ -116,13 +115,13 @@ ai-coding-agent-atlas/
 
 ### harness 赛道的 family 分组
 
-harness 的 10 个对象按**抽象层**分三组，这是本站对该赛道最重要的一条判别依据：
+harness 的 15 个对象按**抽象层**分三组，这是本站对该赛道最重要的一条判别依据：
 
 | family | 含义 | 对象 |
 |---|---|---|
-| `coding-base` | 直接面向编程任务的底座 | Claude Agent SDK · Codex SDK · OpenAI Agents SDK |
-| `orchestration` | 编排 / 图执行框架 | CrewAI · Google ADK · LangGraph |
-| `general-harness` | 通用助手型或自带完整运行时 | LlamaIndex · Deep Agents · Hermes Agent · OpenHands |
+| `coding-base` | 直接面向编程任务的底座 | Claude Agent SDK · Codex SDK · OpenAI Agents SDK · Pydantic AI · smolagents |
+| `orchestration` | 编排 / 图执行框架 | CrewAI · Google ADK · LangGraph · LlamaIndex · Microsoft Agent Framework · AG2 · Mastra |
+| `general-harness` | 通用助手型或自带完整运行时 | Deep Agents · Hermes Agent · OpenHands |
 
 分组不是排名——同一层里不同框架解决的问题不同，不可直接比优劣。
 
@@ -206,11 +205,21 @@ harness 的 10 个对象按**抽象层**分三组，这是本站对该赛道最�
 |---|---|
 | **specul.com** | 品牌站（投机 · 推演） |
 | **nav.specul.com** | 结论层：AI 站点导航 |
-| **ide.specul.com** | 结论层：AI 编程 IDE / 编码工具 |
-| **cli.specul.com** | 结论层：终端 AI 编码工具 |
-| **mcp.specul.com** | 结论层：MCP 服务器 / 工具生态 |
-| **harness.specul.com** | 结论层：Agent Harness / 编程底座 |
+| **agent.specul.com** | 结论层：成品 agent / harness / MCP 工具三分区 |
+| **learn.specul.com** | 结论层：AI 术语表 |
+| **models.specul.com** | 结论层：本地部署量化模型索引 |
+| **vg.specul.com** | 结论层：AI 做游戏 |
 
 **方法论原型**：本仓库的「放弃总分 / 未知合法化 / 每条挂证据」三条规则
 借鉴自 [AgentClash](https://aiagentclash.com/)，但坐标系与赛道定义是本仓库独立设计。
 
+## 实测规模（A8）
+
+<!-- STATS:BEGIN 由 _audit/gen-repo-docs.mjs 生成，勿手改 -->
+| 项 | 实测值 |
+|---|---|
+| 档案总数 | 52 份 |
+| 分区分布 | agents 27 · harness 15 · tools 10 |
+| 形态分布（track） | harness 15 · cli 12 · ide 11 · mcp 10 · cloud 4 |
+| 对比维度 | 8 维（工具分区另加传输 / 认证 / 范围 3 维） |
+<!-- STATS:END -->
