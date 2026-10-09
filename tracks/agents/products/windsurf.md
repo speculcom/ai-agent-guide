@@ -48,13 +48,23 @@ axes:
     Windows（arm64 / x64）与 Linux x64 for Debian。
     **支持 SSH 或 WSL 主机上的文件夹选择**。
   local_files: >-
-    本地编辑器，直接读写工作区。
-    **支持从 Explorer 拖文件到智能体面板、
-    或把编辑器选区发送到聊天**。
-    **索引策略与大仓库表现本次未核验。**
+    本地编辑器，直接读写工作区。**官方 context-awareness 页原文**：
+    "The entire local codebase is then indexed (including files that are
+    not open)"——**整个本地代码库会被 RAG 上下文引擎索引**，检索时按需取片段。
+    Pro 档有更大索引上限与上下文长度；**Teams / Enterprise 可索引远端仓库**。
+    `.gitignore` 内文件默认不对 Cascade 开放（Cascade Gitignore Access
+    默认关闭）；`.codeiumignore` 可排除路径。**Fast Context 是专门检索子代理**
+    （SWE-grep / SWE-grep-mini 模型，仅用 grep / read / glob，
+    最多 4 轮、每轮至多 8 个并行工具调用）。亦可拖文件到面板或把选区发到聊天。
   background: >-
-    Pro 档明确列出 **Devin Cloud 云端智能体**（Access to cloud agents）。
-    **客户端关闭后的行为本次未核验。**
+    **真后台来自 Devin Cloud**：官方 `windsurf/devin` 页原文
+    "Each Devin session runs on its own VM with a desktop, browser,
+    and computer use, so it can keep working after you close your laptop"——
+    每个 Devin 会话跑在自己的云端 VM，**关掉笔记本仍继续**。
+    可在本地用 Cascade 制定计划后一键交给 Devin 云端实现，
+    会话出现在 Agent Command Center。本地 Cascade 与 Devin Local
+    则在你机器上运行（Devin Local "operates on your machine"），需客户端常驻。
+    注意 Devin Cloud 访问在逐步放开（rolling out），Enterprise 需管理员开启。
   tools: >-
     **支持 Agent Client Protocol（ACP）**——
     文档站有「Agent Client Protocol (preview)」与
@@ -64,9 +74,14 @@ axes:
     现在可被智能体使用并列出，
     **包括 HTTP 与 SSE 类型的 MCP server**。
   context: >-
-    changelog 记录：切回最近查看过的 10 个会话之一时，
-    会立即显示其 transcript。
-    **这说明有会话历史机制，但上下文窗口大小与压缩策略本次未核验。**
+    **Memories 机制已核到**（官方 `cascade/memories` 页）：Cascade
+    在对话中自动生成并存储 memory，也可让它「create a memory」；
+    memory 与工作区绑定、存本地 `~/.codeium/windsurf/memories/`、
+    不提交仓库、**不消耗 credits**，Cascade 认为相关时自动检索。
+    跨会话持久化官方推荐用 Rules（global / workspace / system 三级，
+    `.windsurf/rules/*.md`）或 `AGENTS.md`。**另有会话历史**：
+    changelog 记录切回最近查看过的 10 个会话之一时，会立即显示其 transcript。
+    底层上下文引擎为 RAG（官方 M-Query 检索）。
   permissions: >-
     **有明确的安全机制与 CVE 修复记录**：
     changelog 记录修复了 Restricted Mode 的一个绕过
@@ -86,6 +101,7 @@ pitfalls:
   - 以为加购用量有折扣，官方说明按 API 定价
 
 tags: [编程, IDE, 混合, 云端]
+related: [playwright]
 
 sources:
   - label: Windsurf · 官方定价页（Free / Pro / Teams 结构与能力）
@@ -100,13 +116,25 @@ sources:
   - label: Windsurf · ACP 文档（preview）
     url: https://docs.windsurf.com
     kind: docs
+  - label: Windsurf · 官方文档 · Context Awareness（RAG 索引、Fast Context、远端仓库索引）
+    url: https://docs.windsurf.com/context-awareness/overview
+    kind: docs
+  - label: Windsurf · 官方文档 · Memories & Rules（memory 自动生成、本地存储、Rules 三级）
+    url: https://docs.windsurf.com/windsurf/cascade/memories
+    kind: docs
+  - label: Windsurf · 官方文档 · Devin（云端 agent 独立 VM、关笔记本仍跑、委托流程）
+    url: https://docs.windsurf.com/windsurf/devin
+    kind: docs
+  - label: Windsurf · 官方文档 · Devin Local Agent（本地 harness、子代理、沙箱、权限）
+    url: https://docs.windsurf.com/windsurf/devin-local
+    kind: docs
 
 link:
   url: https://windsurf.com
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-08
+last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
 ---
@@ -176,7 +204,7 @@ and listed in ..., including for HTTP and SSE MCP servers
 包括 HTTP 与 SSE 类型。**
 
 这比官方 reference server 的能力更强 ——
-本仓库 MCP 赛道里，官方 server 多数只支持 stdio。
+本仓库工具分区里，官方 server 多数只支持 stdio。
 
 ## 安全：有过 Restricted Mode 的 CVE
 
@@ -222,11 +250,11 @@ Free 档已含无限 inline edits 与无限 Tab 补全。
 
 | 页面 | 状态 |
 |---|---|
-| 定价页 | ✅ 取到三档结构与完整能力清单，❌ 价格数字由 JS 渲染未取到 |
+| 定价页 | ✅ 三档结构与价格均已核实（页面号码由 JS 渲染，直抓需渲染手段） |
 | 文档站 | ✅ 取到 9772 字符文本 |
 | Changelog | ✅ 取到 116K 字符，含多版本发布说明 |
 
-**Teams 档的 $40/席位是唯一取到的具体价格数字。**
+**价格数字均已核实**（Free $0 / Pro $20 / Max $200 / Teams $40/席位，见上方 pricing 段，2026-10-01 官方页）。
 
 ## 实测记录
 
@@ -238,12 +266,9 @@ Free 档已含无限 inline edits 与无限 Tab 补全。
 
 ## 未知项清单
 
-- Free 与 Pro 的具体价格数字
 - SWE-2 与第三方模型的优先级关系
-- 索引策略与大仓库表现
-- 上下文窗口与压缩策略
 - ACP preview 到稳定的时间表
-- Devin Cloud 关闭客户端后的行为
+- 索引算法的官方说明（官方只给行为边界，未公开实现）
 
 ## 相关条目
 
