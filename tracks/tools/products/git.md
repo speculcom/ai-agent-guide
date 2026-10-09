@@ -60,8 +60,9 @@ pitfalls:
 
 mcp:
   transport: >-
-    支持 stdio。README 同时给出容器部署方式（Docker / Podman）。
-    **是否支持 SSE 或 Streamable HTTP，仓库未声明，本次未核验。**
+    支持 stdio。README 同时给出容器部署方式（Docker / Podman）
+    与 uvx / pip 本地安装（2026-10-08 全文核验）；
+    没有远程传输（SSE / Streamable HTTP）的官方启动方式。
   auth: >-
     无独立认证层。stdio 形态继承客户端用户的 git 权限；
     容器形态的认证取决于容器编排配置，仓库未说明。
@@ -71,6 +72,7 @@ mcp:
     无独立审批。切分支可改变工作区状态，需注意。
 
 tags: [版本控制, 本地, 读写]
+related: [aider-cli]
 
 sources:
   - label: MCP · Git Server
@@ -90,8 +92,8 @@ link:
   url: https://github.com/modelcontextprotocol/servers/tree/main/src/git
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-08
+last_updated: 2026-10-08
 lifecycle: active
 confidence: verified
 ---
