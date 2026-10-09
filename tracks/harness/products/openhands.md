@@ -16,7 +16,7 @@ language: TypeScript（前端/编排） + Python（Agent Server）
 providers:
   - 官方称「Bring your own model — Use with any LLM」（README 特性表原文）
   - 支持 LLM profiles 多配置并存（官方文档 llm-settings#llm-profiles）
-  - 具体可选清单与本地模型支持方式，本次未核验（需读官方 llm-settings 页）
+  - 具体清单（官方 llm-settings 页，2026-10-08）：原文 "any model that is supported by litellm"，本地模型经 LiteLLM 接
 
 pricing:
   model: freemium
@@ -76,13 +76,19 @@ layer_position: >-
 
 axes:
   model_access: >-
-    **官方口径是「任何 LLM」，但这是特性表里的一句营销式表述，本站未取到完整 provider 清单。**
-    已核验的部分：README 特性表有一行 "Bring your own model — **Use with any LLM**"，
-    指向官方文档 `usage/settings/llm-settings#llm-profiles`（LLM profiles，可配多套并存）。
-    ⚠ **未核验**：具体支持哪些 provider（是否走 LiteLLM 一类的网关层）、
-    本地量化模型能否接、以及「any LLM」在工具调用与 structured output 上的对齐度。
-    **这一项对本对象尤其重要**，因为它同时是别人的调度层 ——
-    「Codex / Claude Code 跑在它上面」时，能用哪些模型由那个 agent 自己决定，不由Canvas 决定。
+    **官方口径：任何 litellm 支持的模型；有 LiteLLM 网关层（已核验）。**
+    官方 LLM settings 页原文："This can be any model that is supported by
+    litellm"；官方已验证可用的 provider 有 OpenHands provider、Anthropic、
+    OpenAI、Mistral AI（Basic 设置下拉可选）。
+    Custom Model 以 provider 前缀指定并遵循 litellm provider 规范，
+    另有 `Base URL` 可自定义——本地/自托管模型由此接入
+    （官方说保存 local LLM profile 时会先向后端校验）。
+    **LLM profiles**：最多 10 套配置并存，可在会话中或 `/model` 切换，
+    也可由内置 `SwitchLLMTool` 让 agent 动态选型。
+    ⚠ 官方未给出完整 provider 名单，也未给出「any LLM」在工具调用与
+    structured output 上的对齐度数据（已查 llm-settings 页）。
+    **这一项对该对象尤其重要**：它同时是别人的调度层——
+    「Codex / Claude Code 跑在它上面」时，能用哪些模型由那个 agent 决定。
   runtime: >-
     **四种官方部署形态并存，这是本对象最有实用价值的部分**（README 四个Option 全核验）：
     **Option 1 无沙箱本地跑**：`npm install -g @openhands/agent-canvas` 然后 `agent-canvas`，
@@ -104,8 +110,11 @@ axes:
     Docker 形态：访问范围收敛到 `PROJECTS_PATH` 挂载的目录。
     每会话容器形态：官方提示**共享同一宿主工作区的会话仍会共用同一批文件**，
     建议用独立目录或 worktree 避免冲突编辑。
-    ⚠ 后端远程时（云上 VM / Cloud），你的仓库要么在远端、要么靠工具从本地取 ——
-    具体同步机制本站未核验。
+    后端远程时（云上 VM / Cloud backend），agent 在远端 workspace 里跑：
+    SDK 用 `Workspace(host=..., working_dir="workspace/project")` 指定远端
+    工作目录，文件与命令操作都在服务端执行（官方 agent-server 页）。
+    ⚠ 官方未说明「把本地仓库自动同步到远程后端」的机制（已查 agent-server
+    与 runtime 页）——仓库需先位于远端，或自行搬运。
   background: >-
     **这是本对象最突出的强项，也是它与其他 harness 站对象最大的差别。**
     官方 README 明确：把 agent 跑在云上服务器的最大好处是
@@ -117,21 +126,30 @@ axes:
     **对照本站其余对象**：OpenAI Agents SDK、Deep Agents、Codex SDK 的 thread 状态都在
     自己进程 / 自己机器上，关了就没了；这是唯一把「关掉笔记本后 agent 仍在跑」当卖点做的。
   tools: >-
-    **工具面来自它所调度的那个 agent，而不是 Canvas 自己。**
-    官方原文明确它能跑 "OpenHands, Claude Code, Codex, Gemini, or any ACP-compatible agent"
-    —— 即**通过 Agent Client Protocol（ACP）接入第三方 agent**。
-    真正的工具/agent 定义在 `OpenHands/software-agent-sdk`
-    （官方职责表：agents, tools, conversations, workspaces, events）。
-    ⚠ **本对象没有以 MCP 为接口**（README 与仓库结构里未见 MCP 相关表述）——
-    它用的是 ACP。这两个协议的定位差异本站未展开，标记为未核验。
+    **两条接入线：自身工具集 + MCP，另有 ACP 调度第三方 agent。**
+    ① 自带 agent（CodeAct / software-agent-sdk）的默认工具集，官方
+    start-conversation API 示例列出 `terminal`、`file_editor`、
+    `task_tracker`、`browser_tool_set`（`cli_mode` 可关掉浏览器工具）。
+    ② **MCP 支持已核验**：官方有 MCP Servers 专页，CLI `openhands mcp`
+    与 Canvas 的 `Customize > MCP Servers` 均可配；传输覆盖 http / sse /
+    stdio，支持 Bearer / API Key / OAuth 认证；SDK 侧由 `mcp_config`
+    （FastMCP 格式）注入 `mcpServers`。
+    ③ 通过 **ACP（Agent Client Protocol）** 调度第三方 agent
+    （Claude Code、Codex、Gemini 等）。
+    ⚠ **修正上一版档案**：本对象**并非只走 ACP**——MCP 同样是官方能力。
   context: >-
-    **⚠ 这一维度是本对象的重大信息缺口，本站明确记为未知。**
-    已核验的只有持久化方向：`automation` 仓负责 run history，
-    每会话容器形态下官方说「workspace files and conversation history survive container replacement」。
-    **但对话上下文长了之后如何压缩、摘要或落盘，README 与本文所引文档均未说明**，
-    software-agent-sdk 的具体上下文策略本站未核验。
-    按本站主张「状态 ≠ 上下文」：**它把「状态」做得很完整（定时触发 + run 历史 + 容器可替换），
-    但「上下文」这一侧本站拿不到证据**，不能因为它有持久化就推断它有上下文管理。
+    **本维度证据已补齐：OpenHands 有明确的 context condenser 机制。**
+    官方 SDK 指南原文：context condenser "intelligently summarizing older
+    parts of the conversation while preserving essential information"；
+    默认实现 `LLMSummarizingCondenser`（继承 `RollingCondenser`），
+    超阈值时 "Keeps recent messages intact"、"Summarizes older content"，
+    参数 `max_size` / `keep_first`。
+    Canvas 侧对应 `Settings > Condenser`，LLM settings 页有
+    "Enable memory condensation" 与 "Memory condenser max history size"。
+    官方还说明：配了 condenser 后，超窗改为发 condensation 请求事件，
+    而非抛 `LLMContextWindowExceedError`，agent 摘要旧历史后继续。
+    ⚠ 按本站「状态 ≠ 上下文」：run history / 容器可替换后的持久化属状态侧，
+    上面的 condenser 才是上下文侧的官方手段，两者分开。
   permissions: >-
     **这是本对象最需要认真读的部分，也是它官方做得最细的一块。**
     **沙箱**：见 local_files —— 官方提供 Docker 沙箱与每会话独立容器两种收敛手段，
@@ -144,15 +162,20 @@ axes:
     不被局域网其他机器拿到；要监听 `0.0.0.0` 时 key 不再注入、改用同样的 API-key 输入界面。
     官方还提醒用 `export` 而不是命令行参数传 key，避免出现在 `ps aux` 进程列表里。
     **暴露到公网时官方另有防火墙要求**（Cloud Firewall / AWS Security Group / GCP firewall rule）。
-    ⚠ **未核验**：多用户与权限分级（这是它作为团队级平台最可能被追问的点，
-    SELF_HOSTING.md 里的证据集中在「怎么保护单个 key」，未见用户/角色体系）。
+    ⚠ **多用户与权限分级：官方把这一档划给 Enterprise。** 官方部署对比表
+    明示 Open Source 档「Users = 1」，**Multi-user RBAC 与 SSO/SAML 只有
+    Enterprise 有**（OSS 栏为「—」）。因此 OSS 自托管不含用户/角色/审计
+    体系，SELF_HOSTING.md 给的也只是一把会话 key 的机制；需要多用户分级
+    与审计须上 Enterprise（已查 enterprise 页与部署对比表）。
   fit: >-
     **适合**：要把agent 放到自己服务器上 7×24 跑；需要定时或 webhook 触发（Slack / GitHub / Linear / Notion）；
     想用一个界面统管多种agent（含Codex、Claude Code、Gemini 等 ACP 兼容的）；
-    需要 per-conversation 隔离容器；团队里前端/平台与 agent 运行时分离部署。
+    需要 per-conversation 隔离容器；团队里前端/平台与 agent 运行时分离部署；
+    长会话需要官方 condenser 控制上下文成本。
     **不适合**：只想要一个轻量库把agent 嵌进自己的 Python 进程（用 software-agent-sdk 或 OpenAI Agents SDK）；
     单机临时用一下（它是一整套栈，不是库）；
-    需要细粒度多用户权限与审计（本站未核验其能力）。
+    需要多用户与细粒度权限分级——官方把 Multi-user RBAC 划给 Enterprise，
+    OSS 自托管只有单 key。
 
 pitfalls:
   - 以为是 Python SDK —— **主仓是 TypeScript 的 Web 控制中心**；编程入口在 `OpenHands/software-agent-sdk`（另 1,190★）
@@ -160,10 +183,11 @@ pitfalls:
   - 以为它是 Codex SDK / Claude Agent SDK 的竞品 —— **它是它们的调度层**（README 明确说能跑这些 agent）
   - 直接跑 Option 1 就上线 —— 官方在该选项上打 WARNING：agent 对你的文件系统有全量访问权限
   - 把 `--public` 模式理解成「更方便」—— 它是**不把 key 烘进前端**的防护手段，用于非本机访问
-  - 以为「有 run history」就等于「有上下文管理」—— 前者是状态，后者本站未核验
-  - 以为它用 MCP —— 它用的是 ACP（Agent Client Protocol），不是 MCP
+  - 以为「有 run history」就等于「有上下文管理」—— 前者是状态；后者有独立机制（LLMSummarizingCondenser / RollingCondenser）
+  - 以为它只用 ACP、不支持 MCP —— 官方 MCP Servers 专页写明 CLI 与 Canvas 均可配（http / sse / stdio + Bearer / API Key / OAuth）；ACP 是调度第三方 agent 的另一条线
 
 tags: [TypeScript, Python, 开源, MIT, 自托管, 平台型, WebUI, 调度层, ACP, 沙箱, 定时任务, webhook, 多后端]
+related: [opencode, filesystem]
 
 sources:
   - label: OpenHands/OpenHands · 仓库（Agent Canvas 控制中心，89,675★，MIT，核验 2026-10-01）
@@ -187,8 +211,23 @@ sources:
   - label: Releases（v1.24.0 @ 2026-09-25）
     url: https://github.com/OpenHands/OpenHands/releases
     kind: changelog
-  - label: 官方文档 · LLM settings / LLM profiles（README 指向，本次未取到正文）
+  - label: 官方文档 · LLM settings / LLM profiles（any model supported by litellm、已验证 provider、最多 10 profiles、memory condensation，核验 2026-10-08）
     url: https://docs.openhands.dev/openhands/usage/settings/llm-settings
+    kind: docs
+  - label: 官方文档 · Context Condenser（SDK 指南：LLMSummarizingCondenser / RollingCondenser，核验 2026-10-08）
+    url: https://docs.openhands.dev/sdk/guides/context-condenser
+    kind: docs
+  - label: 官方文档 · Runtime Architecture（Docker 沙箱、volume mounts、RemoteRuntime，核验 2026-10-08）
+    url: https://docs.openhands.dev/openhands/usage/architecture/runtime
+    kind: docs
+  - label: 官方文档 · MCP Servers（CLI/Canvas 配置、http/sse/stdio 传输与认证，核验 2026-10-08）
+    url: https://docs.openhands.dev/openhands/usage/cli/mcp-servers
+    kind: docs
+  - label: 官方文档 · Agent Server Package（远程 workspace、working_dir、session API key，核验 2026-10-08）
+    url: https://docs.openhands.dev/sdk/arch/agent-server
+    kind: docs
+  - label: 官方文档 · OpenHands Enterprise vs OSS 部署对比表（Multi-user RBAC / SSO-SAML 仅 Enterprise，OSS Users = 1，核验 2026-10-08）
+    url: https://docs.openhands.dev/enterprise
     kind: docs
   - label: 官方文档 · ACP Agents（README 指向）
     url: https://docs.openhands.dev/openhands/usage/agent-canvas/acp-agents
@@ -324,27 +363,30 @@ README 说得很直接：
 | 传 key 的姿势 | 用 `export` 而非命令行参数 | **避免出现在 `ps aux` 进程列表里** |
 | 公网暴露 | 官方要求另配防火墙（Cloud Firewall / AWS SG / GCP firewall rule） | |
 
-⚠ **未核验：多用户与权限分级。** SELF_HOSTING.md 的证据集中在「怎么保护单个 key」，
-没有看到用户 / 角色 / 审计体系。**团队级使用时这一点要先问清。**
+**多用户与权限分级已核（2026-10-08）**：SELF_HOSTING.md 只覆盖「保护单个 key」；
+正式的 RBAC / SSO 在 Enterprise 档（官方 enterprise 页），OSS 档默认单用户、单会话 key。
+**团队级使用需上 Enterprise，或自行在反代层做鉴权。**
 
-## 上下文维度：本站明确记为未知
+## 上下文维度：官方给了 condenser（2026-10-08 更新）
 
 这档对象持久化做得很好（run history、容器可替换后历史仍在），
-**但对话上下文长了之后如何压缩、摘要或落盘，README 与本文所引文档均未说明。**
+**对话上下文长了之后的处理也有官方机制**：SDK 侧 context condenser
+（`LLMSummarizingCondenser` / `RollingCondenser`，官方 sdk/guides 页）。
 
 按本站主张「**状态 ≠ 上下文**」：
 - **状态** ✅ 有官方证据（定时/webhook 触发、run history、容器可替换后历史保留）
-- **上下文** ❓ 拿不到证据
+- **上下文** ✅ 有官方机制（condenser）；实际压缩效果待实测
 
-**不能因为它有持久化就推断它有上下文管理** —— 这正是本站反复强调的那条分野。
+**持久化 ≠ 上下文管理** —— 两者仍是两件事；但本对象现在能给出后者。
 
-## 协议：它用 ACP，不是 MCP
+## 协议：MCP 与 ACP 各管一条线
 
-README 讲第三方 agent 接入时用的是 **Agent Client Protocol（ACP）**，仓内结构未见 MCP 表述。
-ACP 与 MCP 的定位差异本站未展开研究，标记为未核验。
-
-**这一条对选型有直接影响**：如果你已有的 MCP server 生态想直接复用，
-在 OpenHands 上能不能用、走什么路径，本站尚无答案。
+**两条线已核清（2026-10-08）**：① **MCP** —— 官方有 MCP Servers 专页，CLI
+（`openhands mcp`）与 Canvas 均可配，传输覆盖 http / sse / stdio，支持
+Bearer / API Key / OAuth；已有的 MCP server 生态可直接复用。
+② **ACP（Agent Client Protocol）** —— README 用它来调度第三方 agent
+（"Run OpenHands, Claude Code, Codex, Gemini, or any ACP-compatible agent"）。
+**修正上一版档案**：本对象并非只走 ACP，MCP 同样是官方能力。
 
 ## 适合与不适合
 
@@ -352,17 +394,17 @@ ACP 与 MCP 的定位差异本站未展开研究，标记为未核验。
 想一个界面统管 Codex / Claude Code / Gemini 等多种 agent；需要 per-conversation 容器隔离；
 前端与运行时分离部署。
 **不适合**：只想把 agent 嵌进自己的 Python 进程（用 software-agent-sdk 或 OpenAI Agents SDK）；
-单机临时用一下（它是一整套栈）；需要细粒度多用户权限（本站未核验其能力）。
+单机临时用一下（它是一整套栈）；需要细粒度多用户权限（RBAC / SSO 仅 Enterprise，OSS 档单用户）。
 
 ## 核验说明
 
 `confidence: partial` 的依据：
 
-**为什么不是 verified**：八维度里 `context` 这一维**证据缺失**——
-对话上下文长了之后如何压缩、摘要或落盘，README 与本文所引官方文档均未说明。
-本站的validate 规则会检查「verified 的条目八个维度里不能出现『未知』」，本条触线了，故降级。
-换句话说：**本条目的「有」都核得很实（形态、部署、权限、背景任务），
-但「长任务怎么撑住」这个本站最看重的维度没有答案。**
+**为什么不是 verified**：并非缺轴 —— 八维本轮均已核到官方机制（`context` 侧有官方
+condenser，见 axes.context）。仍留 partial 是因为还存在**官方确实没写、或需实测**的项：
+context 压缩的端到端效果、本地→远端工作区的同步机制（官方未说明）、
+ACP 与 MCP 的定位边界、Enterprise 报价与「零加价」的实际单价表。
+按 v3 铁律「未知就说未知」，故仍标 partial。
 
 已核验（这部分扎实）：仓库存在与星数（89,675）、许可（MIT，经 license API）、
 最近推送（2026-10-01，仍活跃）、最新版 **v1.24.0**（releases @ 2026-09-25）、
@@ -371,11 +413,10 @@ Repository boundaries 表、More documentation）、`docs/SELF_HOSTING.md` 286 �
 仓库顶层目录结构（`helm/`、`vercel.json`、`electron-builder.config.mjs`、`.openhands/`、`docker/` 等）、
 `software-agent-sdk`（1,190★ · MIT · Python）与 `automation`（32★ · MIT · Python）两仓元数据
 
-未核验：**对话上下文压缩与摘要策略（降级主因）**、
-「any LLM」的完整 provider 清单与 LiteLLM 类网关的存在形式、LLM profiles 的具体配置格式、
-本地量化模型能否接入、ACP 与 MCP 的定位差异、多用户/角色/审计体系是否存在、
-后端远程时本地仓库的同步机制、
-`software-agent-sdk` 的 API 形态
+未核验：对话上下文压缩的实测效果、
+本地→远端工作区的同步机制（官方未说明）、
+`software-agent-sdk` 的 API 形态、
+LLM profiles 的完整配置格式（官方页有，细节未逐条录入）
 
 **本轮（2026-10-01）补上的**：官方定价页三档已核实 ——
 Open Source $0 / Cloud Individual $0 / Enterprise 定制；
@@ -393,7 +434,7 @@ Enterprise 的具体报价与「零加价」的实际单价表仍未核验。
 | # | 测什么 | 为什么值得测 |
 |:--:|---|---|
 | 1 | `software-agent-sdk` 单独用（不启 Canvas）能不能跑最小 agent | 决定你到底需不需要这一整套栈 |
-| 2 | 长任务（跨天）对话上下文如何处理、成本如何变化 | 补上本站最大的信息缺口 |
+| 2 | 长任务（跨天）condenser 的压缩效果与成本变化 | 机制已知（LLMSummarizingCondenser），压缩率需实测 |
 | 3 | 每会话容器模式的**真实隔离强度**（同宿主工作区会共用文件这条要实测） | 官方已提示冲突风险 |
 | 4 | Docker 形态下 agent 能否绕过 `PROJECTS_PATH` 触达宿主其他路径 | 沙箱有效性是选型前提 |
 | 5 | 挂 Claude Code / Codex 作为 ACP agent 的实际接入成本 | 它最独特的卖点，值不值得取决于这个 |
@@ -401,10 +442,10 @@ Enterprise 的具体报价与「零加价」的实际单价表仍未核验。
 
 ## 未知项清单
 
-- 「any LLM」的具体 provider 清单与能力对齐度
-- 对话上下文压缩/摘要/落盘策略（**本站最看重的维度，证据缺失**）
-- 多用户、角色与审计体系是否存在
-- ACP 与 MCP 的关系：能否复用已有 MCP server 生态
+- 「any LLM」的 provider 能力对齐度（清单已核：原文 "any model that is supported by litellm"）
+- 对话上下文压缩的端到端效果（机制已有官方 condenser，压缩率待实测）
+- OSS 档多用户方式（正式 RBAC / SSO 在 Enterprise，OSS 默认单用户）
+- ACP 与 MCP 的定位差异（两者都可用；边界官方未系统对比）
 - **Enterprise 的具体报价**（官方仅标 Custom pricing / Contact Us）
 - OpenHands LLM provider「at cost, no markup」的**实际单价表**（官方声明不加价，数字未公开）
 - Individual 每日 10 轮之外，超出后的行为（停用 / 提示升级 / 其它，官方页未写）
