@@ -12,8 +12,18 @@ console.log('赛道  对象  verified  partial  stale  未核验维度/总维度
 
 const totals = { objects: 0, verified: 0, partial: 0, stale: 0, unknown: 0, dims: 0 };
 
-for (const t of ['ide', 'cli', 'mcp']) {
-  const dir = path.join(ROOT, 'tracks', t, 'products');
+// 2026-10-08：['ide','cli','mcp'] 是 v3 旧赛道名，v4 改成 agents/harness/tools。
+// 旧值导致目录全不存在 → 循环 continue → 静默报告「0 对象」，看不出是脚本坏了。
+const TRACKS = ['agents', 'harness', 'tools'];
+const trackDir = t => path.join(ROOT, 'tracks', t, 'products');
+
+if (!TRACKS.some(t => fs.existsSync(trackDir(t)))) {
+  console.error(`tracks 下没找到任何产物目录（期望 ${TRACKS.join(' / ')}）—— 本脚本等于没运行，别把「0 对象」当结论。`);
+  process.exit(1);
+}
+
+for (const t of TRACKS) {
+  const dir = trackDir(t);
   if (!fs.existsSync(dir)) continue;
   const files = fs.readdirSync(dir).filter(f => f.endsWith('.md'));
   const c = { verified: 0, partial: 0, stale: 0 };
@@ -31,7 +41,8 @@ for (const t of ['ide', 'cli', 'mcp']) {
     const pi = fm.indexOf('\npitfalls:');
     const axesSeg = ai >= 0 ? fm.slice(ai, mi > ai ? mi : pi) : '';
     const mcpSeg = mi >= 0 ? fm.slice(mi, pi) : '';
-    const keys = t === 'mcp' ? [...AXES, ...MCP_AXES] : AXES;
+    // 2026-10-08：v3 时 MCP 维度只属于 mcp 赛道；v4 合并后落在 tools 赛道（9/9 文件都有 mcp: 段）。
+    const keys = t === 'tools' ? [...AXES, ...MCP_AXES] : AXES;
 
     for (const k of keys) {
       const seg = (k === 'transport' || k === 'auth' || k === 'scope') ? mcpSeg : axesSeg;
@@ -62,9 +73,9 @@ console.log(`维度补齐：${totals.dims - totals.unknown}/${totals.dims} = ${M
 
 // 未核验维度的成因分类
 console.log('');
-console.log('=== 未核验维度成因（抽 mcp/ide/cli 各 3 条）===');
-for (const t of ['ide', 'cli', 'mcp']) {
-  const dir = path.join(ROOT, 'tracks', t, 'products');
+console.log('=== 未核验维度成因（每赛道抽 3 条）===');
+for (const t of TRACKS) {
+  const dir = trackDir(t);
   if (!fs.existsSync(dir)) continue;
   const shown = new Set();
   for (const f of fs.readdirSync(dir).filter(x => x.endsWith('.md'))) {
