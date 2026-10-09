@@ -84,14 +84,25 @@ MCP servers 仓库 README 的原文声明：
 | `playwright` | Playwright MCP | 浏览器 | microsoft/playwright-mcp |
 | `context7` | Context7 | 检索 | upstash/context7 |
 
+**厂商官方 server（1 个）**：
+
+| id | 名称 | 类别 | 来源 |
+|---|---|---|---|
+| `github-mcp` | GitHub MCP Server | 版本控制 / API | github/github-mcp-server（GitHub 官方维护） |
+
 **已归档，不作为活跃对象收录（但可作历史条目）**：
 
 官方已将以下 server 移入 [servers-archived](https://github.com/modelcontextprotocol/servers-archived)：
-`aws-kb-retrieval-server` · `brave-search` · `everart` · `gdrive` · `git`（旧） · `github` · `gitlab` · `google-maps` · `postgres` · `puppeteer` · `redis` · `sentry` · `slack` · `sqlite`
+`aws-kb-retrieval-server` · `brave-search` · `everart` · `gdrive` · `git`（旧） · `github`（旧参考 server） · `gitlab` · `google-maps` · `postgres` · `puppeteer` · `redis` · `sentry` · `slack` · `sqlite`
 
 > **重要**：GitHub、Postgres、GitLab、Puppeteer 等曾 widely used 的 server
 > **已不在官方活跃仓库**。引用它们时要注明归档状态。
 > 归档仓库自 2025-05 后基本无更新。
+>
+> ⚠ **GitHub 要单独说明（2026-10-08 修正）**：上面归档的是 **MCP 组织维护的旧参考 server**；
+> GitHub 官方自己的 server 是另一条**活跃**产品线 `github/github-mcp-server`
+> （本地 Docker 与远程托管两种形态都在维护），已按活跃对象收录（见上方「厂商官方 server」表）。
+> **不要把归档状态套到它头上** —— 这是本文件此前最容易引起误判的一处。
 
 **收录判断**：已归档对象若仍有大量实际使用（如 github、postgres），
 可作为「历史/归档」条目收录，但 `confidence` 最高只能给 `partial`，
@@ -212,7 +223,7 @@ mcp.specul.com ────── 服务端侧：server 本身的能力与风险
 
 MCP 赛道的实测和工具赛道不同——**不是测"能不能干完活"，而是测"接口是否可用、边界是否清楚"**。
 
-见 [`tasks/`](../cli/tasks/)（协议共用，实测内容按赛道替换）。
+见 [`tasks/`](../agents/tasks/)（协议共用，实测内容按赛道替换）。
 
 **MCP 赛道的实测重点**：
 1. 装得上吗（依赖是否满足）
