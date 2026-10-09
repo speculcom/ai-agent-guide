@@ -361,10 +361,12 @@ for (const a of AXES) {
   const f = `${AXES_FILE[a]}.md`;
   if (!fs.existsSync(path.join(ROOT, 'axes', f))) errors.push(`缺维度定义: axes/${f}`);
 }
-/* 赛道目录 → 赛道定义的映射。
- * 2026-10-02 重构：ide + cli 合并为 agents 赛道（档案仍按 track: ide/cli 分类，
+/* 分区目录 → 分区定义的映射。
+ * 2026-10-02 重构：ide + cli 合并为 agents 分区（档案仍按 track: ide/cli 分类，
  * **不合并档案**——三组产品各有两份，runtime/permissions 等维度取值不同）。
- * 所以「目录」是三个（agents/harness/tools），而「track 枚举」仍是四个。 */
+ * 所以「分区目录」是三个（agents/harness/tools），而「track 形态枚举」是五个
+ * （ide/cli/cloud/harness/mcp，见下方 154 行的枚举校验；cloud 是 2026-10-03 新增）。
+ * 两级命名别混：**分区由目录决定，形态由 frontmatter 决定** —— SCHEMA §2.5.1。*/
 const TRACK_DIRS = {
   agents: '_track.md',
   harness: '_track.md',
