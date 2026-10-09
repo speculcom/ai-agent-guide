@@ -34,33 +34,52 @@ pricing_pitfalls:
 
 axes:
   model_access: >-
-    Google 自家 **Gemini 系列模型**，README 标注 **1M token context window**
-    （1M 上下文窗口），是本赛道少数明确写出上下文上限的。
-    **2026-10-01 官方产品页补充**：当前 IDE 侧主力是 **Gemini 2.5**，
-    **Gemini 3 标注「coming soon」，走 Preview release channel**。
-    另有**代码库感知窗口 1M token**、**代码自定义库上限 20,000 个仓库**
-    （Gemini Code Assist 官方quota 数值）。
-    **未核验**：CLI 侧具体可切换的模型清单与版本映射（官方 README 未列全，站点未取到正文），
-    此处保持未知，不做推断。
+    Google 自家 **Gemini 系列**，明确 **1M token 上下文**（README 首屏原文
+    "Powerful Gemini 3 models: Access to improved reasoning and 1M token
+    context window"）。
+    **可换模型**：命令行 `gemini -m gemini-2.5-flash` 指定模型；
+    用 Gemini API Key 登录时官方描述为 "Model selection: Choose specific
+    Gemini models"。
+    **三种接入方式**（README「Authentication Options」）：
+    ① Google 账号 OAuth 登录（免费层，60 请求/分、1,000 请求/日，无需管 key）；
+    ② Gemini API Key（AI Studio 取 key，按量计费）；
+    ③ Vertex AI（企业，需项目与区域）。
+    **模型路由**：Plan Mode 可 `general.plan.modelRouting` 在 Pro（规划）与
+    Flash（实现）间自动切换；另有实验性 Local Model Routing（Gemma）。
+    **CLI 侧可切换模型的具体清单与版本映射，官方 README 未给出完整列表**
+    （已查 README 与 reference/configuration 页）。
   runtime: >-
     本地进程，在终端运行。
     **README 强调「Using npx (no installation required)」——
     npx 免安装形态降低了上手门槛。**
   local_files: >-
-    内置文件操作工具（README 标注「🔧 Built-in tools: Google Search grounding,
-    file operations, shell」）。
-    **检查点机制明确且实现方式值得记录**（`docs/cli/checkpointing.md`）：
-    每当你批准一个会修改文件系统的工具（`write_file`、`replace` 等），
-    CLI **自动在 home 目录下的一个专用 shadow Git 仓库
-    （`~/.gemini/history/<project_hash>`）里做一次提交**，
-    快照项目的完整状态；
-    **关键点：这个 shadow 仓库不干扰你自己的项目 Git 仓库。**
-    同时保存完整对话历史与即将执行的工具调用，
-    可用 `/restore` 回退。
-    **索引算法与大仓库表现本次未核验。**
+    **内置文件工具默认以工作区为根，边界明确**（官方「File system tools」页
+    原文：All file system tools operate within a `rootDirectory` (the current
+    working directory or workspace root) for security）。
+    工具集：`list_directory`、`read_file`（支持文本/图片/音频/PDF）、
+    `write_file`、`replace`、`glob`、`grep_search`；
+    其中 `write_file` 与 `replace` 官方标注 "Requires manual user approval"。
+    **扩目录**：启动用 `gemini --include-directories ../lib,../docs`，
+    会话内可用 `/directory add <path>`（受限沙箱配置下禁用）。
+    **忽略边界**：遵守 `.gitignore`，并支持同语法的 `.geminiignore`。
+    **改动可回退**：批准改文件的工具时，在
+    `~/.gemini/history/<project_hash>` 的 shadow Git 仓库做一次快照，
+    不干扰你自己的项目仓库，可用 `/restore` 回退（详见 checkpointing）。
+    **语义索引（Code Customization / RAG）的算法与大仓库耗时，官方未说明**
+    （已查 file-system 与 configuration 页，仅有 `general.logRagSnippets`
+    这类调试开关）。
   background: >-
-    不支持终端形态的后台长任务。
-    **是否有其他运行形态本次未核验。**
+    **本地 CLI，不支持关机续跑。**
+    **非交互/headless 是脚本化，不是后台**：官方「Headless mode」页原文
+    "Headless mode provides a programmatic interface to Gemini CLI... without
+    an interactive terminal UI"，由非 TTY 或 `-p/--prompt` 触发，
+    可输出 JSON 或 stream-json，供 CI 与自动化调用——**仍跑在你自己的机器上**。
+    **执行环境归你**：官方无厂商托管的常驻执行环境；
+    README 的 GitHub Action 也是在你仓库的 CI runner 上跑。
+    **中断可恢复**：checkpointing（`general.checkpointing.enabled`）与
+    `/chat save` / `/resume` 可保存与恢复会话；
+    `general.sessionRetention` 默认保留 30 天、超期自动清理。
+    **额度**即 pricing 轴里的每日请求上限，无另设的云端额度。
   tools: >-
     **明确支持 MCP**（README 标注「🔌 Extensible: MCP support for custom」），
     并给出独立文档页 `/docs/tools/mcp-server`。
@@ -69,36 +88,49 @@ axes:
     **另明确支持非交互模式用于脚本自动化**
     （README 有独立的「Non-interactive mode for scripts」章节）。
   context: >-
-    **1M token 上下文窗口**（README：Gemini 3 models with 1M token context window），
-    是本赛道明确写出上限的少数。
-    **自定义上下文文件 `GEMINI.md`** 用于定制项目行为
-    （README 标注「Custom context files (GEMINI.md) to tailor behavior for your projects」，
-    文档路径 `/docs/cli/gemini-md`）——
-    相当于项目级的长期指令。
-    **上下文压缩策略本次未核验。**
+    **1M token 上下文 + GEMINI.md 分层上下文 + 自动历史压缩，三项都有官页。**
+    **上下文窗口**：README 首屏写 Gemini 3 models with 1M token context window。
+    **上下文层级**（官方「GEMINI.md」页）：① 全局 `~/.gemini/GEMINI.md`；
+    ② 工作区目录及其父目录的 `GEMINI.md`；
+    ③ JIT——工具访问某目录时扫描其与祖先目录的 `GEMINI.md`（至 trusted root）；
+    文件名可由 `context.fileName` 改（如 AGENTS.md/CONTEXT.md）；
+    支持 `@file.md` 导入；`/memory show` 与 `/memory reload` 可查看与重载。
+    **压缩策略已核到**（官方 core 页「Chat history compression」）：
+    "When a conversation approaches the token limit... the core automatically
+    compresses the conversation history"；阈值由 `model.compressionThreshold`
+    控制（默认 0.5）；也可 `/compress` 手动把整个上下文替换为摘要。
+    **跨会话记忆**：官方 Memory 工具把持久事实写进 `GEMINI.md`（项目/全局两级），
+    随分层上下文注入后续会话；token caching 仅 API key / Vertex 用户可用。
   permissions: >-
-    **两个明确的官方机制**（README 均有独立文档入口）：
-    一是 **Sandboxing & Security**（文档路径 `/docs/cli/sandbox`），
-    提供安全的执行环境；
-    二是 **Trusted Folders**（文档路径 `/docs/cli/trusted-folders`），
-    按文件夹控制执行策略。
-    另有面向企业的部署与管理文档（`/docs/cli/enterprise`）。
-    仓库 `docs/` 下有独立的 `hooks/` 目录，说明支持钩子机制。
-    **具体的沙箱档位、默认信任范围与审批粒度本次未核验，记为未知。**
-    但「按文件夹控制执行策略」这个设计本身值得注意——
-    它把权限边界绑定到目录而非全局开关。
-    **检查点的 shadow Git 机制**也算一层安全网：
-    修改文件系统前自动快照，可 `/restore` 回退。
+    **沙箱、审批、信任目录三层官方都有专页，是本赛道权限面写得最细的一条。**
+    **沙箱**（「Sandboxing」页）：`-s/--sandbox`、`GEMINI_SANDBOX` 或
+    `tools.sandbox` 启用；方式含 macOS Seatbelt（默认档 `permissive-open`：
+    默认拒绝、写限项目目录但允许读与网络）、Docker/Podman、Windows 原生、
+    gVisor/runsc、LXC/LXD（实验）。工具级另有 `security.toolSandboxing`。
+    **沙箱扩张**：命令因权限受限失败时弹 "Sandbox Expansion Request"，
+    逐次批准临时放宽；越界目录可用 `SANDBOX_MOUNTS` 挂载。
+    **审批模式**（configuration 页）：`general.defaultApprovalMode` 有
+    `default`（逐次询问）、`auto_edit`、`plan`（只读）；
+    `--yolo`（全部自动批准）只能在命令行开。
+    **策略引擎**（「Policy engine」页）：`~/.gemini/policies/*.toml` 用规则定义
+    `allow` / `deny` / `ask_user`，可按工具名、参数、审批模式与交互/非交互
+    环境匹配；分 Default/Extension/User/Admin 层级，Admin 可强制覆盖。
+    **Trusted Folders**（默认关闭，`security.folderTrust.enabled`）：
+    未信任时进 safe mode——忽略工作区 `.gemini/settings.json` 与 `.env`、
+    禁用工具自动接受、不连 MCP、不加载自定义命令；
+    CI 可用 `--skip-trust` 或 `GEMINI_CLI_TRUST_WORKSPACE=true` 绕过。
+    configuration 页另有环境变量脱敏一节。
   fit: >-
     需要无安装快速试用、需要 MCP 扩展、需要脚本化非交互运行的场景。
     尤其适合想把 Gemini 的多模态生成能力接进 Agent 工作流的场景。
 
 pitfalls:
-  - 以为开源就无限用，额度政策未核验
+  - 以为开源就无限用 —— 免费层有明确日额度（6,000 代码请求 + 240 对话/日）
   - 以为 npx 形态会污染本地环境，实际是免安装的临时运行
   - 忽略 MCP 能力，README 明确把它列为可扩展特性
 
 tags: [编程, 终端, 本地, 开源]
+related: [google-adk]
 
 sources:
   - label: Google · Gemini CLI 仓库 README
@@ -109,6 +141,46 @@ sources:
     kind: changelog
   - label: Google · Gemini CLI 官方文档
     url: https://google-gemini.github.io/gemini-cli/
+    kind: docs
+  - label: 官方文档 · Sandboxing（-s/GEMINI_SANDBOX、Seatbelt 默认档 permissive-open、
+    Docker/Podman/Windows/gVisor/LXC、toolSandboxing、Sandbox Expansion）
+    url: https://www.geminicli.com/docs/cli/sandbox
+    kind: docs
+  - label: 官方文档 · Trusted Folders（默认关闭、safe mode 禁项、--skip-trust、
+    GEMINI_CLI_TRUST_WORKSPACE）
+    url: https://www.geminicli.com/docs/cli/trusted-folders
+    kind: docs
+  - label: 官方文档 · Policy Engine（~/.gemini/policies/*.toml、
+    allow/deny/ask_user 层级）
+    url: https://www.geminicli.com/docs/reference/policy-engine
+    kind: docs
+  - label: 官方文档 · GEMINI.md（三层上下文层级、@file.md 导入、context.fileName、/memory）
+    url: https://www.geminicli.com/docs/cli/gemini-md
+    kind: docs
+  - label: 官方文档 · Core（Chat history compression：自动压缩、model.compressionThreshold）
+    url: https://www.geminicli.com/docs/core
+    kind: docs
+  - label: 官方文档 · Headless mode（-p/--prompt、JSON / stream-json、退出码）
+    url: https://www.geminicli.com/docs/cli/headless
+    kind: docs
+  - label: 官方文档 · Checkpointing（改文件工具批准时 shadow Git 快照、/restore、默认关闭）
+    url: https://www.geminicli.com/docs/cli/checkpointing
+    kind: docs
+  - label: 官方文档 · File system tools（工具集、rootDirectory 边界、write/replace 需批准）
+    url: https://www.geminicli.com/docs/tools/file-system
+    kind: docs
+  - label: 官方文档 · Memory files（持久事实写入 GEMINI.md 分项目/全局两级）
+    url: https://www.geminicli.com/docs/tools/memory
+    kind: docs
+  - label: 官方文档 · Ignoring files（.geminiignore）
+    url: https://www.geminicli.com/docs/cli/gemini-ignore
+    kind: docs
+  - label: 官方文档 · Token caching（仅 API key / Vertex 用户可用）
+    url: https://www.geminicli.com/docs/cli/token-caching
+    kind: docs
+  - label: 官方文档 · Configuration（approval mode、sandbox、checkpointing、
+    sessionRetention、context.fileName、RAG 日志开关）
+    url: https://www.geminicli.com/docs/reference/configuration
     kind: docs
   - label: Google · Gemini CLI MCP Server 文档
     url: https://www.geminicli.com/docs/tools/mcp-server
@@ -178,11 +250,12 @@ CI 集成友好度的信号。
 
 `confidence: partial` 的原因：
 
-- ✅ 已核验：仓库、许可（Apache-2.0）、版本形态与日期、star 数（107,180）、MCP 支持及文档页、非交互模式、npx 安装方式、MCP 接入多模态生成的官方举例
-- ❌ 未核验：额度政策、可用模型清单、索引策略、上下文策略、权限确认机制
-
-**star 数 107,180 但未核验商业授权条款**——
-README 未说明是否需要 Google 账号、是否免费、额度多少。
+- ✅ 已核验：仓库、许可（Apache-2.0）、版本形态与日期、star 数（107,180）、MCP 支持及文档页、
+  非交互模式、npx 安装方式、MCP 接入多模态生成的官方举例；**A6.2 本轮补**：
+  额度政策（Code Assist individuals 6,000/240 等）、三种接入方式与 `-m` 换模型、
+  GEMINI.md 三层上下文与自动历史压缩、沙箱/审批/信任目录/策略引擎权限机制
+- ❌ 未核验：CLI 侧可切换模型的完整清单与版本映射（官方 README 未列全）、
+  语义索引（RAG）算法与大仓库耗时（官方未说明）
 
 ## 适合与不适合
 
@@ -192,8 +265,8 @@ README 未说明是否需要 Google 账号、是否免费、额度多少。
 需要「改动可回退」保证的人（shadow Git 检查点 + `/restore`）。
 需要项目级长期指令文件的人（GEMINI.md）。
 
-**不适合**需要明确额度边界的场景——
-额度政策本次未核验，记为未知。
+**不适合**把额度当成无限用的场景——
+免费层有明确日额度（6,000 代码请求 + 240 对话），且 CLI 与代理模式额度合并计算。
 
 ## 值得单独记的两处
 
@@ -227,12 +300,8 @@ CLI 会在 `~/.gemini/history/<project_hash>` 这个**独立的 Git 仓库**里�
 
 ## 未知项清单
 
-- 模型额度政策与免费额度边界
-- 具体可用模型清单
-- 索引策略与大仓库表现
-- 上下文压缩策略
-- 沙箱档位与默认信任范围
-- Trusted Folders 的默认行为
+- 具体可用模型清单与版本映射（官方 README 未列全，已查 configuration 页）
+- 语义索引（RAG）算法与大仓库表现（官方未说明）
 
 ## 相关条目
 
