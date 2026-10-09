@@ -1,7 +1,11 @@
 # CLI 赛道实测协议
 
-CLI 赛道的实测协议与 [IDE 赛道协议](../../ide/tasks/_protocol.md) 共用大部分，
-但**多两个 CLI 特有的测试维度**。
+CLI 形态的实测协议与 IDE 形态**共用基础协议**，两条形态的差异见下表，
+CLI 形态另有三个特有测试维度（第二至四节）。
+
+> ⚠ 基础协议原文档（旧路径 `ide/tasks/_protocol.md`）在 v4 三分区合并后**已不存在**
+> （2026-10-09 核验：`tracks/agents/tasks/` 下只有本文件一份协议）。
+> 本行此前指向一个已消失的路径 —— 记录为内容缺口，不假装基础协议仍可点开。
 
 ---
 
@@ -189,6 +193,6 @@ CLI 赛道特有的局限要额外写：
 ```yaml
 sources:
   - label: 2026-09 第 1 轮 CLI 实测
-    url: https://github.com/<owner>/<repo>/blob/main/tracks/cli/runs/2026-09-r1.md
+    url: https://github.com/<owner>/<repo>/blob/main/tracks/agents/runs/2026-09-r1.md
     kind: docs
 ```
