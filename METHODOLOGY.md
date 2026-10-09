@@ -60,7 +60,7 @@ AI 工具对比面临三个结构性难题：
 | 7 | [权限与限制](./axes/permissions.md) | 沙箱 · 审批 · 数据出境？ |
 | 8 | [适合什么任务](./axes/fit.md) | 这东西最擅长什么？ |
 
-MCP 赛道在这 8 个之外另加 3 个特有维度，见 [`tracks/mcp/taxonomy/`](./tracks/mcp/taxonomy/)。
+MCP 赛道在这 8 个之外另加 3 个特有维度，见 [`tracks/tools/taxonomy/`](./tracks/tools/taxonomy/)。
 
 **为什么坐标系要固定**：
 - **横向可比**：换维度就会毁掉对比能力
@@ -97,10 +97,10 @@ MCP 赛道在这 8 个之外另加 3 个特有维度，见 [`tracks/mcp/taxonomy
 
 | 优先级 | 维度 | 为什么 |
 |:--:|---|---|
-| 1 | [权限范围](./tracks/mcp/taxonomy/scope.md) | **安全第一**，权限失控是直接风险 |
-| 2 | [认证机制](./tracks/mcp/taxonomy/auth.md) | 认证与授权决定凭据风险 |
+| 1 | [权限范围](./tracks/tools/taxonomy/scope.md) | **安全第一**，权限失控是直接风险 |
+| 2 | [认证机制](./tracks/tools/taxonomy/auth.md) | 认证与授权决定凭据风险 |
 | 3 | 权限与限制 | 沙箱与审批 |
-| 4 | [传输方式](./tracks/mcp/taxonomy/transport.md) | 决定能否被你的客户端用 |
+| 4 | [传输方式](./tracks/tools/taxonomy/transport.md) | 决定能否被你的客户端用 |
 | 5 | 工具与扩展 | 输出是否可消费 |
 | 6 | 本地文件 | 赛道特化，看它能碰什么 |
 | 7 | 上下文与记忆 | MCP 多为无状态，区分度低 |
