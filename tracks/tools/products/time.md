@@ -50,9 +50,10 @@ pitfalls:
 mcp:
   transport: >-
     支持 stdio，**并提供容器部署方式（Docker / Podman）**。
-    2026-08-30 修复了 bind mount 安全与兼容问题（含 SELinux），
+    2026-08-30 修复 bind mount 安全与兼容问题（含 SELinux），
     与 fetch、git 属同一条修复 commit（#2205）。
-    **是否支持 Streamable HTTP，仓库未声明。**
+    官方 README（2026-10-08 全文核验）只给本地进程接入（uvx / pip / Docker），
+    没有远程传输的官方启动方式。
   auth: >-
     无独立认证层，但**本 server 无任何外部资源访问**，
     认证与否不影响安全。
@@ -61,6 +62,7 @@ mcp:
     与 sequential-thinking 同属权限风险最低的一类，可放心在敏感环境使用。
 
 tags: [本地, 只读]
+related: [cline]
 
 sources:
   - label: MCP · Time Server
@@ -80,8 +82,8 @@ link:
   url: https://github.com/modelcontextprotocol/servers/tree/main/src/time
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-08
+last_updated: 2026-10-08
 lifecycle: active
 confidence: verified
 ---
@@ -114,7 +116,7 @@ confidence: verified
 
 ## 权限评价
 
-**MCP 赛道上权限风险最低的一类**：
+**MCP server 里权限风险最低的一类**：
 
 | 检查项 | 结果 |
 |---|---|
