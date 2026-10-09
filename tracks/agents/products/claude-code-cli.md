@@ -38,8 +38,17 @@ axes:
     **允许这一次读取，之后仍继续询问**。
     1M 上下文档位（见 model_access）。
   background: >-
-    **不支持**终端形态的后台长任务。
-    是否有云端形态本次未核验。
+    **终端形态需客户端常驻，但官方有云端形态可关机续跑。**
+    官方 `claude-code-on-the-web` 原文：
+    "A cloud session is a Claude Code session that runs on cloud
+    infrastructure instead of on your machine... The session keeps
+    running after you close your laptop."
+    CLI 用 `claude --cloud` 创建云会话（旧 `--remote` 为别名），
+    `claude --teleport` 把云会话拉回终端继续；
+    Routines（在 CLI 里用 `/schedule` 创建）跑在 Anthropic 托管云上，
+    官方原文 "they keep working when your laptop is closed"。
+    云会话与 routines 需 Pro / Max / Team 或 Enterprise 付费席位。
+    额度与限额跟随套餐（官方 routines 页单列 Usage and limits）。
   tools: >-
     **MCP 支持完整且在持续加强**——
     v2.1.284 新增 `/mcp reconnect all`：
@@ -68,6 +77,7 @@ pitfalls:
   - 误以为压缩能解决所有超长问题，官方仍在修「压缩后仍超长」的边界
 
 tags: [编程, 终端, 本地]
+related: [claude-agent-sdk, filesystem]
 
 sources:
   - label: Anthropic · Claude Code 仓库
@@ -88,13 +98,19 @@ sources:
   - label: Anthropic · Commercial Terms of Service
     url: https://www.anthropic.com/legal/commercial-terms
     kind: docs
+  - label: Anthropic · Claude Code on the web（云会话，关机后仍续跑）
+    url: https://code.claude.com/docs/en/claude-code-on-the-web
+    kind: docs
+  - label: Anthropic · Routines（云端定时 / API / GitHub 触发任务）
+    url: https://code.claude.com/docs/en/routines
+    kind: docs
 
 link:
   url: https://code.claude.com/docs/en/overview
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-08
+last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
 ---
@@ -249,11 +265,11 @@ once more, keeping less of the recent conversation
 > 按 v3 铁律「未知就说未知」，这些条目存在时标 verified 属于虚高，故降为 partial。
 > 主要缺口：完整工具清单、沙箱实现细节、是否支持本地模型、API 与订阅额度关系。
 
-- ✅ 已核验：仓库、**许可状态原文**、最近 5 个版本与日期、star 数（148,488）、**模型定价原文**、权限设计的三个具体机制、MCP 两处改动、上下文压缩策略、Atom feed 存在
+- ✅ 已核验：仓库、**许可状态原文**、最近 5 个版本与日期、star 数（148,488）、**模型定价原文**、权限设计的三个具体机制、MCP 两处改动、上下文压缩策略、Atom feed 存在、**云端形态（`claude --cloud` / Routines / 关机后续跑）**
 - ❌ 未核验：完整工具清单、沙箱实现细节、是否支持本地模型、API 与订阅额度关系
 
-**这是 CLI 赛道第一个达到 `verified` 的条目**——
-因为它把大量信息写在了 CHANGELOG 与 LICENSE 里。
+**这曾是 CLI 形态第一个达到 `verified` 的条目**（因为它把大量信息写在了 CHANGELOG 与 LICENSE 里），
+**2026-10-03 因本站仍有取证缺口（见下）降为 `partial`**。
 
 ## 适合与不适合
 
