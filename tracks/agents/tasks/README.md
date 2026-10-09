@@ -1,9 +1,12 @@
-# CLI 赛道实测任务集
+# CLI 形态实测任务集
 
 任务清单已编写：**T01–T05**（通用编码任务）+ **C01–C03**（CLI 特有维度）。
-**基线仓库**：`atlas-bench-fixture` @ `bench-baseline`（commit `5db3db6`）——原基线 keel3d 已随 KEEL 3D 废弃而更换。协议见 [`_protocol.md`](./_protocol.md)。
 
-CLI 赛道除共用 IDE 赛道的任务框架外，还需覆盖三个特有维度：
+**基线仓库**：`atlas-bench-fixture` @ `bench-baseline`（commit `5db3db6`）——原基线 keel3d 已随 KEEL 3D 废弃而更换。
+
+协议见 [`_protocol.md`](./_protocol.md)。
+
+CLI 形态除共用 IDE 形态的任务框架外，还需覆盖三个特有维度：
 
 | 维度 | 测试内容 | 状态 |
 |---|---|---|
@@ -11,7 +14,7 @@ CLI 赛道除共用 IDE 赛道的任务框架外，还需覆盖三个特有维�
 | CI 环境 | 无 TTY 下是否正常、审批是否卡住 | 已设计（C02） |
 | Git 集成深度 | L0 纯文件 / L1 只读 / L2 可提交 / L3 完整 | 已设计（C03） |
 
-任务框架与 IDE 赛道共用：
+任务框架与 IDE 形态共用：
 
 | id | 目标 | 状态 |
 |---|---|---|
