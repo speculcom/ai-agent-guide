@@ -107,12 +107,12 @@ MCP server 本身就是"工具"，所以这个维度要换成：
 
 **输出质量比数量重要**。10 个返回自由文本的 tool，不如 3 个返回结构化结果的 tool。
 
-判定见 [mcp/taxonomy/](../tracks/mcp/taxonomy/)。
+判定见 [mcp/taxonomy/](../tracks/tools/taxonomy/)。
 
 ---
 
 ## 关联维度
 
 - [维度 7 · 权限与限制](./permissions.md) — 工具边界决定权限风险
-- [MCP 传输方式](../tracks/mcp/taxonomy/transport.md) — MCP 赛道的工具接入方式
+- [MCP 传输方式](../tracks/tools/taxonomy/transport.md) — MCP 赛道的工具接入方式
 - [维度 1 · 模型与开放条件](./model-access.md) — 有连接器不等于有模型额度
