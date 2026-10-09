@@ -58,12 +58,20 @@ axes:
     工作目录用 `ClaudeAgentOptions(cwd="/path/to/project")` 指定。
     **这是与本站其他对象最大的风险差异 —— 默认就能读文件、改文件、跑 Bash。**
   background: >-
-    **进程关了就停，但会话可续。** 错误类型里 `CLIConnectionError` / `CLINotFoundError` /
-    `ProcessError` / `ResultError` 揭示了进程依赖结构。
-    **会话持久化有官方支撑**：README 提到「records it, and reuses it on every later request,
-    **including after you resume the session**」，以及 CHANGELOG 的
-    「session forking features」—— 即 resume + fork 是一等能力。
-    具体存储位置本次未核验。
+    **进程关了就停，但会话有官方持久化与续跑语义。**
+    官方 sessions 页原文："A session is the conversation history the SDK
+    accumulates... The SDK writes it to disk automatically"。
+    存储位置已核验：`~/.claude/projects/<encoded-cwd>/*.jsonl`
+    （设 `CLAUDE_CONFIG_DIR` 则在其 `projects/` 下）。
+    续跑三档：`continue_conversation=True` 续最近会话、
+    `resume=<session_id>` 续指定会话（官方原文 "picks up with full
+    context from wherever the session left off"）、`fork_session=True` 分叉。
+    **真正的「关机也跑」不存在**：官方 hosting 页说明一个会话等于一个
+    `claude` CLI 子进程，进程停则 loop 停；跨主机续跑要把 transcript
+    镜像到共享存储（`SessionStore` 适配器）。
+    ⚠ 官方提醒：session 持久化的是**对话**而非文件系统
+    （"Sessions persist the conversation, not the filesystem"），
+    文件回滚要用 file checkpointing。
   tools: >-
     **两个入口，能力不同**（这是很关键的设计细节）：
     `query()` 是单向提问，只能用 CLI 自带工具集；
@@ -108,6 +116,7 @@ pitfalls:
   - 以为 TS 版授权与 Python 版一致 —— **核验发现 TS 版无 LICENSE 文件、license API 返回 null，授权状态不明**（核验 2026-09-30）
 
 tags: [Python, 开源, MIT, 编程底座, CLI包装, hooks, 权限链, 仅Claude]
+related: [claude-code-cli]
 
 sources:
   - label: Claude Agent SDK for Python · 仓库
@@ -127,6 +136,12 @@ sources:
     kind: docs
   - label: 修改 system prompts（snapshot 语义的权威说明）
     url: https://code.claude.com/docs/en/agent-sdk/modifying-system-prompts
+    kind: docs
+  - label: Work with sessions（会话写盘位置、continue/resume/fork、跨主机 SessionStore，核验 2026-10-08）
+    url: https://code.claude.com/docs/en/agent-sdk/sessions
+    kind: docs
+  - label: Hosting the Agent SDK（subprocess 模型、本地磁盘状态、跨主机持久化，核验 2026-10-08）
+    url: https://code.claude.com/docs/en/agent-sdk/hosting
     kind: docs
   - label: Anthropic 商业条款（README 末节指向，授权关键）
     url: https://www.anthropic.com/legal/commercial-terms
@@ -301,7 +316,7 @@ Python 版是 MIT + 商业条款；TS 版**无文件可查**。选型时若要�
   **v3 计划记录的 0.2.162 已被超越**（今天发布 0.2.163）
 - ⚠ **异常发现**：仓库 `description` 与 `homepage` 均为 `null`；**TS 版无 LICENSE 文件、license API 返回 null**
 - ❌ 未核验：Anthropic 商业条款的具体条款内容（未读原文，属法务范畴）、
-  会话的存储位置与并发语义、session forking 的具体形态、
+  会话的多进程并发语义、session forking 的具体形态与限制、
   `can_use_tool` 与 `permission_mode` 的完整优先级链（README 只给了概述，细节在 permissions 专章）
 
 **一处计划数据修正**：v3 计划 §2.2 记 Claude Agent SDK 为 v0.2.162，
@@ -325,7 +340,7 @@ Python 版是 MIT + 商业条款；TS 版**无文件可查**。选型时若要�
 
 - Anthropic 商业条款的具体约束（尤其面向客户的场景）
 - TypeScript 版的授权状态
-- 会话持久化的存储位置与多进程并发语义
+- 会话持久化的多进程并发语义
 - session forking 的具体形态与限制
 - `permission_mode` 全部取值与 `can_use_tool` 的优先级细节
 - 捆绑 CLI 版本与系统安装版本的兼容差异
