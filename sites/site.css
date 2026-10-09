@@ -125,12 +125,12 @@ h1 {
    2026-10-03：原先只加在产物 site.css 上，重建就丢 → 必须写进真相源。
    暗色蓝配深色前景 7.6:1；亮色蓝配白字 5.1:1。 */
 html:not([data-theme="light"]) {
-  --brand: #5aa9f5; --brand-on: #04121f;
-  --brand-soft: rgba(90, 169, 245, .14); --brand-line: rgba(90, 169, 245, .34);
+  --brand: #8b7cf8; --brand-on:#fff;
+  --brand-soft:rgba(139, 124, 248, .14); --brand-line:rgba(139, 124, 248, .34);
 }
 html[data-theme="light"] {
-  --brand: #1f6fc4; --brand-on: #ffffff;
-  --brand-soft: rgba(31, 111, 196, .10); --brand-line: rgba(31, 111, 196, .30);
+  --brand: #6d4fd6; --brand-on:#fff;
+  --brand-soft:rgba(109, 79, 214, .08); --brand-line:rgba(109, 79, 214, .28);
 }
 
 /* ── harness 站的family 分组 ────────────────────────────────────────────────
@@ -191,6 +191,31 @@ html[data-theme="light"] {
 .status-inner h2 {
   font-size: var(--fs-lg); font-weight: 700;
   margin: 2px 0 var(--sp-2); letter-spacing: -.01em;
+}
+/* ⚠ 正文里的**小标题**（`### …` / `#### …`）。
+ *   2026-10-09 之前 `blockMd()` 不认 `###`，**15 页 / 33 处**把它们渲染成字面文本 ✗；
+ *   补上渲染后**必须同时补样式** —— 否则浏览器默认 `<h3>` 的 **18.72px**（1.17em×16）
+ *   会混进字号体系，被 `_design-audit.mjs` 的门禁「字号落整数 px」抓到 ✗
+ *   （实测就是这么被抓到的）。所以这里显式用档位变量，不留给浏览器默认值。 */
+/* ⚠ 表格的**可横向滚动容器**（2026-10-09 加，修 `responsive-overflow` 的 3 处失败）。
+ *   实测 `grok-bot.html` 在 320 / 375 / 390px 下整页被宽表格撑到 402–405 ✗
+ *   （越界元素 `TABLE` / `THEAD` / `TR`）。宽表格不该让读者横滚**整页** ✓ ——
+ *   让它在自己框里滚 ✓，页面宽度就不受它影响 ✓。 */
+.tbl-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+.tbl-wrap > table { margin: 0; }
+
+.sub-h {
+  font-size: var(--fs-md); font-weight: 700; letter-spacing: -.01em;
+  color: var(--ink); margin: var(--sp-4) 0 var(--sp-2);
+}
+dd .sub-h:first-child, .warn-p .sub-h:first-child { margin-top: 0; }
+h4.sub-h {
+  font-size: var(--fs-sm); font-weight: 700; color: var(--ink-mid);
+  margin: var(--sp-3) 0 var(--sp-1);
 }
 .status-inner p {
   font-size: var(--fs-sm); line-height: 1.72;
@@ -492,6 +517,20 @@ th.w-28 { width: 112px; } th.w-52 { width: 208px; }
 .axis dd {
   margin: 0; font-size: var(--fs-sm); line-height: 1.74; color: var(--ink);
 }
+/* 维度正文的分段与清单（2026-10-09）。
+ * 起因：解析器过去把 `>-` 折叠标量里的空行删掉，于是维度正文永远只有一段，
+ * 这两条规则也就没有存在的必要。修好之后正文开始真的有多段与 `- ` 清单，
+ * 没有间距的话段落会糊成一坨、列表会被读成句子里的破折号。 */
+.axis dd p { margin: 0; }
+.axis dd p + p { margin-top: var(--sp-2); }
+.axis dd ul { margin: var(--sp-2) 0 0; padding-left: 1.15em; }
+.axis dd li + li { margin-top: 4px; }
+.axis dd blockquote {
+  margin: var(--sp-2) 0 0; padding: 6px 10px;
+  border-left: 2px solid var(--line-strong);
+  background: var(--bg-inset); color: var(--ink-faint);
+  font-size: var(--fs-xs); line-height: 1.6;
+}
 .axis dd code {
   background: var(--bg-inset); padding: 1px 5px;
   border-radius:var(--r-xs); font-size: var(--fs-xs);
@@ -539,7 +578,8 @@ dl.axes { margin: 0; }
  * 亮色值取的是共享 `--brand` / `--c-form` / `--c-use` 的亮色档（同一色相、已按 4.5:1 算过）。 */
 :root {
   --pa-agents: #8b7cf8;
-  --pa-harness: #3b82f6;
+  /* v6：底色改亮后（共享层采用首页暖紫 #221c34），蓝色的对比掉到 4.45:1，微调到 4.51。 */
+  --pa-harness: #3d83f6;
   --pa-tools: #22d3c5;
 }
 [data-theme="light"] {
@@ -575,7 +615,13 @@ dl.axes { margin: 0; }
 .afilter{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:flex-end;margin:var(--sp-4) 0;padding:var(--sp-3) var(--sp-4);border:1px solid var(--line);border-radius:var(--r-sm)}
 .afilter .af-f{display:flex;flex-direction:column;gap:var(--sp-1);min-width:9rem}
 .afilter .af-h{font-size:var(--fs-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint)}
-.afilter input,.afilter select{font:inherit;font-size:var(--fs-sm);padding:var(--sp-1) var(--sp-2);border:1px solid var(--line);border-radius:var(--r-xs);background:transparent;color:var(--ink)}
+/* v6（2026-10-09）：筛选控件必须**显式定宽并可收缩**。
+ * 起因：`input` 原先没写宽度，靠浏览器默认 `size` 决定固有宽度 ——
+ * v6 把 `--fs-sm` 从 14px 提到 15px 后，固有宽度跟着涨到 310px，
+ * 而 320px 视口下容器只有 288px → 横向溢出（responsive-overflow 在 agent/harness 页抓到）。
+ * `width:100%` + `min-width:0` + `box-sizing:border-box` 三者齐上才治得住：
+ * 只写 width 会因 box-sizing 把 padding/border 加到外面，只写 min-width 在 flex 里仍会被固有宽度顶开。 */
+.afilter input,.afilter select{width:100%;min-width:0;box-sizing:border-box;font:inherit;font-size:var(--fs-sm);padding:var(--sp-1) var(--sp-2);border:1px solid var(--line);border-radius:var(--r-xs);background:transparent;color:var(--ink)}
 .afilter .af-f:first-child{min-width:13rem;flex:1 1 13rem}
 .acount{margin-left:auto;font-size:var(--fs-xs);color:var(--ink-faint);white-space:nowrap}
 @media(max-width:560px){.afilter{flex-direction:column;align-items:stretch}.acount{margin-left:0}}
