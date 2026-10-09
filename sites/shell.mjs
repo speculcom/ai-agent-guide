@@ -29,6 +29,9 @@ export const NAV = [
   { key: 'learn', href: 'https://learn.specul.com/', zh: '学 AI', en: 'Learn' },
   { key: 'agent', href: 'https://agent.specul.com/', zh: 'Agent', en: 'Agent' },
   { key: 'models', href: 'https://models.specul.com/', zh: '本地模型', en: 'Models' },
+  // 2026-10-05 加「AI 做游戏」（共 6 项）—— ⚠ 本文件是 _sites/_template/shell.mjs 的**分叉副本**，
+  //   改导航必须两处都改，否则 agent 站会少一项（今天已踩：只改 template，agent 站仍是 5 项）。
+  { key: 'vg', href: 'https://vg.specul.com/', zh: 'AI 做游戏', en: 'Vibe Gaming' },
   { key: 'nav', href: 'https://nav.specul.com/', zh: '导航', en: 'Directory' },
 ];
 
@@ -54,8 +57,38 @@ ${items}
           <button class="icon-btn" id="langBtn" type="button" aria-label="Switch language" title="Switch language">EN</button>
         </span>
       </nav>
+      <!-- B6（2026-10-09）：与共享 shell 同步加的移动端导航入口。
+           ⚠ 本文件是 agent 站**自己的** shell 副本（它多一层分区切换），
+             所以每次改共享 shell 的骨架，这里也要跟一次 —— 这是双份实现固有的代价。
+             样式与行为都在共享 brand.css / brand.js 里，这里只出标记。 -->
+      <button class="nav-burger" type="button" aria-label="打开菜单" aria-expanded="false" aria-controls="navDrawer">
+        <i></i><i></i><i></i>
+      </button>
     </div>
-  </header>`;
+  </header>
+${drawer(current)}`;
+}
+
+/** B6：站点导航抽屉（与共享 shell 同一份内容） */
+export function drawer(current) {
+  const items = NAV.map((n) => {
+    const cur = n.key === current ? ' aria-current="page"' : '';
+    return `      <a href="${n.href}"${cur}><span><span data-zh>${n.zh}</span><span data-en>${n.en}</span></span><span class="ar" aria-hidden="true">→</span></a>`;
+  }).join('\n');
+  return `  <div class="nav-scrim"></div>
+  <aside class="nav-drawer" id="navDrawer" aria-hidden="true" aria-label="站点导航">
+    <div class="nav-drawer-h">
+      <span class="brand-name"><span data-zh>${BRAND.zh}</span><span data-en>${BRAND.en}</span></span>
+      <button class="nav-dclose" type="button" aria-label="关闭">×</button>
+    </div>
+    <nav class="nav-drawer-list">
+${items}
+    </nav>
+    <div class="nav-drawer-foot">
+      <p><span data-zh>6 个站，各管一件事</span><span data-en>Six sites, one job each</span></p>
+      <nav><a href="https://specul.com/legal.html"><span data-zh>法律条款</span><span data-en>Legal terms</span></a></nav>
+    </div>
+  </aside>`;
 }
 
 /** footer —— repo 参数让图谱站链自己的数据仓库（默认图谱仓库，不再链 keel3d） */
