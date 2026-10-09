@@ -32,7 +32,7 @@ axes:
   runtime: >-
     本地 **Python** 进程，在终端内运行（PyPI 包 aider-chat，官方徽章显示 680 万次安装）。
     生命周期绑定终端会话，退出即结束。
-    另有 watch 常驻形态（见 [IDE 形态条目](../../ide/products/aider.md)）。
+    另有 watch 常驻形态（见 [IDE 形态条目](../../agents/products/aider.md)）。
   local_files: >-
     **Repo Map 是本工具的核心机制**（官方文档 `docs/repomap.md` 原文）：
     Aider 使用「一份简洁的整个 git 仓库的地图」，
@@ -43,10 +43,17 @@ axes:
     一是帮助它理解正在编辑的代码及其与代码库其他部分的关系；
     二是帮助它写新代码时**复用代码库里已有的库、模块与抽象**。
     支持 100+ 编程语言。
-    **大仓库的 repo map 耗时与 token 开销本次未实测，记为未知。**
+    **文件访问范围**：能编辑的是你 `/add` 进 chat 的文件，
+    但 repo map 扫描整个 git 仓库；范围受 `.gitignore` / `.aiderignore`
+    约束（`--aiderignore` 指定忽略文件，默认 git 根目录 `.aiderignore`；
+    `--subtree-only` 只考虑当前子树）。
+    仓库须是 git 仓库——官方 `docs/git.html`：无 git 时会先问你是否新建。
+    **map 的 token 预算由 `--map-tokens` 控制、刷新频率由 `--map-refresh`
+    （auto/always/files/manual）控制；大仓库的实际耗时与 token 开销
+    官方未给数字，本站未实测。**
   background: >-
     不支持终端形态的后台长任务。
-    另有 watch 模式（见 [IDE 形态条目](../../ide/products/aider.md)）：
+    另有 watch 模式（见 [IDE 形态条目](../../agents/products/aider.md)）：
     常驻监听文件变化并响应编辑器里的 AI 注释，
     **但那是本地进程常驻，不是云端后台**。
   tools: >-
@@ -54,15 +61,36 @@ axes:
     自动用合理的 commit message 提交，
     可用熟悉的 git 工具 diff、管理与撤销 AI 改动。
     官方文档另有 `docs/languages.md`（语言支持）与 `docs/git.md`。
-    **MCP 接入方式本次未核验，记为未知。**
+    **可配置 lint / 测试命令自动运行**（`docs/usage/lint-test.html`）：
+    `--lint-cmd` / `--auto-lint`（默认对编辑过的文件跑 lint）、
+    `--test-cmd` / `--auto-test`；`/run` 跑 shell 命令并可选加输出进 chat、
+    `/web` 抓网页转 markdown、`/paste` 贴图。
+    **无内置 MCP 支持**——官方选项表与文档站导航都没有任何 MCP 条目
+    （已查 `config/options.html` 与 docs 目录），故不能接 MCP server。
   context: >-
     **Repo Map 提供全库结构视图**，每次请求随附（见 local_files）。
-    **上下文窗口大小与压缩策略本次未核验，记为未知。**
+    **上下文超限用「摘要压缩」而非简单截断**：官方选项
+    `--max-chat-history-tokens` 描述为
+    "Soft limit on tokens for chat history, after which summarization begins"
+    （超过软上限即开始摘要，摘要由 `--weak-model` 生成）；
+    每个模型的上下文窗口与费用由 `--model-metadata-file` 提供。
+    会话内可用 `/tokens` 查看用量、`/drop`、`/clear`、`/reset` 腾空间；
+    **默认不跨启动恢复**（`--restore-chat-history` 默认 False），
+    chat 历史默认写 `.aider.chat.history.md`。
   permissions: >-
-    **具备自动提交能力**（auto-commit），这是它的一体化设计而非附加功能。
+    **默认自动提交**（`--auto-commits` 默认 True），
+    这是它的一体化设计而非附加功能；
+    `--dirty-commits`（默认 True）会先把已有的未提交改动也提交。
     撤销路径是 **git 本身**（不是工具提供的回滚功能）——
-    README 明确说「用熟悉的 git 工具 diff、管理与撤销 AI 的改动」。
-    **沙箱机制与「执行命令前是否询问」本次未核验，记为未知。**
+    README 明确说「用熟悉的 git 工具 diff、管理与撤销 AI 的改动」，
+    会话内用 `/undo`。
+    **存在确认环节**：官方提供 `--yes-always`（别名 `--yes`），
+    描述为 "Always say yes to every confirmation"——
+    即默认会对某些操作询问，加此开关才全自动；
+    `--dry-run` 可不改文件地预演。
+    **无沙箱机制**——官方选项表没有任何沙箱项；
+    除你配置的 lint / 测试命令（`--auto-lint` / `--auto-test`）外，
+    它不会自主执行任意 shell 命令（`--suggest-shell-commands` 只是建议）。
   fit: >-
     希望 AI 改动始终留在 git 版本控制里、可 diff 可撤销的场景。
     需要连接本地模型或多家云端模型的用户。
@@ -75,6 +103,7 @@ pitfalls:
   - 以为自动提交是副作用，实际这是它的核心设计，需要先熟悉 git 撤销流程
 
 tags: [编程, 终端, 本地, 开源]
+related: [git]
 
 sources:
   - label: Aider · 仓库 README
@@ -89,13 +118,25 @@ sources:
   - label: Aider · 变更历史
     url: https://aider.chat/HISTORY.html
     kind: changelog
+  - label: Aider · 选项参考（--aiderignore/--auto-commits/--yes-always/--map-tokens/--max-chat-history-tokens）
+    url: https://aider.chat/docs/config/options.html
+    kind: docs
+  - label: Aider · Git 集成（自动提交、dirty 提交、/undo、默认跳过 pre-commit hook）
+    url: https://aider.chat/docs/git.html
+    kind: docs
+  - label: Aider · Linting and testing（--lint-cmd/--test-cmd/--auto-lint/--auto-test）
+    url: https://aider.chat/docs/usage/lint-test.html
+    kind: docs
+  - label: Aider · Scripting（--yes/--auto-commits/--dry-run 官方帮助文本）
+    url: https://aider.chat/docs/scripting.html
+    kind: docs
 
 link:
   url: https://github.com/Aider-AI/aider
   kind: official
 
-last_verified: 2026-09-29
-last_updated: 2026-09-29
+last_verified: 2026-10-08
+last_updated: 2026-10-08
 lifecycle: maintenance
 confidence: partial
 ---
@@ -147,8 +188,10 @@ which helps it work well in larger projects.
 
 这与其他工具的"按需检索文件"是不同思路——**先建全库结构图，再据此工作**。
 
-**注意**：具体算法（如何选文件进 map、如何控制 token 预算）
-文档站有说明但**本次未核验**，记为未知。
+**注意**：A6.2 已核到 —— **token 预算由 `--map-tokens` 控制**
+（设为 0 即关闭），刷新频率由 `--map-refresh`（auto/always/files/manual）控制；
+**如何选文件进 map 的具体排序算法**官方 `docs/repomap.md` 有说明，
+本站未逐行核验，大仓库实际开销官方也未给数字。
 
 ## Git 集成是设计的一部分，不是副作用
 
@@ -180,7 +223,9 @@ Percentage of the new code in Aider's last release written by Aider itself
 `confidence: partial` 的原因：
 
 - ✅ 已核验：仓库、许可（Apache-2.0）、最新版本与日期、维护状态、star、PyPI 安装量、README 全部能力描述
-- ⚠️ 部分未知：Repo Map 算法、上下文策略、MCP 支持、沙箱与确认机制
+- ✅ A6.2 本轮新核：文件范围与忽略规则、自动提交/确认机制（`--auto-commits`/`--yes-always`）、
+  lint/测试命令、上下文摘要压缩（`--max-chat-history-tokens`）、**官方无 MCP 支持**
+- ⚠️ 官方未给数字：大仓库 Repo Map 的实际耗时与 token 开销
 
 **维护状态的不确定性来自"未来会不会更新"**——这本身就是选型风险。
 
@@ -202,11 +247,8 @@ Percentage of the new code in Aider's last release written by Aider itself
 
 ## 未知项清单
 
-- Repo Map 的具体算法与 token 预算控制
-- 上下文窗口与压缩策略
-- 是否支持 MCP
-- 执行命令前是否有确认机制
-- watch 模式的具体行为
+- 大仓库 Repo Map 的实际耗时与 token 开销（官方未给数字，待实测）
+- `--yes-always` 默认会就哪些具体操作询问（官方未逐项列举）
 
 ## 相关条目
 
