@@ -3,7 +3,7 @@
 **主题**：装在编辑器 / 终端里自己跑的 AI 编码 agent
 
 > **2026-10-02 重构**：原`ide` + `cli` 两个赛道合并为一个 `agents` 赛道。
-> **档案一份没少**（14 份：IDE 形态 8 + CLI 形态 6），`track:` 字段仍是
+> **档案一份没少**（合并当时 14 份：IDE 形态 8 + CLI 形态 6；2026-10-08 A6.1 扩至 27 份），`track:` 字段仍是
 > `ide` / `cli` 两种取值 —— 它是**内容分类**，脚本依赖它，不要改成 `agents`。
 > 合并的只有**站点层**：以前两个站各一张表，现在合成一个站的两个分区。
 >
@@ -55,7 +55,7 @@
 
 ## 收录对象
 
-### IDE 形态（`track: ide`，8 份）
+### IDE 形态（`track: ide`，11 份）
 
 | id | 名称 | 厂商 |
 |---|---|---|
@@ -63,43 +63,55 @@
 | `claude-code` | Claude Code IDE 扩展 | Anthropic |
 | `cline` | Cline | Cline |
 | `codex-ide` | Codex IDE 扩展 | OpenAI |
+| `continue` | Continue（已归档：被 Cursor 收购，仓库 read-only） | Continue |
 | `copilot` | GitHub Copilot | GitHub |
 | `cursor` | Cursor | Anysphere |
-| `windsurf` | Windsurf | Codeium |
+| `junie` | Junie | JetBrains |
+| `kiro` | Kiro | AWS |
+| `windsurf` | Windsurf / Devin Desktop | Cognition |
 | `zed` | Zed | Zed Industries |
 
-### CLI 形态（`track: cli`，6 份）
+### CLI 形态（`track: cli`，12 份）
 
 | id | 名称 | 厂商 |
 |---|---|---|
 | `aider-cli` | Aider | Aider-AI |
+| `amp` | Amp | Sourcegraph |
 | `claude-code-cli` | Claude Code CLI | Anthropic |
 | `codex-cli` | Codex CLI | OpenAI |
+| `copilot-cli` | GitHub Copilot CLI | GitHub |
 | `crush` | Crush | Charm |
+| `cursor-cli` | Cursor CLI | Anysphere |
+| `factory-droid` | Droid | Factory AI |
 | `gemini-cli` | Gemini CLI | Google |
+| `goose` | Goose | Agentic AI Foundation |
 | `opencode` | OpenCode | OpenCode |
+| `warp` | Warp | Warp |
 
 ### 厂商云形态（v4 新增）
 
-本机不装任何东西、在厂商云上持续工作的成品 agent。三份都是 2026-10-03 补齐的。
+本机不装任何东西、在厂商云上持续工作的成品 agent。前三份 2026-10-03 补齐；Jules 2026-10-08 补入。
 
 | id | 名称 | 厂商 | 形态要点 |
 |---|---|---|---|
 | `openai-dot` | OpenAI Dot | OpenAI | 沙盒内跑代码 · 运行期监控可真拦下来 · 授权本机后能读桌面表格 |
 | `meta-muse` | Meta Muse | Meta | 后台常驻 · 每个写操作都要批准 · 记忆存成可查文件 |
 | `grok-bot` | xAI Grok Bot | xAI | 按次付费 · 每个动作都要单独批准 · 审批不外溢到下一次 |
+| `jules` | Jules | Google | 云 VM 异步执行 · 批准计划后走开 · 产出是 PR（API 可自动批准） |
 
 ---
 
 ## 同一产品两种形态：**不合并档案**
 
-三组产品各有两份档案。**它们不是重复记录**，名字已经区分了形态：
+五组产品各有两份档案。**它们不是重复记录**，名字已经区分了形态：
 
 | IDE 形态 | CLI 形态 | 差别在哪 |
 |---|---|---|
 | `Aider Watch 模式`<br>homepage = aider.chat/docs/usage/watch.html | `Aider`<br>homepage = github.com/Aider-AI/aider | 一个是常驻看diff 的模式，一个是交互式编码工具 |
 | `Claude Code IDE 扩展`<br>homepage = code.claude.com/docs/en/overview | `Claude Code CLI`<br>homepage = github.com/anthropics/claude-code | 扩展装在编辑器里，CLI 在终端跑，权限模型不同 |
 | `Codex IDE 扩展`<br>homepage = developers.openai.com/codex/ide | `Codex CLI`<br>homepage = github.com/openai/codex | 同上 |
+| `GitHub Copilot`（全形态主条）<br>homepage = github.com/features/copilot | `GitHub Copilot CLI`<br>homepage = docs.github.com 的 CLI 文档 | 主条覆盖网站/编辑器/CLI 全生态，CLI 条目只写终端形态差异 |
+| `Cursor`<br>homepage = cursor.com | `Cursor CLI`<br>homepage = cursor.com/cli | 编辑器与终端两种运行面，共用账户、模型目录与 mcp.json |
 
 **为什么不合并**：两者��� `model_access` / `runtime` / `permissions` 三个维度上**取值不同**。
 合并成一份会丢掉这些差异，而这三个维度正是本站比较的依据。
@@ -197,8 +209,8 @@ MCP 与多provider 接入；与单个模型能力不是一回事。
                      ├── codex-ide ↔ codex-cli
                      └── aider ↔ aider-cli
 
-harness/   自建底座：Agent 运行时 / 编排框架 / SDK（10 份）
-tools/     工具层：MCP server（9 份，按「缺什么装什么」查表）
+harness/   自建底座：Agent 运行时 / 编排框架 / SDK（15 份）
+tools/     工具层：MCP server（10 份，按「缺什么装什么」查表）
 ```
 
 **关键分界**：本赛道是**装来就能用的成品**，harness 是**自己搭底座**，
