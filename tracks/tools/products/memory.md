@@ -21,35 +21,47 @@ pricing_pitfalls: []
 axes:
   model_access: >-
     本身不调用模型，是被客户端调用的接口实现。
-    设计与 Claude 的持久记忆场景绑定（README 明言「lets Claude remember information about the user across chats」）。
+
+    设计与 Claude 的持久记忆场景绑定（README 明言**「lets Claude remember information about the user across chats」**）。
   runtime: >-
     本地 Node.js 进程，通过 stdio 通信。
+
     数据持久化在本地 JSONL 文件，生命周期独立于客户端进程。
   local_files: >-
     **只访问自己的记忆文件**（默认在 memory 目录下），不提供任意文件读写工具。
+
     存储位置可通过参数指定，实际可访问范围取决于该路径的权限。
   background: >-
     server 进程随客户端生死，
+
     但**记忆数据持久存在磁盘上，重启后仍在**。
+
     2026-09-03 修复了图变更序列化以避免并发写竞争。
   tools: >-
-    提供 9 个工具：create_entities、create_relations、add_observations、
-    delete_entities、delete_observations、delete_relations、
-    read_graph、search_nodes、open_nodes。
+    提供 9 个工具：
+
+    - create_entities、create_relations、add_observations、delete_entities、delete_observations、delete_relations、read_graph、search_nodes、open_nodes。
+
     另暴露一个 resource：`memory://knowledge-graph`。
+
     **含 3 个删除工具**（delete_entities / delete_observations / delete_relations），
     输出为结构化 JSON，可直接消费。
   context: >-
     **这是本 server 的核心能力**：跨会话持久记忆。
+
     用知识图谱结构存储实体、关系与观察，
     支持检索（search_nodes）与按名读取（open_nodes）。
   permissions: >-
     **无独立审批机制**。
+
     记忆图谱是全局共享状态，**任何写入都会影响后续所有会话**。
+
     提供 3 个删除工具，可删除实体、观察与关系。
+
     2026-09-03 增加了 search_nodes 查询长度限制与去重修复。
   fit: >-
     让 Agent 跨会话记住用户偏好、项目背景等长期信息。
+
     不适合存放需要审计或追溯的场景（图谱会原地修改）。
 
 pitfalls:
@@ -60,13 +72,17 @@ pitfalls:
 mcp:
   transport: >-
     仅 stdio。本地 Node.js 进程，通过标准输入输出通信（npx 启动）。
+
     官方 README（2026-10-08 全文核验）没有远程传输的官方启动方式。
   auth: >-
     无独立认证层。stdio 形态继承客户端用户权限。
+
     记忆文件本身无加密，**任何能读该文件的进程都能获取全部记忆内容**。
   scope: >-
     **作用域最窄的一类**：只读写自己的记忆文件，不提供任意文件访问工具。
+
     权限风险不在文件范围，而在**内容敏感度**——
+
     记忆里可能有用户偏好、项目信息等隐私，
     且文件无加密、无独立访问控制。
 
@@ -77,12 +93,15 @@ sources:
   - label: MCP · Memory Server
     url: https://github.com/modelcontextprotocol/servers/tree/main/src/memory
     kind: docs
+
   - label: MCP · Memory 目录变更历史
     url: https://github.com/modelcontextprotocol/servers/commits/main/src/memory
     kind: changelog
+
   - label: MCP · Servers Releases
     url: https://github.com/modelcontextprotocol/servers/releases
     kind: changelog
+
   - label: MCP · Servers 仓库 README（生产环境免责声明）
     url: https://github.com/modelcontextprotocol/servers
     kind: repo
@@ -139,7 +158,7 @@ confidence: verified
 | `delete_observations` | **删除** | 删除观察 |
 | `delete_relations` | **删除** | 删除关系 |
 
-**6 读 3 写 3 删除**。三个删除工具是本赛道里删除能力最强的。
+**6 读 3 写 3 删除**。删除能力给了三个工具，是本条目里最厚的一组。
 
 ## 权限风险的特点
 
@@ -171,8 +190,8 @@ confidence: verified
 
 让 Agent 跨会话记住用户偏好、项目背景等长期信息。
 
-**不适合**存放需要审计或追溯的场景（图谱会原地修改），
-也不适合存放高敏感信息**——记忆文件无加密、无独立访问控制，
+**不适合存放需要审计或追溯的场景**（图谱会原地修改），
+**也不适合存放高敏感信息**——记忆文件无加密、无独立访问控制，
 任何能读该文件的进程都能拿到全部记忆。
 
 ## 实测记录
