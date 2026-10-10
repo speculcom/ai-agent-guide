@@ -11,10 +11,15 @@
 // ============================================================================
 
 /** 品牌唯一真相源（改这里等于改全站） */
+// ⚠ 本文件是 `_sites/_template/shell.mjs` 的**分叉副本**（不是同一个文件）。
+//   改站名/站名副标题/导航时**两边都要改** —— 或者更稳：改真相源后重新 vendor。
+//   2026-10-10 加品牌副名时就是这个分叉导致 learn 与 agent 一度拿不到。
 export const BRAND = {
   zh: '投机取巧',
   en: 'Speculative Speculation',
   short: '投机取巧',
+  /* 副标题只在中文态显示：英文态主名已是英文，副名同句会「重影」 */
+  sub: 'Speculative Speculation',
   repo: 'https://github.com/speculcom/ai-coding-agent-atlas',
 };
 
@@ -48,6 +53,7 @@ export function header(current) {
         <span class="brand-dot" aria-hidden="true"></span>
         <span class="brand-text">
           <span class="brand-name" id="markName" data-zh-name="${BRAND.zh}" data-en-name="${BRAND.en}">${BRAND.zh}</span>
+          <span class="brand-sub" id="markSub" data-zh-sub="${BRAND.sub}" data-en-sub="">${BRAND.sub}</span>
         </span>
       </a>
       <nav class="nav-links" aria-label="站点导航">
@@ -79,6 +85,7 @@ export function drawer(current) {
   <aside class="nav-drawer" id="navDrawer" aria-hidden="true" aria-label="站点导航">
     <div class="nav-drawer-h">
       <span class="brand-name"><span data-zh>${BRAND.zh}</span><span data-en>${BRAND.en}</span></span>
+      <span class="brand-sub" data-zh-sub="${BRAND.sub}" data-en-sub="">${BRAND.sub}</span>
       <button class="nav-dclose" type="button" aria-label="关闭">×</button>
     </div>
     <nav class="nav-drawer-list">
