@@ -58,11 +58,13 @@ export function header(current) {
       </a>
       <nav class="nav-links" aria-label="站点导航">
 ${items}
-        <span class="nav-tools">
-          <button class="icon-btn" id="themeBtn" type="button" aria-label="切换明暗主题" title="切换明暗主题">☾</button>
-          <button class="icon-btn" id="langBtn" type="button" aria-label="Switch language" title="Switch language">EN</button>
-        </span>
       </nav>
+      <!-- 2026-10-10：.nav-tools 移到 nav 元素外，与共享 shell 保持同一骨架
+           （放里面时窄屏按钮组会被链接挤到第三条）。详见共享 shell 同处注释。 -->
+      <span class="nav-tools">
+        <button class="icon-btn" id="themeBtn" type="button" aria-label="切换明暗主题" title="切换明暗主题">☾</button>
+        <button class="icon-btn" id="langBtn" type="button" aria-label="Switch language" title="Switch language">EN</button>
+      </span>
       <!-- B6（2026-10-09）：与共享 shell 同步加的移动端导航入口。
            ⚠ 本文件是 agent 站**自己的** shell 副本（它多一层分区切换），
              所以每次改共享 shell 的骨架，这里也要跟一次 —— 这是双份实现固有的代价。
