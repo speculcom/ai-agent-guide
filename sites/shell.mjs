@@ -101,7 +101,31 @@ ${items}
 }
 
 /** footer —— repo 参数让图谱站链自己的数据仓库（默认图谱仓库，不再链 keel3d） */
-export function footer(repo = 'https://github.com/speculcom/ai-coding-agent-atlas', repoLabel = 'GitHub') {
+/** 页脚「开源」链接文案（与共享 shell 同步，2026-10-10） */
+export const OPEN_SOURCE_LABEL = '<span data-zh>开源</span><span data-en>Open source</span>';
+
+/** 底部 tab bar（手机端 App 式固定导航）—— 与共享 shell 同一份实现，见该文件注释。
+ *  ⚠ 本文件是 agent 站自己的 shell 副本，改共享 shell 的骨架这里也要跟一次。 */
+export function tabbar(current) {
+  const items = [
+    { key: 'www', ti: '◎', zh: '首页', en: 'Home', plain: false },
+    { key: 'learn', ti: '▤', zh: '学 AI', en: 'Learn', plain: false },
+    { key: 'agent', ti: '◈', zh: 'Agent', en: 'Agent', plain: true },
+    { key: 'models', ti: '▦', zh: '模型', en: 'Models', plain: false },
+  ].map(({ key, ti, zh, en, plain }) => {
+    const n = NAV.find((x) => x.key === key);
+    const cur = key === current ? ' aria-current="page"' : '';
+    const label = plain ? zh : `<span data-zh>${zh}</span><span data-en>${en}</span>`;
+    return `  <a href="${n.href}"${cur}><span class="ti" aria-hidden="true">${ti}</span>${label}</a>`;
+  }).join('\n');
+
+  return `<nav class="nav-tabbar" aria-label="快捷导航">
+${items}
+  <button type="button" id="tabMore" aria-controls="navDrawer" aria-expanded="false"><span class="ti" aria-hidden="true">⋯</span><span data-zh>更多</span><span data-en>More</span></button>
+</nav>`;
+}
+
+export function footer(repo = 'https://github.com/speculcom/ai-agent-guide', repoLabel = OPEN_SOURCE_LABEL) {
   // 2026-10-04 修：与 _sites/_template/shell.mjs 同一个问题 ——
   // 原先对 nav / www 特殊处理，输出纯中文 `${n.zh}`（无 data-en），
   // 结果英文态的页脚露出「学 AI」「本地模型」等中文（实测 2 处/页 × 42 页）。
@@ -149,13 +173,14 @@ export function shell({ current, title, desc, canonical, accent, body, repo, rep
   <link rel="stylesheet" href="${depth(assetPrefix)}brand.css" />
   <link rel="stylesheet" href="${depth(assetPrefix)}site.css" />
 ${accent ? `  <style>:root { --accent: ${accent}; }${headExtra ? '\n' + headExtra : ''}</style>\n` : ''}${jsonLd ? `  <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>\n` : ''}</head>
-<body class="brand-ambient"${accent ? ` style="--accent:${accent}"` : ''}>
+<body class="brand-ambient has-tabbar"${accent ? ` style="--accent:${accent}"` : ''}>
   <a class="t-skip" href="#main"><span data-zh>跳到主要内容</span><span data-en>Skip to main content</span></a>
 ${header(current)}
   <main id="main">
 ${body}
   </main>
 ${footer(repo, repoLabel)}
+${tabbar(current)}
   <script src="${depth(assetPrefix)}brand.js"></script>${BRIDGE}
 </body>
 </html>
