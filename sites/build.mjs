@@ -1728,8 +1728,7 @@ ${srcRows}
   return buildShell({
     current: site.navKey,
     repo: SITE.repo,
-    repoLabel: 'GitHub',
-    title: `${e.name} — ${site.short} | 投机取巧`,
+      title: `${e.name} — ${site.short} | 投机取巧`,
     desc: metaDesc(plain(`${e.name}（${e.vendor}）：${e.tagline || e.sec.oneline}`)),
     body,
     jsonLd,
