@@ -483,6 +483,16 @@ th.w-28 { width: 112px; } th.w-52 { width: 208px; }
 }
 .back:hover { color: var(--accent, var(--brand)); }
 .detail-head { display: flex; align-items: flex-start; gap: var(--sp-3); margin-bottom: var(--sp-4); }
+/* ⚠ 2026-10-10：窄屏把「图标 + 标题 + 标签」这一行**竖排**。
+   横排时 52px 的图标和标签一起挤占同一行，标题只剩 200px 宽、
+   左边缩进 84px（实测）—— 详情页标题比全站主标窄一半，看着像另一个站。
+   竖排后标题拿回整行 351px，与首页/其余站的正文列一致。
+   ⚠ 必须同时写 `align-items: stretch`：竖排后交叉轴变成宽度，
+     而父级是 `align-items: flex-start` —— 不覆盖的话标题所在那个
+     div 会收缩成 fit-content（实测宽 300、右侧多出 71px 空档）。 */
+@media (max-width: 760px) {
+  .detail-head { flex-direction: column; gap: var(--sp-2); align-items: stretch; }
+}
 .detail-head .mark { width: 52px; height: 52px; font-size: 20px; border-radius:var(--r); }
 .detail-head h1 {
   /* 2026-10-03：原 --fs-2xl(30px) → 实测详情页 h1 仅 30px，而首页 66px，差 2.2 倍。
