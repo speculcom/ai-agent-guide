@@ -28,7 +28,10 @@
 }
 h1 {
   font-size: var(--fs-3xl); line-height: var(--lh-tight);
-  font-weight: 800; letter-spacing: -.035em; margin: 0 0 var(--sp-4);
+  /* ⚠ 2026-10-10：删掉 `letter-spacing: -.035em`（与 _sites/_template/site.css 同步）。
+     共享层 brand.css 的 h1 是 -.028em；这条无前缀 h1 权重相同但排在后面，
+     会把它盖掉 → agent 首页主标字距 -1.61px vs 其余站 -1.288px。 */
+  font-weight: 800; margin: 0 0 var(--sp-4);
 }
 .lede {
   color: var(--ink-mid); font-size: 17px; line-height: 1.72;
