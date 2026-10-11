@@ -26,13 +26,10 @@
   content: ""; width: 14px; height: 2px; border-radius:var(--r-xs);
   background: var(--accent, var(--brand)); flex-shrink: 0;
 }
-h1 {
-  font-size: var(--fs-3xl); line-height: var(--lh-tight);
-  /* ⚠ 2026-10-10：删掉 `letter-spacing: -.035em`（与 _sites/_template/site.css 同步）。
-     共享层 brand.css 的 h1 是 -.028em；这条无前缀 h1 权重相同但排在后面，
-     会把它盖掉 → agent 首页主标字距 -1.61px vs 其余站 -1.288px。 */
-  font-weight: 800; margin: 0 0 var(--sp-4);
-}
+/* ⚠ 2026-10-10：整块删除这个 `h1` 规则 —— 与 _sites/_template/site.css 同步。
+   它是 brand.css 的 h1 副本（--fs-3xl 其实等于 --display-sub），只多了 24px 下边距。
+   六站主标下边距实测各不相同（0 / 4.8 / 8 / 10 / 12 / 13.8 / 20px），
+   h1 属骨架，间距也该由 brand.css 一处决定。 */
 .lede {
   color: var(--ink-mid); font-size: 17px; line-height: 1.72;
   max-width: var(--measure-wide); margin: 0;
