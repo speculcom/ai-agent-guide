@@ -229,6 +229,86 @@ If you need the raw snapshots for research, please contact us via an Issue.
 [AgentClash](https://aiagentclash.com/), but the coordinate system and division definitions
 are independently designed here.
 
+<!-- INDEX:BEGIN 由 _audit/gen-repo-docs.mjs 生成，勿手改 -->
+
+## Content index
+
+### Ready-made agents — 27
+
+Products you install and use
+
+| Name | Vendor | Form | Confidence | Lifecycle |
+|---|---|---|---|---|
+| [Aider](tracks/agents/products/aider-cli.md) | Aider-AI | cli | partial | maintenance |
+| [Aider Watch 模式](tracks/agents/products/aider.md) | Aider-AI | ide | partial | maintenance |
+| [Amp](tracks/agents/products/amp.md) | Sourcegraph | cli | partial | active |
+| [Claude Code CLI](tracks/agents/products/claude-code-cli.md) | Anthropic | cli | partial | active |
+| [Claude Code IDE 扩展](tracks/agents/products/claude-code.md) | Anthropic | ide | partial | active |
+| [Cline](tracks/agents/products/cline.md) | Cline Bot | ide | partial | active |
+| [Codex CLI](tracks/agents/products/codex-cli.md) | OpenAI | cli | partial | active |
+| [Codex IDE 扩展](tracks/agents/products/codex-ide.md) | OpenAI | ide | partial | active |
+| [Continue](tracks/agents/products/continue.md) | Continue | ide | partial | archived |
+| [Crush](tracks/agents/products/crush.md) | Charm | cli | partial | active |
+| [Cursor](tracks/agents/products/cursor.md) | Anysphere | ide | partial | active |
+| [Cursor CLI](tracks/agents/products/cursor-cli.md) | Anysphere | cli | partial | active |
+| [Droid](tracks/agents/products/factory-droid.md) | Factory AI | cli | partial | active |
+| [Gemini CLI](tracks/agents/products/gemini-cli.md) | Google | cli | partial | active |
+| [GitHub Copilot](tracks/agents/products/copilot.md) | GitHub / Microsoft | ide | partial | active |
+| [GitHub Copilot CLI](tracks/agents/products/copilot-cli.md) | GitHub | cli | partial | active |
+| [Goose](tracks/agents/products/goose.md) | Agentic AI Foundation | cli | partial | active |
+| [Jules](tracks/agents/products/jules.md) | Google | cloud | partial | active |
+| [Junie](tracks/agents/products/junie.md) | JetBrains | ide | partial | active |
+| [Kiro](tracks/agents/products/kiro.md) | AWS | ide | partial | active |
+| [Meta Muse](tracks/agents/products/meta-muse.md) | Meta | cloud | partial | active |
+| [OpenAI Dot](tracks/agents/products/openai-dot.md) | OpenAI | cloud | partial | active |
+| [OpenCode](tracks/agents/products/opencode.md) | OpenCode | cli | partial | active |
+| [Warp](tracks/agents/products/warp.md) | Warp | cli | partial | active |
+| [Windsurf / Devin Desktop](tracks/agents/products/windsurf.md) | Cognition | ide | partial | active |
+| [xAI Grok Bot](tracks/agents/products/grok-bot.md) | xAI | cloud | partial | active |
+| [Zed](tracks/agents/products/zed.md) | Zed Industries | ide | partial | active |
+
+### Harnesses — 15
+
+Building blocks for your own agent
+
+| Name | Vendor | Form | Confidence | Lifecycle |
+|---|---|---|---|---|
+| [AG2](tracks/harness/products/ag2.md) | ag2ai | harness | partial | active |
+| [Claude Agent SDK](tracks/harness/products/claude-agent-sdk.md) | Anthropic | harness | partial | active |
+| [Codex SDK](tracks/harness/products/codex-sdk.md) | OpenAI | harness | partial | active |
+| [CrewAI](tracks/harness/products/crewai.md) | CrewAI Inc | harness | partial | active |
+| [Deep Agents](tracks/harness/products/deepagents.md) | LangChain | harness | partial | active |
+| [Google ADK（Agent Development Kit）](tracks/harness/products/google-adk.md) | Google | harness | partial | active |
+| [Hermes Agent](tracks/harness/products/hermes-agent.md) | Nous Research | harness | partial | active |
+| [LangGraph](tracks/harness/products/langgraph.md) | LangChain Inc | harness | partial | active |
+| [LlamaIndex Framework](tracks/harness/products/llamaindex.md) | LlamaIndex（run-llama） | harness | partial | active |
+| [Mastra](tracks/harness/products/mastra.md) | Mastra AI | harness | partial | active |
+| [Microsoft Agent Framework](tracks/harness/products/microsoft-agent-framework.md) | Microsoft | harness | partial | active |
+| [OpenAI Agents SDK](tracks/harness/products/openai-agents-sdk.md) | OpenAI | harness | partial | active |
+| [OpenHands Agent Canvas](tracks/harness/products/openhands.md) | OpenHands（All-Hands-AI） | harness | partial | active |
+| [Pydantic AI](tracks/harness/products/pydantic-ai.md) | Pydantic | harness | partial | active |
+| [smolagents](tracks/harness/products/smolagents.md) | Hugging Face | harness | partial | active |
+
+### Tools — 10
+
+MCP servers and the tool ecosystem
+
+| Name | Vendor | Form | Confidence | Lifecycle |
+|---|---|---|---|---|
+| [Context7](tracks/tools/products/context7.md) | Upstash | mcp | partial | active |
+| [Everything MCP Server](tracks/tools/products/everything.md) | Model Context Protocol | mcp | verified | active |
+| [Fetch MCP Server](tracks/tools/products/fetch.md) | Model Context Protocol | mcp | verified | active |
+| [Filesystem MCP Server](tracks/tools/products/filesystem.md) | Model Context Protocol | mcp | verified | active |
+| [Git MCP Server](tracks/tools/products/git.md) | Model Context Protocol | mcp | verified | active |
+| [GitHub MCP Server](tracks/tools/products/github-mcp.md) | GitHub | mcp | partial | active |
+| [Knowledge Graph Memory Server](tracks/tools/products/memory.md) | Model Context Protocol | mcp | verified | active |
+| [Playwright MCP Server](tracks/tools/products/playwright.md) | Microsoft | mcp | verified | active |
+| [Sequential Thinking MCP Server](tracks/tools/products/sequential-thinking.md) | Model Context Protocol | mcp | verified | active |
+| [Time MCP Server](tracks/tools/products/time.md) | Model Context Protocol | mcp | verified | active |
+
+
+<!-- INDEX:END -->
+
 ## Measured size (A8)
 
 <!-- STATS:BEGIN 由 _audit/gen-repo-docs.mjs 生成，勿手改 -->
