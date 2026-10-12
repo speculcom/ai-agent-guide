@@ -39,6 +39,24 @@
 
 ---
 
+## 我该怎么读
+
+这个仓有 52 份档案，但大多数人不需要全看。按你手里那个具体问题走：
+
+| 你要解决什么 | 走哪条路 |
+|---|---|
+| 「我该用哪个成品工具」 | 先分清是 IDE / CLI / 厂商云，再看 [`tracks/agents/`](./tracks/agents/) |
+| 「我要自己搭一个 agent」 | 直接去 [`tracks/harness/`](./tracks/harness/)，看状态怎么存、上下文怎么压、权限给到哪一档 |
+| 「我的 agent 需要连外部东西」 | [`tracks/tools/`](./tracks/tools/)，MCP 服务器生态 |
+| 「我想比较两个东西到底差在哪」 | 先读 [`axes/`](./axes/) 里那 8 个维度分别问什么，再横向对着看 |
+
+有个坑值得先说：成品 agent 和 harness 不是一回事。
+前者问「哪个好用」，后者问「底座怎么搭」。混在一起比，比出来的结论没有意义。
+
+站上的版本：<https://agent.specul.com/>
+
+---
+
 ## 这个仓库的方法论
 
 一句话：**不让没有实测的东西看起来像有结论。**
@@ -214,6 +232,86 @@ harness 的 15 个对象按**抽象层**分三组，这是本站对该赛道最�
 
 **方法论原型**：本仓库的「放弃总分 / 未知合法化 / 每条挂证据」三条规则
 借鉴自 [AgentClash](https://aiagentclash.com/)，但坐标系与赛道定义是本仓库独立设计。
+
+<!-- INDEX:BEGIN 由 _audit/gen-repo-docs.mjs 生成，勿手改 -->
+
+## 内容索引
+
+### 成品 agent —— 27 份
+
+开箱能用的产品。IDE / CLI / 厂商云都是这一类。
+
+| 名字 | 厂商 | 形态 | 数据可信度 | 上游状态 |
+|---|---|---|---|---|
+| [Aider](tracks/agents/products/aider-cli.md) | Aider-AI | cli | partial | maintenance |
+| [Aider Watch 模式](tracks/agents/products/aider.md) | Aider-AI | ide | partial | maintenance |
+| [Amp](tracks/agents/products/amp.md) | Sourcegraph | cli | partial | active |
+| [Claude Code CLI](tracks/agents/products/claude-code-cli.md) | Anthropic | cli | partial | active |
+| [Claude Code IDE 扩展](tracks/agents/products/claude-code.md) | Anthropic | ide | partial | active |
+| [Cline](tracks/agents/products/cline.md) | Cline Bot | ide | partial | active |
+| [Codex CLI](tracks/agents/products/codex-cli.md) | OpenAI | cli | partial | active |
+| [Codex IDE 扩展](tracks/agents/products/codex-ide.md) | OpenAI | ide | partial | active |
+| [Continue](tracks/agents/products/continue.md) | Continue | ide | partial | archived |
+| [Crush](tracks/agents/products/crush.md) | Charm | cli | partial | active |
+| [Cursor](tracks/agents/products/cursor.md) | Anysphere | ide | partial | active |
+| [Cursor CLI](tracks/agents/products/cursor-cli.md) | Anysphere | cli | partial | active |
+| [Droid](tracks/agents/products/factory-droid.md) | Factory AI | cli | partial | active |
+| [Gemini CLI](tracks/agents/products/gemini-cli.md) | Google | cli | partial | active |
+| [GitHub Copilot](tracks/agents/products/copilot.md) | GitHub / Microsoft | ide | partial | active |
+| [GitHub Copilot CLI](tracks/agents/products/copilot-cli.md) | GitHub | cli | partial | active |
+| [Goose](tracks/agents/products/goose.md) | Agentic AI Foundation | cli | partial | active |
+| [Jules](tracks/agents/products/jules.md) | Google | cloud | partial | active |
+| [Junie](tracks/agents/products/junie.md) | JetBrains | ide | partial | active |
+| [Kiro](tracks/agents/products/kiro.md) | AWS | ide | partial | active |
+| [Meta Muse](tracks/agents/products/meta-muse.md) | Meta | cloud | partial | active |
+| [OpenAI Dot](tracks/agents/products/openai-dot.md) | OpenAI | cloud | partial | active |
+| [OpenCode](tracks/agents/products/opencode.md) | OpenCode | cli | partial | active |
+| [Warp](tracks/agents/products/warp.md) | Warp | cli | partial | active |
+| [Windsurf / Devin Desktop](tracks/agents/products/windsurf.md) | Cognition | ide | partial | active |
+| [xAI Grok Bot](tracks/agents/products/grok-bot.md) | xAI | cloud | partial | active |
+| [Zed](tracks/agents/products/zed.md) | Zed Industries | ide | partial | active |
+
+### 自己搭的底座 —— 15 份
+
+拿它拼自己的 agent：状态存哪、上下文怎么压、权限给到哪一档。
+
+| 名字 | 厂商 | 形态 | 数据可信度 | 上游状态 |
+|---|---|---|---|---|
+| [AG2](tracks/harness/products/ag2.md) | ag2ai | harness | partial | active |
+| [Claude Agent SDK](tracks/harness/products/claude-agent-sdk.md) | Anthropic | harness | partial | active |
+| [Codex SDK](tracks/harness/products/codex-sdk.md) | OpenAI | harness | partial | active |
+| [CrewAI](tracks/harness/products/crewai.md) | CrewAI Inc | harness | partial | active |
+| [Deep Agents](tracks/harness/products/deepagents.md) | LangChain | harness | partial | active |
+| [Google ADK（Agent Development Kit）](tracks/harness/products/google-adk.md) | Google | harness | partial | active |
+| [Hermes Agent](tracks/harness/products/hermes-agent.md) | Nous Research | harness | partial | active |
+| [LangGraph](tracks/harness/products/langgraph.md) | LangChain Inc | harness | partial | active |
+| [LlamaIndex Framework](tracks/harness/products/llamaindex.md) | LlamaIndex（run-llama） | harness | partial | active |
+| [Mastra](tracks/harness/products/mastra.md) | Mastra AI | harness | partial | active |
+| [Microsoft Agent Framework](tracks/harness/products/microsoft-agent-framework.md) | Microsoft | harness | partial | active |
+| [OpenAI Agents SDK](tracks/harness/products/openai-agents-sdk.md) | OpenAI | harness | partial | active |
+| [OpenHands Agent Canvas](tracks/harness/products/openhands.md) | OpenHands（All-Hands-AI） | harness | partial | active |
+| [Pydantic AI](tracks/harness/products/pydantic-ai.md) | Pydantic | harness | partial | active |
+| [smolagents](tracks/harness/products/smolagents.md) | Hugging Face | harness | partial | active |
+
+### 给 agent 装的工具 —— 10 份
+
+MCP 服务器与工具生态。
+
+| 名字 | 厂商 | 形态 | 数据可信度 | 上游状态 |
+|---|---|---|---|---|
+| [Context7](tracks/tools/products/context7.md) | Upstash | mcp | partial | active |
+| [Everything MCP Server](tracks/tools/products/everything.md) | Model Context Protocol | mcp | verified | active |
+| [Fetch MCP Server](tracks/tools/products/fetch.md) | Model Context Protocol | mcp | verified | active |
+| [Filesystem MCP Server](tracks/tools/products/filesystem.md) | Model Context Protocol | mcp | verified | active |
+| [Git MCP Server](tracks/tools/products/git.md) | Model Context Protocol | mcp | verified | active |
+| [GitHub MCP Server](tracks/tools/products/github-mcp.md) | GitHub | mcp | partial | active |
+| [Knowledge Graph Memory Server](tracks/tools/products/memory.md) | Model Context Protocol | mcp | verified | active |
+| [Playwright MCP Server](tracks/tools/products/playwright.md) | Microsoft | mcp | verified | active |
+| [Sequential Thinking MCP Server](tracks/tools/products/sequential-thinking.md) | Model Context Protocol | mcp | verified | active |
+| [Time MCP Server](tracks/tools/products/time.md) | Model Context Protocol | mcp | verified | active |
+
+
+<!-- INDEX:END -->
 
 ## 实测规模（A8）
 
