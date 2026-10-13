@@ -2,8 +2,6 @@
 
 > 中文版：[README.md](./README.md)
 
-> 中文 | [English](README.md)
-
 **An atlas of AI agents** · plain Markdown · open source
 
 Records the capability boundaries, runtime location, real pricing and official evidence for
@@ -42,6 +40,26 @@ Projects of this kind are usually a column of links. This repository takes a dif
 | Nobody notices dead links | Every judgement cites an official source with a verification date |
 
 **Verified snapshots, not a claim of live measurement.**
+
+---
+
+## How to read this
+
+There are 52 profiles here. Most people need three of them. Pick the lane that matches the problem in front of you:
+
+| What you are trying to solve | Where to go |
+|---|---|
+| "Which finished tool should I use?" | First work out whether it's an IDE, a CLI or a vendor cloud — then look in [`tracks/agents/`](./tracks/agents/) |
+| "I want to build my own agent" | Go straight to [`tracks/harness/`](./tracks/harness/): where state lives, how context gets compressed, how far permissions reach |
+| "My agent needs to reach the outside world" | [`tracks/tools/`](./tracks/tools/) — the MCP server ecosystem |
+| "I want to know how two things actually differ" | Read [`axes/`](./axes/) to see what each of the 8 dimensions asks, then compare side by side |
+
+One trap worth naming up front: a ready-made agent and a harness are not the same
+kind of thing. The first question is "which one is nicer to use"; the second is
+"where do I keep state, how do I fit the context in, how much permission do I
+grant". Mixing the two produces a comparison that means nothing.
+
+Live version: <https://agent.specul.com/>
 
 ---
 
@@ -229,7 +247,7 @@ If you need the raw snapshots for research, please contact us via an Issue.
 [AgentClash](https://aiagentclash.com/), but the coordinate system and division definitions
 are independently designed here.
 
-<!-- INDEX:BEGIN 由 _audit/gen-repo-docs.mjs 生成，勿手改 -->
+<!-- INDEX:BEGIN generated, do not edit -->
 
 ## Content index
 
@@ -240,13 +258,13 @@ Products you install and use
 | Name | Vendor | Form | Confidence | Lifecycle |
 |---|---|---|---|---|
 | [Aider](tracks/agents/products/aider-cli.md) | Aider-AI | cli | partial | maintenance |
-| [Aider Watch 模式](tracks/agents/products/aider.md) | Aider-AI | ide | partial | maintenance |
+| [Aider (Watch mode)](tracks/agents/products/aider.md) | Aider-AI | ide | partial | maintenance |
 | [Amp](tracks/agents/products/amp.md) | Sourcegraph | cli | partial | active |
 | [Claude Code CLI](tracks/agents/products/claude-code-cli.md) | Anthropic | cli | partial | active |
-| [Claude Code IDE 扩展](tracks/agents/products/claude-code.md) | Anthropic | ide | partial | active |
+| [Claude Code (IDE extension)](tracks/agents/products/claude-code.md) | Anthropic | ide | partial | active |
 | [Cline](tracks/agents/products/cline.md) | Cline Bot | ide | partial | active |
 | [Codex CLI](tracks/agents/products/codex-cli.md) | OpenAI | cli | partial | active |
-| [Codex IDE 扩展](tracks/agents/products/codex-ide.md) | OpenAI | ide | partial | active |
+| [Codex (IDE extension)](tracks/agents/products/codex-ide.md) | OpenAI | ide | partial | active |
 | [Continue](tracks/agents/products/continue.md) | Continue | ide | partial | archived |
 | [Crush](tracks/agents/products/crush.md) | Charm | cli | partial | active |
 | [Cursor](tracks/agents/products/cursor.md) | Anysphere | ide | partial | active |
@@ -311,7 +329,7 @@ MCP servers and the tool ecosystem
 
 ## Measured size (A8)
 
-<!-- STATS:BEGIN 由 _audit/gen-repo-docs.mjs 生成，勿手改 -->
+<!-- STATS:BEGIN generated, do not edit -->
 | Item | Measured value |
 |---|---|
 | Total profiles | 52 |
