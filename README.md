@@ -233,7 +233,7 @@ harness 的 15 个对象按**抽象层**分三组，这是本站对该赛道最�
 **方法论原型**：本仓库的「放弃总分 / 未知合法化 / 每条挂证据」三条规则
 借鉴自 [AgentClash](https://aiagentclash.com/)，但坐标系与赛道定义是本仓库独立设计。
 
-<!-- INDEX:BEGIN 由 _audit/gen-repo-docs.mjs 生成，勿手改 -->
+<!-- INDEX:BEGIN generated, do not edit -->
 
 ## 内容索引
 
@@ -315,7 +315,7 @@ MCP 服务器与工具生态。
 
 ## 实测规模（A8）
 
-<!-- STATS:BEGIN 由 _audit/gen-repo-docs.mjs 生成，勿手改 -->
+<!-- STATS:BEGIN generated, do not edit -->
 | 项 | 实测值 |
 |---|---|
 | 档案总数 | 52 份 |
