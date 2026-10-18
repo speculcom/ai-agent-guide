@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 // ============================================================================
-// ai-compare → 三分站构建脚本
+// agent-guide → 三分区站点构建脚本
 // ----------------------------------------------------------------------------
-// 数据源：_data/ai-compare/tracks/<track>/products/*.md（frontmatter + 正文）
-// 输出：  _sites/<track>/index.html + _sites/<track>/<id>.html + assets
+// 数据源：tracks/{agents,harness,tools}/products/*.md（frontmatter + 正文）
+// 输出：  _sites/agent.specul/index.html + _sites/agent.specul/<id>.html + assets
 //
 // 用法：
-//   node scripts/build-sites.mjs            # 构建全部三站
-//   node scripts/build-sites.mjs ide        # 只构建 ide 站
-//   node scripts/build-sites.mjs --check    # 只校验数据，不出站
+//   node sites/build.mjs                    # 构建三个分区站
+//   node sites/build.mjs agents             # 只构建一个分区
+//   node sites/build.mjs --check            # 只校验数据，不出站
 //
 // 设计约束（来自品牌壳与数据层约定）：
 //   1. 顶栏/页脚/基础 token 一律走 brand.css，页面不另起一套
@@ -22,6 +22,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { shell as buildShell } from './shell.mjs';
 import { computeCompleteness } from '../scripts/completeness.mjs';
+import { parseFrontmatter, parseSources, bodyAfter } from '../scripts/yaml.mjs';
 
 // 路径解析优先级：环境变量 > 向上查找仓库根 > 脚本位置推导
 //
@@ -270,99 +271,11 @@ const CHECK_ONLY = args.includes('--check');
 const only = args.filter(a => !a.startsWith('--'));
 const targets = only.length ? only : Object.keys(SITES);
 
-// ── YAML 子集解析（与 validate.mjs 同源，避免两套解析逻辑漂移）──────────────
-/* ⚠ 这两份解析器是**复制关系**，没有机制保证同步 —— 改一份必须改另一份。
- *   2026-10-09 就踩到了：修了 validate.mjs 的数组判别、忘了这里，构建仍然报
- *   「缺维度 axes.*」。根因见下面 isListBlock 的注释。 */
-function isListBlock(blockLines) {
-  const first = blockLines.find((l) => l.trim());
-  return !!first && (first.trim().startsWith('- ') || first.trim() === '-');
-}
-
-function parseFrontmatter(text) {
-  if (!text.startsWith('---\n')) return null;
-  const end = text.indexOf('\n---\n', 4);
-  if (end === -1) return null;
-  const lines = text.slice(4, end).split('\n');
-  const data = {};
-  let i = 0;
-  const indentOf = s => s.length - s.trimStart().length;
-  const clean = (s) => {
-    const v = s.trim();
-    if (v === '>' || v === '>-' || v === '|' || v === '|-') return { block: true, fold: v[0] === '>' };
-    return { block: false, val: v === 'null' ? null : v.replace(/^["']|["']$/g, '') };
-  };
-  while (i < lines.length) {
-    const line = lines[i];
-    if (!line.trim() || line.trimStart().startsWith('#') || indentOf(line) > 0) { i++; continue; }
-    const m = /^([A-Za-z_][A-Za-z0-9_]*):\s?(.*)$/.exec(line);
-    if (!m) { i++; continue; }
-    const key = m[1];
-    const info = clean(m[2]);
-    if (!info.block && m[2].trim() !== '') {
-      if (m[2].trim().startsWith('[')) {
-        data[key] = m[2].trim().replace(/[[\]]/g, '').split(',')
-          .map(s => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
-      } else data[key] = info.val;
-      i++; continue;
-    }
-    const blockLines = [];
-    let j = i + 1;
-    while (j < lines.length) {
-      const l = lines[j];
-      if (!l.trim()) { blockLines.push(''); j++; continue; }
-      if (indentOf(l) === 0) break;
-      blockLines.push(l); j++;
-    }
-    while (blockLines.length && !blockLines[blockLines.length - 1].trim()) blockLines.pop();
-    if (info.block) {
-      /* ⚠ fold 时用 `\n` 而不是空格（2026-10-09 修）：见下方 folded 的注释 ——
-       * 折成空格会把 `- ` 清单并成一行，也会让「行首是 - 」这个信息丢失。*/
-      data[key] = info.fold ? blockLines.map(l => l.trim()).join('\n').trim() : blockLines.map(l => l.trim()).join('\n').trim();
-    } else if (isListBlock(blockLines)) {
-      data[key] = blockLines.map(l => l.trim().replace(/^-\s*/, '').trim().replace(/^["']|["']$/g, '')).filter(Boolean);
-    } else {
-      const sub = {};
-      for (const l of blockLines) {
-        const sm = /^([A-Za-z_][A-Za-z0-9_]*):\s?(.*)$/.exec(l.trim());
-        if (!sm) continue;
-        const cinfo = clean(sm[2]);
-        if (cinfo.block) {
-          const parts = [];
-          let k = blockLines.indexOf(l) + 1;
-          while (k < blockLines.length) {
-            const nl = blockLines[k];
-            if (!nl.trim()) { parts.push(''); k++; continue; }
-            if (indentOf(nl) <= indentOf(l)) break;
-            parts.push(nl.trim()); k++;
-          }
-          /* ⚠ 空行必须是**段落边界**，不能丢（2026-10-09 修）。
-           * 旧写法 `parts.filter(Boolean).join(' ')` 把空行过滤掉，于是
-           * `>-` 折叠标量里「一个意思一段」的写法（_plan/文风规范-说人话.md 第 3、5、6 条）
-           * 在页面上**全部压成一整块**：结论、清单、原文引用连成一行流水文字，
-           * markdown 列表退化成正文里的「- xxx - yyy」。
-           * 实测 kiro.md（已按新规范改完）的 model_access 渲染后 0 个 <p>、0 个 <ul> ——
-           * 探针按空行分段量是达标的，页面却看不见分段。
-           * 现在空行一律留成 `\n\n`，段落与列表还原交给渲染处的 blockMd()。*/
-          const folded = (() => {
-            const paras = [[]];
-            for (const p of parts) {
-              if (p) paras[paras.length - 1].push(p);
-              else if (paras[paras.length - 1].length) paras.push([]);
-            }
-            /* 段内换行留 `\n`（不折成空格）：清单项的续行与下一个 `- ` 行
-             * 一旦被折成空格，整份清单会并成单个 `- ` 行 → 渲染成一个 <li>。*/
-            return paras.filter((a) => a.length).map((a) => a.join('\n')).join('\n\n');
-          })();
-          sub[sm[1]] = cinfo.fold ? folded : parts.join('\n').trim();
-        } else sub[sm[1]] = cinfo.val;
-      }
-      data[key] = sub;
-    }
-    i = j;
-  }
-  return data;
-}
+// ── frontmatter 解析 ────────────────────────────
+// 解析逻辑住在 scripts/yaml.mjs（唯一真相源，2026-10-15 从本文件与
+// scripts/validate.mjs 两份「同源」副本抽出）。两份无机制保证同步，
+// 2026-10-09 踩过：validate 修了数组判别、这里忘了，构建仍报「缺维度 axes.*」。
+// 守卫：_audit/yaml-single-source.mjs。
 
 // 数据完整度快照：来自数据层 `node scripts/audit-gaps.mjs` 的输出。
 // 写死而非运行时计算，有两个原因：
@@ -495,18 +408,11 @@ function loadTrack(partKey) {
     const srcs = Array.isArray(fm.sources) ? fm.sources : [];
     if (srcs.length < 2) errors.push(`${rel} · sources 少于 2 条`);
 
-    // sources 是 frontmatter 里的对象数组，需要单独解析
-    const sourceBlock = /sources:\n([\s\S]*?)(?=\n[a-z_]+:)/.exec(fm.__raw || raw);
-    const sources = [];
-    if (sourceBlock) {
-      const sm = /- label:\s*`?([^`\n]+)`?\s*\n\s*url:\s*(\S+)\s*\n\s*kind:\s*(\S+)/g;
-      let mm;
-      while ((mm = sm.exec(sourceBlock[1])) !== null) sources.push({ label: mm[1].trim(), url: mm[2].trim(), kind: mm[3].trim() });
-    }
+    // sources 是 frontmatter 里的对象数组，统一走 yaml.mjs 的 parseSources
+    const sources = parseSources(raw);
 
     // 正文：frontmatter 之后
-    const bodyStart = raw.indexOf('\n---\n', 4) + 5;
-    const body = raw.slice(bodyStart);
+    const body = bodyAfter(raw);
     /* 章节正文要匹配到**下一个二级标题或文件真正末尾**。这里有两种写法都会静默丢内容：
      *  ① 收尾 `|\s*$` —— `\s` 含 `\n\n`，匹配到**第一个空行**就停；
      *  ② 收尾 `|$` 配非贪婪 `[\s\S]*?` —— m 模式下 `$` 匹配**每个行尾**，

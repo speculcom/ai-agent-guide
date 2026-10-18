@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-// ai-compare schema 校验器
+// agent-guide schema 校验器
 // 用法：node scripts/validate.mjs [--strict]
 // 任一硬失败即退出码 1。软规则失败只警告（--strict 时升级为失败）。
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseFrontmatter, parseSources, bodyAfter } from './yaml.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const STRICT = process.argv.includes('--strict');
@@ -29,120 +30,11 @@ const errors = [];
 const warnings = [];
 const stats = { tracks: {}, files: 0 };
 
-// ── YAML 子集解析器 ──────────────────────────────
-// 支持：key: value / key:（嵌套 map 或数组）/ key: >- | | （折叠/字面量块）
-/* 判断一个块是**数组**还是**嵌套 map**：看它的**第一行**，不看「有没有列表行」。
- *
- * ⚠ 这里原先写的是 `blockLines.some(l => l.trim().startsWith('- '))` —— 只要块里
- *   出现任何一行以 `- ` 开头就判成数组。于是 2026-10-09 改文风时踩到了：
- *   为了让读者好读，我在 `axes.model_access` 里把模型清单改成了 markdown 列表，
- *   结果**整个 `axes` 被当成数组**，8 个维度全部「缺失」。
- *
- *   两者其实有明确的判别特征：数组块的**第一行**就是 `- `；
- *   而嵌套 map 的第一行一定是 `key:`（列表只可能出现在某个子键的块标量内部）。
- *   按第一行判断，两种写法都能正确解析。 */
-function isListBlock(blockLines) {
-  const first = blockLines.find((l) => l.trim());
-  return !!first && (first.trim().startsWith('- ') || first.trim() === '-');
-}
-
-function parseFrontmatter(text) {
-  if (!text.startsWith('---\n')) return null;
-  const end = text.indexOf('\n---\n', 4);
-  if (end === -1) return null;
-  const lines = text.slice(4, end).split('\n');
-  const data = {};
-  let i = 0;
-
-  const indentOf = (s) => s.length - s.trimStart().length;
-  const clean = (s) => {
-    let v = s.trim();
-    if (v === '>' || v === '>-' || v === '|' || v === '|-' || v === '>+' || v === '|+') return { block: true, fold: v[0] === '>' };
-    return { block: false, fold: false, val: v === 'null' ? null : v.replace(/^["']|["']$/g, '') };
-  };
-
-  while (i < lines.length) {
-    const line = lines[i];
-    if (!line.trim() || line.trimStart().startsWith('#')) { i++; continue; }
-    if (indentOf(line) > 0) { i++; continue; } // 孤立缩进行，跳过
-
-    const m = /^([A-Za-z_][A-Za-z0-9_]*):\s?(.*)$/.exec(line);
-    if (!m) { i++; continue; }
-    const key = m[1];
-    const info = clean(m[2]);
-
-    // 行内值
-    if (!info.block && m[2].trim() !== '') {
-      if (m[2].trim().startsWith('[')) {
-        data[key] = m[2].trim().replace(/[[\]]/g, '').split(',')
-          .map(s => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
-      } else {
-        data[key] = info.val;
-      }
-      i++;
-      continue;
-    }
-
-    // 块：收集所有缩进行
-    const blockLines = [];
-    let j = i + 1;
-    while (j < lines.length) {
-      const l = lines[j];
-      if (!l.trim()) { blockLines.push(''); j++; continue; }
-      if (indentOf(l) === 0) break;
-      blockLines.push(l);
-      j++;
-    }
-    // 去掉尾部空行
-    while (blockLines.length && !blockLines[blockLines.length - 1].trim()) blockLines.pop();
-
-    if (info.block) {
-      // 折叠/字面量标量：把所有行 trim 后拼接
-      const body = info.fold
-        ? blockLines.map(l => l.trim()).join(' ').trim()
-        : blockLines.map(l => l.trim()).join('\n').trim();
-      data[key] = body;
-    } else if (isListBlock(blockLines)) {
-      // 数组
-      data[key] = blockLines
-        .map(l => l.trim().replace(/^-\s*/, '').trim())
-        .map(s => s.replace(/^["']|["']$/g, ''))
-        .filter(Boolean);
-    } else {
-      // 嵌套 map（支持两级：pricing.model、axes.model_access、mcp.transport）
-      const sub = {};
-      for (const l of blockLines) {
-        const sm = /^([A-Za-z_][A-Za-z0-9_]*):\s?(.*)$/.exec(l.trim());
-        if (!sm) continue;
-        const cinfo = clean(sm[2]);
-        if (cinfo.block) {
-          // 该子键也是块标量：向后收集更深缩进的行
-          const parts = [];
-          let k = blockLines.indexOf(l) + 1;
-          while (k < blockLines.length) {
-            const nl = blockLines[k];
-            if (!nl.trim()) { parts.push(''); k++; continue; }
-            if (indentOf(nl) <= indentOf(l)) break;
-            parts.push(nl.trim()); k++;
-          }
-          /* ⚠ 折叠标量的解折叠方式必须与**渲染器一致**（2026-10-09 修）。
-           *   旧写法是 `parts.filter(Boolean).join(' ')` —— 把空行过滤掉、段内换行折成空格，
-           *   于是「一个意思一段」与「- 清单」两个信息在校验阶段就没了 ✗。
-           *   后果：**校验器看的是压平后的文本，渲染器看的是保留分段的文本** ——
-           *   两边对同一份内容的理解不一致（这正是 v6 第 ㉑ 节那个渲染层缺陷的同源残留）。
-           *   现在与 `sites/build.mjs` 的 `parseFrontmatter` 保持一致：
-           *   **空行保留为段落边界，段内换行也保留**。 */
-          sub[sm[1]] = parts.join('\n');
-        } else {
-          sub[sm[1]] = cinfo.val;
-        }
-      }
-      data[key] = sub;
-    }
-    i = j;
-  }
-  return data;
-}
+// ── frontmatter 解析 ────────────────────────────
+// 解析逻辑住在 scripts/yaml.mjs（唯一真相源，2026-10-15 从 validate.mjs 与
+// sites/build.mjs 两份「同源」副本抽出）。历史上两份无机制保证同步，2026-10-09
+// 踩过：修了 validate 的数组判别、忘了 build，构建仍报「缺维度 axes.*」。
+// 守卫：_audit/yaml-single-source.mjs（全文只许一份定义，消费者必须 import）。
 
 // ── 校验 ─────────────────────────────────────────
 function collect(dir) {
@@ -213,13 +105,9 @@ function validateEntry(file) {
     // sources 是 frontmatter 里的对象数组，YAML 子集解析器读不出嵌套结构
     // （build.mjs 也是用正则单独解析的），所以这里复用同样的方式。
     const rawText = fs.readFileSync(file, 'utf8');
-    const srcBlock = /sources:\n([\s\S]*?)(?=\n[a-z_]+:)/.exec(rawText);
-    const parsedSrc = [];
-    if (srcBlock) {
-      const sm = /-\s+label:\s*(.+)\n\s+url:\s*(.+)\n\s+kind:\s*(\S+)/g;
-      let mm;
-      while ((mm = sm.exec(srcBlock[1])) !== null) parsedSrc.push({ label: mm[1].trim(), url: mm[2].trim(), kind: mm[3].trim() });
-    }
+    // sources 解析统一走 yaml.mjs 的 parseSources（与构建器同一正则）。
+    // 旧本文件的正则不处理反引号标签 —— 8 份档案的 label 会带上字面反引号。
+    const parsedSrc = parseSources(rawText);
     if (!parsedSrc.some((s) => s.kind === 'repo' || s.kind === 'docs')) {
       fail('harness 条目 sources 至少 1 条 kind: repo 或 docs（官方源）');
     }
@@ -287,8 +175,7 @@ function validateEntry(file) {
   }
 
   // 正文必备小节（见 SCHEMA 第三节）
-  const bodyStart = text.indexOf('\n---\n', 4) + 5;
-  const body = text.slice(bodyStart);
+  const body = bodyAfter(text);
   // 正文里不得再用 --- 作分隔线（会与 frontmatter 结束标记混淆）
   if (/^\s*---\s*$/m.test(body)) {
     fail('正文里出现 `---` 分隔线，与 frontmatter 结束标记同形，会干扰解析（见 SCHEMA 第三节）');
