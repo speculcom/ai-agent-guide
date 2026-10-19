@@ -7,12 +7,13 @@
  *   搜索   —— data-blob（名称 + 厂商 + 定位句）
  *   分组   —— data-form（agents 页=形态 track / harness 页=抽象层 family / tools 页无此项）
  *   核验   —— data-conf（verified / partial / stale）
+ *   任务   —— data-task（S43：空格分隔多值，卡片可挂多个任务；任务卡链 ?task=<id> 到此）
  *   排序   —— data-done & data-total（**按产品**的维度补齐数），在各自 .grid 内重排
  *
  * ⚠ 排序只在**同一个 .grid 内**进行：页面按形态/抽象层分了组，
  *   跨组重排会把分组打散（而分组本身是本站的一条判断，不能因为排序就没了）。
  *
- * URL 可还原：?q=&form=&conf=&sort= 写进地址栏。
+ * URL 可还原：?q=&form=&conf=&task=&sort= 写进地址栏。
  */
 (function () {
   'use strict';
@@ -23,6 +24,7 @@
   var q = box.querySelector('.aq');
   var selForm = box.querySelector('.asel-form');
   var selConf = box.querySelector('.asel-conf');
+  var selTask = box.querySelector('.asel-task');
   var selSort = box.querySelector('.asel-sort');
   var count = box.querySelector('.acount');
   var allCards = Array.prototype.slice.call(document.querySelectorAll('.grid > .card'));
@@ -34,7 +36,7 @@
   function writeUrl() {
     try {
       var u = new URL(location.href);
-      var vals = { q: q ? q.value.trim() : '', form: selForm ? selForm.value : '', conf: selConf ? selConf.value : '', sort: selSort ? selSort.value : '' };
+      var vals = { q: q ? q.value.trim() : '', form: selForm ? selForm.value : '', conf: selConf ? selConf.value : '', task: selTask ? selTask.value : '', sort: selSort ? selSort.value : '' };
       Object.keys(vals).forEach(function (k) { if (vals[k]) u.searchParams.set(k, vals[k]); else u.searchParams.delete(k); });
       history.replaceState(null, '', u.toString());
     } catch (e) { /* file:// 等场景静默降级：功能可用，地址栏不同步 */ }
@@ -53,12 +55,15 @@
      * 由 select 的 data-attr 指明比哪个属性 —— 卡片上两个属性都有。 */
     var formAttr = selForm ? (selForm.getAttribute('data-attr') || 'track') : 'track';
     var conf = selConf ? selConf.value : '';
+    var task = selTask ? selTask.value : '';
     var shown = 0;
     allCards.forEach(function (c) {
       var okQ = !term || (c.getAttribute('data-blob') || '').indexOf(term) !== -1;
       var okForm = !form || c.getAttribute('data-' + formAttr) === form;
       var okConf = !conf || c.getAttribute('data-conf') === conf;
-      var on = okQ && okForm && okConf;
+      /* data-task 是空格分隔多值（一份档案可挂多个任务），按 token 匹配。 */
+      var okTask = !task || (c.getAttribute('data-task') || '').split(/\s+/).indexOf(task) !== -1;
+      var on = okQ && okForm && okConf && okTask;
       c.hidden = !on;
       if (on) shown++;
     });
@@ -92,7 +97,7 @@
 
   // 首次：用 URL 参数还原
   if (q) q.value = param('q');
-  [[selForm, 'form'], [selConf, 'conf'], [selSort, 'sort']].forEach(function (pair) {
+  [[selForm, 'form'], [selConf, 'conf'], [selTask, 'task'], [selSort, 'sort']].forEach(function (pair) {
     var el = pair[0]; var v = param(pair[1]);
     if (!el || !v) return;
     /* `<select>` 遇到选项里没有的值会**静默忽略** —— 那就成了「指名筛选却被无视」。
@@ -107,7 +112,7 @@
   });
 
   if (q) q.addEventListener('input', function () { apply(); writeUrl(); });
-  [selForm, selConf].forEach(function (s) { if (s) s.addEventListener('change', function () { apply(); writeUrl(); }); });
+  [selForm, selConf, selTask].forEach(function (s) { if (s) s.addEventListener('change', function () { apply(); writeUrl(); }); });
   if (selSort) selSort.addEventListener('change', function () { sort(); writeUrl(); });
 
   sort();

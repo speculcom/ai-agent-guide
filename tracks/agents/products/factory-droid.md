@@ -1,6 +1,7 @@
 ---
 id: factory-droid
 track: cli
+tasks: ["write-code"]
 name: Droid
 vendor: Factory AI
 homepage: https://factory.ai

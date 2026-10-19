@@ -1,6 +1,7 @@
 ---
 id: llamaindex
 track: harness
+tasks: ["build-agent"]
 family: orchestration
 name: LlamaIndex Framework
 vendor: LlamaIndex（run-llama）

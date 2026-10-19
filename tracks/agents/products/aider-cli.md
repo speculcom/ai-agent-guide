@@ -1,6 +1,7 @@
 ---
 id: aider-cli
 track: cli
+tasks: ["write-code"]
 name: Aider
 vendor: Aider-AI
 homepage: https://github.com/Aider-AI/aider

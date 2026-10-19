@@ -1,6 +1,7 @@
 ---
 id: sequential-thinking
 track: mcp
+tasks: ["extend"]
 name: Sequential Thinking MCP Server
 vendor: Model Context Protocol
 homepage: https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking

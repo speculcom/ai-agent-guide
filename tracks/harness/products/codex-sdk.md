@@ -1,6 +1,7 @@
 ---
 id: codex-sdk
 track: harness
+tasks: ["build-agent"]
 family: coding-base
 name: Codex SDK
 vendor: OpenAI

@@ -1,6 +1,7 @@
 ---
 id: claude-code
 track: ide
+tasks: ["write-code"]
 name: Claude Code IDE 扩展
 nameEn: Claude Code (IDE extension)
 vendor: Anthropic

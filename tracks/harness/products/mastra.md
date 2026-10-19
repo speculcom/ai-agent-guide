@@ -1,6 +1,7 @@
 ---
 id: mastra
 track: harness
+tasks: ["build-agent"]
 family: orchestration
 name: Mastra
 vendor: Mastra AI

@@ -1,6 +1,7 @@
 ---
 id: everything
 track: mcp
+tasks: ["extend"]
 name: Everything MCP Server
 vendor: Model Context Protocol
 homepage: https://github.com/modelcontextprotocol/servers/tree/main/src/everything

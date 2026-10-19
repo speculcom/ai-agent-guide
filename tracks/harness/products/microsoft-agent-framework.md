@@ -1,6 +1,7 @@
 ---
 id: microsoft-agent-framework
 track: harness
+tasks: ["build-agent"]
 family: orchestration
 name: Microsoft Agent Framework
 vendor: Microsoft

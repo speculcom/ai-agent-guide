@@ -1,6 +1,7 @@
 ---
 id: codex-cli
 track: cli
+tasks: ["write-code"]
 name: Codex CLI
 vendor: OpenAI
 homepage: https://github.com/openai/codex

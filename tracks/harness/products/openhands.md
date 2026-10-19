@@ -1,6 +1,7 @@
 ---
 id: openhands
 track: harness
+tasks: ["long-task"]
 family: general-harness
 name: OpenHands Agent Canvas
 vendor: OpenHands（All-Hands-AI）

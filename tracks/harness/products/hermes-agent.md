@@ -1,6 +1,7 @@
 ---
 id: hermes-agent
 track: harness
+tasks: ["long-task"]
 family: general-harness
 name: Hermes Agent
 vendor: Nous Research

@@ -1,6 +1,7 @@
 ---
 id: meta-muse
 track: cloud
+tasks: ["long-task"]
 name: Meta Muse
 vendor: Meta
 homepage: https://about.fb.com/news/2026/09/introducing-muse/

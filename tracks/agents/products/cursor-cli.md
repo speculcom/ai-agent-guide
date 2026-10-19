@@ -1,6 +1,7 @@
 ---
 id: cursor-cli
 track: cli
+tasks: ["write-code"]
 name: Cursor CLI
 vendor: Anysphere
 homepage: https://cursor.com/cli

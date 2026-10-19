@@ -1,6 +1,7 @@
 ---
 id: cline
 track: ide
+tasks: ["write-code"]
 name: Cline
 vendor: Cline Bot
 homepage: https://github.com/cline/cline

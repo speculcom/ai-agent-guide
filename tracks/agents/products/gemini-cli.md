@@ -1,6 +1,7 @@
 ---
 id: gemini-cli
 track: cli
+tasks: ["write-code"]
 name: Gemini CLI
 vendor: Google
 homepage: https://github.com/google-gemini/gemini-cli

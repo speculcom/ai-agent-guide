@@ -1,6 +1,7 @@
 ---
 id: google-adk
 track: harness
+tasks: ["build-agent"]
 family: orchestration
 name: Google ADK（Agent Development Kit）
 vendor: Google

@@ -1,6 +1,7 @@
 ---
 id: pydantic-ai
 track: harness
+tasks: ["build-agent"]
 family: coding-base
 name: Pydantic AI
 vendor: Pydantic

@@ -308,6 +308,11 @@ for (const d of COMPLETENESS.detail) {
 /* B2：筛选脚本读独立文件（agent 的 build 也是模板字符串，脚本里写反引号会截断）。
  * ⚠ 筛选样式**不在这里** —— 本仓的 site.css 是**原样复制**到产物的（不是构建生成的），
  *   所以样式写进 `sites/site.css` 源文件本身。CSS 与 JS 分开放，各归其位。 */
+
+/* S43（2026-10-19）任务化入口：任务元信息来自 sites/tasks.json。
+ * 真相源分工：档案 frontmatter 的 tasks: 决定「谁属于哪个任务」；
+ * 这里只管任务的名字与导语。条数一律从 entries 现算（R4），不写死。 */
+const TASKS = JSON.parse(fs.readFileSync(path.join(HERE, 'tasks.json'), 'utf8')).tasks;
 const AGENT_FILTER_JS = fs.readFileSync(path.join(HERE, 'agent-filter.js'), 'utf8');
 /** 每个赛道一行；说明文字保留旧的手写语境（那是解读，不是数字） */
 const COVERAGE_BY_TRACK = Object.fromEntries(
@@ -498,6 +503,7 @@ try {
       lifecycle: fm.lifecycle, confidence: fm.confidence,
       family: fm.family || '',  // harness 分层；validate 强制必填，页面需按它分组呈现
       track: fm.track,// 仍是内容分类四取值（ide/cli/harness/mcp），首页按它分形态
+      tasks: Array.isArray(fm.tasks) ? fm.tasks : [], // S43 任务入口（validate 强制 ≥1）
       axesKeys: [...AXES.map(x => x[0]), ...mcpKeys],
       body,
       sec: {
@@ -731,6 +737,39 @@ const GUIDE = {
   },
 };
 
+/* S43（2026-10-19）任务化入口：「我想让 AI 替我写代码 / 自己搭 agent / …」。
+ * 设计定案：
+ *  - 任务卡渲染在**各分区索引页**，只列「本页至少有一份该任务档案」的任务 ——
+ *    跨页任务（如 long-task 同时有 agents 的 cloud 与 harness 的 general-harness）
+ *    在两页各出现一次，各自显示本页的条数。点卡 = 本页按 ?task= 现筛（复用 B2 的
+ *    URL 筛选体系，不另造一套）。这样卡片上的每个数字都是本页可兑现的，
+ *    不会出现「写着 7 个、点进去只有 3 个」的假承诺。
+ *  - 条数从 entries 现算（R4）。validate.mjs 双向对账保证任务不空、引用不悬空。
+ *  - 版式走 brand.css 的 .t-taskcard（宪章 1：共享层定义一次）。 */
+function taskSection(partKey, site, entries) {
+  const cards = [];
+  for (const t of TASKS) {
+    const n = entries.filter((e) => (e.tasks || []).includes(t.id)).length;
+    if (!n) continue;
+    cards.push(`        <article class="t-taskcard">
+          <h3><a href="./?task=${encodeURIComponent(t.id)}">${bi(esc(t.zh), esc(t.en))}</a> <span class="t-taskn">${n}</span></h3>
+          <p class="t-tasklead">${bi(esc(t.lead), esc(t.leadEn))}</p>
+          <a class="t-taskgo" href="./?task=${encodeURIComponent(t.id)}">${bi('只看这一类 →', 'Show only these →')}</a>
+        </article>`);
+  }
+  if (!cards.length) return '';
+  return `
+    <section class="section">
+      <div class="container">
+        <h2>${bi('按任务找', 'Find by task')}</h2>
+        <p class="section-desc">${bi(`这一页有 ${entries.length} 个对象。下面的数字是本页真正收录的条数——点进去就是筛选后的结果，不是跨站的总数。`, `This page holds ${entries.length} objects. The numbers below are what this page actually carries — clicking filters right here, not a site-wide total.`)}</p>
+        <div class="grid">
+${cards.join('\n')}
+        </div>
+      </div>
+    </section>`;
+}
+
 function guideSection(partKey, site, entries) {
   const g = GUIDE[partKey];
   if (!g) return '';
@@ -852,7 +891,7 @@ function renderIndex(site, partKey, entries) {
      *  - data-blob 是搜索口径：名称 + 厂商 + 定位句（不含正文 —— 正文会提到别的产品）。 */
     const pc = PRODUCT_COMPLETENESS[e.id] || { done: 0, total: 0 };
     const blob = [e.name, e.nameEn, e.vendor, lineRaw].filter(Boolean).join(' ').toLowerCase();
-    return `        <article class="card" style="--card-accent:${esc(e.accent || site.accent)}" data-track="${esc(e.track || '')}" data-family="${esc(e.family || '')}" data-conf="${esc(e.confidence || '')}" data-done="${pc.done}" data-total="${pc.total}" data-name="${esc(e.name)}" data-blob="${esc(blob)}">
+    return `        <article class="card" style="--card-accent:${esc(e.accent || site.accent)}" data-track="${esc(e.track || '')}" data-family="${esc(e.family || '')}" data-task="${esc((e.tasks || []).join(' '))}" data-conf="${esc(e.confidence || '')}" data-done="${pc.done}" data-total="${pc.total}" data-name="${esc(e.name)}" data-blob="${esc(blob)}">
           <div class="card-top">
             <div class="mark" aria-hidden="true">${esc(e.mark || e.name.slice(0,2))}</div>
             <div class="card-id">
@@ -995,6 +1034,13 @@ ${orphan.map(cardFor).join('\n')}
       parts.push(`          <label class="af-f"><span class="af-h">${bi('核验状态', 'Verification')}</span>
             <select class="asel-conf">${opt([...confVals].map((k) => ({ key: k, label: CONF_LABEL[k] || k })))}</select></label>`);
     }
+    /* S43 任务筛选：下拉只列本页有档案的任务（与任务卡同一口径）。
+     * 任务卡链来的 ?task=<id> 会落到这个 select 上 —— 一套筛选体系，不另造。 */
+    const taskVals = TASKS.filter((t) => entries.some((e) => (e.tasks || []).includes(t.id)));
+    if (taskVals.length > 1) {
+      parts.push(`          <label class="af-f"><span class="af-h">${bi('任务', 'Task')}</span>
+            <select class="asel-task">${opt(taskVals.map((t) => ({ key: t.id, label: `${t.zh} / ${t.en}` })))}</select></label>`);
+    }
     if (ratiosVary) {
       parts.push(`          <label class="af-f"><span class="af-h">${bi('排序', 'Sort')}</span>
             <select class="asel-sort"><option value="">默认 / Default</option><option value="done-desc">完整度 高 → 低 / Completeness high–low</option><option value="done-asc">完整度 低 → 高 / Completeness low–high</option></select></label>`);
@@ -1048,6 +1094,8 @@ ${covRows.map(t => {
     </section>
 
 ${partitionBar(partKey)}
+
+    ${taskSection(partKey, site, entries)}
 
     ${guideSection(partKey, site, entries)}
 

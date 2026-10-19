@@ -1,6 +1,7 @@
 ---
 id: langgraph
 track: harness
+tasks: ["build-agent"]
 family: orchestration
 name: LangGraph
 vendor: LangChain Inc

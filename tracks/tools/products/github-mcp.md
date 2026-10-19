@@ -1,6 +1,7 @@
 ---
 id: github-mcp
 track: mcp
+tasks: ["extend"]
 name: GitHub MCP Server
 vendor: GitHub
 homepage: https://github.com/github/github-mcp-server

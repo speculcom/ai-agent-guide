@@ -1,6 +1,7 @@
 ---
 id: amp
 track: cli
+tasks: ["write-code"]
 name: Amp
 vendor: Sourcegraph
 homepage: https://ampcode.com

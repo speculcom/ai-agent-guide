@@ -1,6 +1,7 @@
 ---
 id: cursor
 track: ide
+tasks: ["write-code"]
 name: Cursor
 vendor: Anysphere
 homepage: https://cursor.com

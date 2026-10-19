@@ -263,6 +263,36 @@ if (fs.existsSync(path.join(ROOT, 'tracks'))) {
 }
 crossCheck(entries);
 
+/* ── S43 任务化入口：tasks 字段校验（2026-10-19）──────────────────
+ * 真相源：档案 frontmatter 的 tasks:（行内数组）+ sites/tasks.json（任务元信息）。
+ * 规则：① 每份档案 tasks ≥1 且全部落在 tasks.json 的 id 集合内；
+ *       ② tasks.json 里每个任务至少被 1 份档案引用（空任务 = 假入口）。
+ * 双向对账：档案→任务（枚举）+ 任务→档案（覆盖）。 */
+{
+  const TASKS_FILE = path.join(ROOT, 'sites', 'tasks.json');
+  if (!fs.existsSync(TASKS_FILE)) {
+    errors.push('缺任务定义: sites/tasks.json');
+  } else {
+    const taskDefs = JSON.parse(fs.readFileSync(TASKS_FILE, 'utf8')).tasks || [];
+    const taskIds = new Set(taskDefs.map((t) => t.id));
+    const used = new Map(taskDefs.map((t) => [t.id, 0]));
+    for (const [rel, fm] of entries) {
+      const ts = fm.tasks;
+      if (!Array.isArray(ts) || ts.length === 0) {
+        errors.push(`${rel} · 缺 tasks 字段（S43：每份档案必须至少挂一个任务入口）`);
+        continue;
+      }
+      for (const t of ts) {
+        if (!taskIds.has(t)) errors.push(`${rel} · tasks 引用未知任务 id: ${t}`);
+        else used.set(t, used.get(t) + 1);
+      }
+    }
+    for (const [id, n] of used) {
+      if (n === 0) errors.push(`sites/tasks.json · 任务 ${id} 没有任何档案引用（假入口）`);
+    }
+  }
+}
+
 for (const req of ['README.md', 'METHODOLOGY.md', 'SCHEMA.md', 'CONTRIBUTING.md', 'SOURCES.md', 'LICENSE']) {
   if (!fs.existsSync(path.join(ROOT, req))) errors.push(`缺必需文档: ${req}`);
 }

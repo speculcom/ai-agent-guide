@@ -1,6 +1,7 @@
 ---
 id: smolagents
 track: harness
+tasks: ["build-agent"]
 family: coding-base
 name: smolagents
 vendor: Hugging Face

@@ -1,6 +1,7 @@
 ---
 id: crewai
 track: harness
+tasks: ["build-agent"]
 family: orchestration
 name: CrewAI
 vendor: CrewAI Inc

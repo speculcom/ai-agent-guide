@@ -1,6 +1,7 @@
 ---
 id: windsurf
 track: ide
+tasks: ["write-code"]
 name: Windsurf / Devin Desktop
 vendor: Cognition
 homepage: https://windsurf.com

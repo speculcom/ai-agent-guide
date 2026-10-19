@@ -1,6 +1,7 @@
 ---
 id: opencode
 track: cli
+tasks: ["write-code"]
 name: OpenCode
 vendor: OpenCode
 homepage: https://github.com/sst/opencode

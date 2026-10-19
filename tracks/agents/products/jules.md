@@ -1,6 +1,7 @@
 ---
 id: jules
 track: cloud
+tasks: ["long-task"]
 name: Jules
 vendor: Google
 homepage: https://jules.google

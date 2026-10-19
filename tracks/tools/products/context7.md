@@ -1,6 +1,7 @@
 ---
 id: context7
 track: mcp
+tasks: ["read-files"]
 name: Context7
 vendor: Upstash
 homepage: https://github.com/upstash/context7

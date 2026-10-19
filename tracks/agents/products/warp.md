@@ -1,6 +1,7 @@
 ---
 id: warp
 track: cli
+tasks: ["write-code"]
 name: Warp
 vendor: Warp
 homepage: https://www.warp.dev

@@ -1,6 +1,7 @@
 ---
 id: goose
 track: cli
+tasks: ["write-code"]
 name: Goose
 vendor: Agentic AI Foundation
 homepage: https://github.com/aaif-goose/goose

@@ -1,6 +1,7 @@
 ---
 id: copilot
 track: ide
+tasks: ["write-code"]
 name: GitHub Copilot
 vendor: GitHub / Microsoft
 homepage: https://github.com/features/copilot

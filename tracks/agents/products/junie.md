@@ -1,6 +1,7 @@
 ---
 id: junie
 track: ide
+tasks: ["write-code"]
 name: Junie
 vendor: JetBrains
 homepage: https://www.jetbrains.com/junie/

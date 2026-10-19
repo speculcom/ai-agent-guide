@@ -1,6 +1,7 @@
 ---
 id: crush
 track: cli
+tasks: ["write-code"]
 name: Crush
 vendor: Charm
 homepage: https://github.com/charmbracelet/crush

@@ -1,6 +1,7 @@
 ---
 id: continue
 track: ide
+tasks: ["write-code"]
 name: Continue
 vendor: Continue
 homepage: https://continue.dev

@@ -1,6 +1,7 @@
 ---
 id: zed
 track: ide
+tasks: ["write-code"]
 name: Zed
 vendor: Zed Industries
 homepage: https://zed.dev

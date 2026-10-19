@@ -1,6 +1,7 @@
 ---
 id: kiro
 track: ide
+tasks: ["write-code"]
 name: Kiro
 vendor: AWS
 homepage: https://kiro.dev

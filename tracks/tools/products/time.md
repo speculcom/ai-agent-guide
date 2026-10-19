@@ -1,6 +1,7 @@
 ---
 id: time
 track: mcp
+tasks: ["extend"]
 name: Time MCP Server
 vendor: Model Context Protocol
 homepage: https://github.com/modelcontextprotocol/servers/tree/main/src/time

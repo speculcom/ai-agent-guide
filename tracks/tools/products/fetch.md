@@ -1,6 +1,7 @@
 ---
 id: fetch
 track: mcp
+tasks: ["web"]
 name: Fetch MCP Server
 vendor: Model Context Protocol
 homepage: https://github.com/modelcontextprotocol/servers/tree/main/src/fetch

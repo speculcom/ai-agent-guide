@@ -1,6 +1,7 @@
 ---
 id: grok-bot
 track: cloud
+tasks: ["long-task"]
 name: xAI Grok Bot
 vendor: xAI
 homepage: https://x.ai/news/introducing-grok-bot

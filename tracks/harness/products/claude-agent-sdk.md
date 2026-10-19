@@ -1,6 +1,7 @@
 ---
 id: claude-agent-sdk
 track: harness
+tasks: ["build-agent"]
 family: coding-base
 name: Claude Agent SDK
 vendor: Anthropic

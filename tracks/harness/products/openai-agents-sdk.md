@@ -1,6 +1,7 @@
 ---
 id: openai-agents-sdk
 track: harness
+tasks: ["build-agent"]
 family: coding-base
 name: OpenAI Agents SDK
 vendor: OpenAI

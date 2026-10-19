@@ -1,6 +1,7 @@
 ---
 id: ag2
 track: harness
+tasks: ["build-agent"]
 family: orchestration
 name: AG2
 vendor: ag2ai

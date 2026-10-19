@@ -1,6 +1,7 @@
 ---
 id: codex-ide
 track: ide
+tasks: ["write-code"]
 name: Codex IDE 扩展
 nameEn: Codex (IDE extension)
 vendor: OpenAI

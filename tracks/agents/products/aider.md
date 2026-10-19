@@ -1,6 +1,7 @@
 ---
 id: aider
 track: ide
+tasks: ["write-code"]
 name: Aider Watch 模式
 nameEn: Aider (Watch mode)
 vendor: Aider-AI

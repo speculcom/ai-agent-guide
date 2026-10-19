@@ -1,6 +1,7 @@
 ---
 id: copilot-cli
 track: cli
+tasks: ["write-code"]
 name: GitHub Copilot CLI
 vendor: GitHub
 homepage: https://docs.github.com/en/copilot/concepts/agents/about-copilot-cli

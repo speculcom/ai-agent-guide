@@ -1,6 +1,7 @@
 ---
 id: deepagents
 track: harness
+tasks: ["long-task"]
 family: general-harness
 name: Deep Agents
 vendor: LangChain

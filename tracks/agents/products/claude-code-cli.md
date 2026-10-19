@@ -1,6 +1,7 @@
 ---
 id: claude-code-cli
 track: cli
+tasks: ["write-code"]
 name: Claude Code CLI
 vendor: Anthropic
 homepage: https://github.com/anthropics/claude-code

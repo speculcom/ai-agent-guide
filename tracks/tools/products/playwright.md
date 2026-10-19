@@ -1,6 +1,7 @@
 ---
 id: playwright
 track: mcp
+tasks: ["web"]
 name: Playwright MCP Server
 vendor: Microsoft
 homepage: https://github.com/microsoft/playwright-mcp

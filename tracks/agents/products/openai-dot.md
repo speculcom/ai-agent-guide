@@ -1,6 +1,7 @@
 ---
 id: openai-dot
 track: cloud
+tasks: ["long-task"]
 name: OpenAI Dot
 vendor: OpenAI
 homepage: https://openai.com/index/introducing-dots/

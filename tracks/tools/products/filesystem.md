@@ -1,6 +1,7 @@
 ---
 id: filesystem
 track: mcp
+tasks: ["read-files"]
 name: Filesystem MCP Server
 vendor: Model Context Protocol
 homepage: https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem
