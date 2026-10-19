@@ -24,7 +24,7 @@ axes:
   model_access: >-
     **它自己不带模型，模型全要你自备（BYOK），但可接的 provider 很多。**
 
-    官方 README 给了完整清单与多种换法，其中包括官方自营的订阅方案 **Hyper**。
+    官方 README 给了完整清单与多种换法。其中包括官方自营的订阅方案 **Hyper**。
 
     官方 README 原文：
 
@@ -113,9 +113,9 @@ axes:
     即最后一条流断开，workspace 就被拆除。
 
     **执行环境归你的本地机器。** `crush serve` 也是本机后端。
-    官方 README 与 docs/config 均无厂商托管或「关机后继续」的表述。
+    官方 README 与 docs/config 都没有厂商托管的表述。也没有「关机后继续」的说法。
 
-    **中断可恢复**：会话按项目保存，可经会话选择器 resume，退出横幅也提示 resume。
+    **中断可恢复**：会话按项目保存。可经会话选择器 resume，退出横幅也提示 resume。
     但进程本身不常驻。
   tools: >-
     **明确支持 MCP，三种传输方式全支持，而且标得最全。**
@@ -160,7 +160,7 @@ axes:
     官方对免确认模式的提醒是 `Use this with care`，意思是谨慎使用。
 
     **另有 `--yolo` 开关可整体放宽审批。**
-    但该 flag 遵循「first-wins」规则：同一 cwd 下首个客户端的设置会锁定后续客户端的行为。
+    但该 flag 遵循「first-wins」规则。同一 cwd 下，首个客户端的设置会锁定后续客户端的行为。
     不一致时会打一行 debug 日志记录这种不匹配。
     **多客户端同时接入同一目录时需注意这个规则。**
 
@@ -266,13 +266,13 @@ confidence: partial
 **这一条值得单独记一笔。**
 多数工具只写「支持 MCP」，Crush 直接列出了三种传输方式。
 
-对照工具分区自己的观察：不少 reference server **只支持 stdio，不支持远程传输**。
+对照工具分区自己的观察：不少 reference server **只支持 stdio**。它们不支持远程传输。
 所以一个明确支持 http 的 CLI 工具，扩展兼容面实际上比想象中大。
 
 ## 许可状态需要提醒
 
-GitHub API 返回的许可证字段是 **`NOASSERTION`**，也就是无法识别 ——
-不是 MIT，也不是 Apache-2.0。
+GitHub API 返回的许可证字段是 **`NOASSERTION`**，也就是无法识别。
+它不是 MIT，也不是 Apache-2.0。
 
 **这意味着：**
 

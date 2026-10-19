@@ -24,7 +24,7 @@ pricing_pitfalls:
 
 axes:
   model_access: >-
-    **provider 由你自选，官方给出 30+ 家清单，以自带 API key（BYOK）为主。**
+    **provider 由你自选。官方给出 30+ 家清单，以自带 API key（BYOK）为主。**
 
     官方 Model Selection Guide 的 provider 表列出：
 
@@ -146,15 +146,15 @@ axes:
     **第二级是「每次文件编辑与终端命令都需要批准」**，也可以切到 auto-approve
     让它自主运行。VS Code 扩展形态的表述是**「human-in-the-loop approval」**。
 
-    ⚠ **但 CLI / headless 的默认行为是相反的，这点必须知道**（已核官方 CLI Overview
-    与 CLI Reference）：
+    ⚠ **但 CLI / headless 的默认行为是相反的。这点必须知道**
+    （已核官方 CLI Overview 与 CLI Reference）：
 
     - `--auto-approve <boolean>` **默认 true** —— 即默认放行工具
     - `--auto-approve false` 时，每个工具调用前都需批准
     - `--yolo` 跳过全部审批
     - **ACP（编辑器集成）模式默认相反**，为 false
 
-    另：**CLI 没有 shell 命令的允许/拒绝清单** —— 官方建议用 PreToolUse hook 拦截。
+    另：**CLI 没有 shell 命令的允许/拒绝清单**。官方建议用 PreToolUse hook 拦截。
 
     **CLI 提示语原文**：Default to start in act mode with auto-approve enabled
     **VS Code 扩展表述**：use tools with human-in-the-loop approval
@@ -240,7 +240,7 @@ confidence: partial
 
 ## 一句话定位
 
-**本分区唯一三形态全覆盖的对象**——CLI、Desktop App、VS Code 扩展共享同一开源核心，且模型自选。
+**本分区唯一三形态全覆盖的对象**。CLI、Desktop App、VS Code 扩展共享同一开源核心。模型也是自选的。
 
 ## 三种形态（README 明确列出）
 
@@ -251,7 +251,7 @@ confidence: partial
 | **VS Code 扩展** | 创建文件、执行命令、浏览网页、使用工具，**human-in-the-loop approval** |
 
 **这个三形态覆盖在本分区里是独一份**——
-其他对象要么是 IDE + 扩展（Copilot），要么是编辑器单一形态（Zed），要么是 CLI 为主（Aider）。
+其他对象要么是 IDE + 扩展（Copilot），要么是编辑器单一形态（Zed）。Aider 则是 CLI 为主。
 
 **对用户意味着**：可以在编辑器里用、可以在终端里跑、可以在桌面端定时跑，
 同一套核心，同一份配置习惯。
@@ -285,9 +285,9 @@ use tools with human-in-the-loop approval
 **CLI / headless 的审批口径已核到**（官方 CLI Overview 与 CLI Reference）：
 提示语写 **"Default to start in act mode with auto-approve enabled"**，
 `--auto-approve <boolean>` **默认 true**——headless 运行默认放行工具，
-`--auto-approve false` 才改为每次工具调用前需批准，`--yolo` 跳过全部审批；
+`--auto-approve false` 才改为每次工具调用前需批准。`--yolo` 跳过全部审批。
 ACP（编辑器集成）模式默认相反，为 false。
-另：CLI 无 shell 命令允许/拒绝清单，官方建议用 PreToolUse hook 拦截。
+另：CLI 无 shell 命令允许/拒绝清单。官方建议用 PreToolUse hook 拦截。
 
 **所以「三形态审批一致」并不成立**：扩展形态默认要人工批准，
 CLI 默认自主放行——跨形态使用时必须按 `--auto-approve` 显式对齐。
@@ -297,7 +297,7 @@ CLI 默认自主放行——跨形态使用时必须按 `--auto-approve` 显式�
 需要同一工具覆盖编辑器、终端、桌面三种工作形态的用户。
 需要模型自选（不绑定单一厂商）的人。
 需要 CI/CD 集成（CLI headless）的人。
-需要「改动可审查、可回滚」保证的人——每次编辑以 diff 呈现 + checkpoint 整体撤销。
+需要「改动可审查、可回滚」保证的人。每次编辑以 diff 呈现，checkpoint 可整体撤销。
 需要周期性自动化的人（cron 调度，重启后仍生效）。
 
 **不适合**要求「审批默认最严」的场景——

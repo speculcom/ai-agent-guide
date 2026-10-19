@@ -84,7 +84,8 @@ axes:
 
     **官方支持 model fallbacks。**
 
-    也可按任务 mix-and-match 不同模型，还能用 `requestContext` 动态选模型。
+    也可按任务 mix-and-match 不同模型。
+    还能用 `requestContext` 动态选模型。
 
     **官方原文**："If a provider experiences an outage, Mastra can automatically switch to another provider at the application level"
 
@@ -131,9 +132,9 @@ axes:
   local_files: >-
     **核心框架不内置文件系统，文件能力要显式加装。**
 
-    Mastra 的定位是 AI 应用/agent 框架，官方文档**没有把文件读写当成默认 agent 能力**。
+    Mastra 的定位是 AI 应用/agent 框架。官方文档**没有把文件读写当成默认 agent 能力**。
 
-    **工具面**：README 与 agents 页讲的工具面是 `createTool()` 自定义工具与 MCP。
+    **工具面**：README 与 agents 页讲的工具面是两样。一是 `createTool()` 自定义工具，二是 MCP。
 
     **官方给的三条文件路径**（已查 harness 页与 platform 页）：
 
@@ -189,7 +190,7 @@ axes:
     并给了 Klavis AI、mcp.run、Composio、Smithery、Ampersand 等**注册表接入**示例。
 
     还区分两类工具：**静态工具（`getTools()`，配置固定）** 与
-    **动态工具（`getToolsets()`，按用户/请求带凭据）**，对多租户 SaaS 很有用。
+    **动态工具（`getToolsets()`）**：按用户/请求带凭据。对多租户 SaaS 很有用。
 
     另有 **A2A**（`@mastra/core` 暴露 `./a2a` 子路径）与 **skills**（`./skills`）子模块。
     子代理/多 agent 委派官方称 supervisor + subagents（见 memory 页的 delegation 说明）。
@@ -206,21 +207,22 @@ axes:
     - **Semantic recall**：按语义而非关键词召回历史消息
 
     超限时用 **memory processors** filter / trim / prioritize。
-    作用域用 `resource`（用户/实体）+ `thread`（会话）两个 ID 划分，多 agent 间可共享或隔离
-    （`scope: 'resource' | 'thread'`）。
+    作用域用两个 ID 划分：`resource`（用户/实体）和 `thread`（会话）。
+    多 agent 间可共享或隔离（`scope: 'resource' | 'thread'`）。
 
     **状态那一套**是 workflow 的 snapshot（suspend/resume，见 background 轴）—— 与 memory 分离。
 
     **RAG 是独立系统**（`@mastra/rag`）：MDocument 切块（recursive / sliding window）、embedding，
     再落向量库（官方点名 **pgvector、Pinecone、Qdrant、MongoDB**）。
 
-    即：snapshot 存流程状态，memory 存对话与用户长期信息，RAG 存外部知识，三者用途不同。
+    即：snapshot 存流程状态。memory 存对话与用户长期信息。RAG 存外部知识。三者用途不同。
   permissions: >-
     **认证是「可选、多 provider」，HITL 是完整的暂停/恢复，沙箱只落在平台侧。** 官方 auth 页原文：
 
     "**Authentication is optional.** If no auth is configured, all routes and Studio are **publicly accessible**."
 
-    配置后可同时锁住 **Studio UI**（登录 + RBAC）与 **API 路由**；自定义路由可用 `requiresAuth: false` 单开。
+    配置后可同时锁住 **Studio UI**（登录 + RBAC）与 **API 路由**。
+    自定义路由可用 `requiresAuth: false` 单开。
 
     - **内置**：Simple Auth / JWT
     - **第三方**：Auth0、Better Auth、Clerk、Firebase、Google、Okta、Supabase、WorkOS
@@ -358,7 +360,7 @@ LangGraph 自认 low-level、不预置工具与文件系统；Mastra 走 batteri
 
 本站 harness 分区里，Python 侧已经有一批对象：LangGraph / CrewAI / OpenAI Agents SDK / Pydantic AI。
 
-**Mastra 就是把同一件事翻译到 TypeScript 世界的那一个**，而且抽象层次更高：
+**Mastra 就是把同一件事翻译到 TypeScript 世界的那一个**。而且它的抽象层次更高：
 
 | | LangGraph | **Mastra** |
 |---|---|---|
@@ -368,7 +370,7 @@ LangGraph 自认 low-level、不预置工具与文件系统；Mastra 走 batteri
 | 预置能力 | 不管工具/文件系统 | **Memory / RAG / Evals / MCP / server / Studio 全预置** |
 | 商业线 | LangSmith Deployment | **Mastra 平台**（Observability / Studio / Server，YC W25） |
 
-**一句口诀**：想自己画流程、要最低层 → LangGraph；想少接线、要开箱就全 → Mastra。
+**一句口诀**：想自己画流程、要最低层 → LangGraph。想少接线、要开箱就全 → Mastra。
 
 ## 模型路由：为第一决策点给出的最完整答案
 
@@ -420,7 +422,7 @@ LangGraph 自认 low-level、不预置工具与文件系统；Mastra 走 batteri
 
 - **外部知识** = RAG（`@mastra/rag` + 向量库）。
 
-**三者用途不同、存储也可分开配置** —— 这正是本站主张的「状态 ≠ 上下文」的落地形态。
+**三者用途不同、存储也可分开配置**。这正是本站主张的「状态 ≠ 上下文」的落地形态。
 
 ## 工具与 MCP：既能当客户端，也能当 server
 
@@ -436,25 +438,26 @@ LangGraph 自认 low-level、不预置工具与文件系统；Mastra 走 batteri
 
 官方给了 Klavis AI、mcp.run、Composio、Smithery、Ampersand 等注册表接入示例。
 
-自定义工具必须走 `createTool()` —— 官方 agents 页明确警告 plain object 工具会 **静默失败**。
+自定义工具必须走 `createTool()`。官方 agents 页明确警告：plain object 工具会 **静默失败**。
 
 ## 许可与商业线：必须分开读
 
-**结论先说：核心框架 Apache-2.0，`ee/` 目录 source-available，生产用需企业许可。**
+**结论先说：核心框架 Apache-2.0。`ee/` 目录 source-available。生产用需企业许可。**
 
 仓库 README 的 Licensing 段说得很清楚，是**双许可**：
 
 > **Apache License 2.0**: The core framework and the vast majority of this codebase is open source under Apache-2.0.
 > **Mastra Enterprise License**: Code in any directory named `ee/` ... is source-available ... require a valid enterprise license for production use.
 
-GitHub 的 license API 对整仓返回 **NOASSERTION**，与这段双许可声明一致 —— 不是「无许可」，是「非标准双许可」。
+GitHub 的 license API 对整仓返回 **NOASSERTION**。
+它与这段双许可声明一致：不是「无许可」，是「非标准双许可」。
 
 另一条线是 **Mastra 平台**（YC W25）。官方定价页（核验 2026-10-08）分两处：
 
 - **平台三档**：**Starter $0/月**、**Teams $250/月**、**Enterprise 定制**
 - **自托管两档**：Free 与 Enterprise
 
-**Studio、Observability、托管 Server 与 24/7 常驻（$100/项目）都是平台产品，不是框架自带。**
+**Studio、Observability、托管 Server 与 24/7 常驻（$100/项目）都是平台产品**。它们不是框架自带。
 
 ## 适合与不适合
 
@@ -477,7 +480,7 @@ GitHub 的 license API 对整仓返回 **NOASSERTION**，与这段双许可声�
 
 `confidence: partial` 的依据：
 
-**为什么仍是 partial**：八维已全部从官方页核到结论，但仍有若干处**官方确实没写**、
+**为什么仍是 partial**：八维已全部从官方页核到结论。但仍有若干处**官方确实没写**、
 只能记「官方未说明」的项。**共四处**：
 
 - 换 provider 后各家 tool calling / structured output 的对齐度

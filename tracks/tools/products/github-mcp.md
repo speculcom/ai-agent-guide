@@ -46,7 +46,7 @@ axes:
     - `go build` 出来的二进制
     - 自带 HTTP 模式 `github-mcp-server http`（默认端口 8082）
 
-    ⚠ **GitHub Enterprise Server 不支持远程托管**（官方明写）—— 只能用本地形态。
+    ⚠ **GitHub Enterprise Server 不支持远程托管**（官方明写）。只能用本地形态。
     `ghe.com` 可以走远程，但有独立端点。
 
     **官方对远程形态的说法**：「the easiest method for getting up and running」
@@ -54,7 +54,7 @@ axes:
   local_files: >-
     **不碰你本机的文件系统。**
 
-    它操作的是 GitHub 平台（远程仓库、issue、PR），跟你本地的 git 仓库没有直接关系。
+    它操作的是 GitHub 平台：远程仓库、issue、PR。它跟你本地的 git 仓库没有直接关系。
     本地 git 操作见本站的 git 条目。
 
     唯一贴近「文件」的能力，是**操作远端仓库内容**：
@@ -65,10 +65,10 @@ axes:
 
     作用域是 GitHub 上的 repo / branch。**容器形态下也不需要挂载本地仓库。**
   background: >-
-    **远程托管形态与你的客户端进程无关** —— 服务在 GitHub 那边，你关机它还在线。
+    **远程托管形态与你的客户端进程无关**。服务在 GitHub 那边，你关机它还在线。
 
     **本地形态随客户端生死** —— stdio 子进程退出就停。
-    自托管 HTTP 模式则是你自己运营的常驻服务（`github-mcp-server http` + 反向代理）。
+    自托管 HTTP 模式则是你自己运营的常驻服务。即 `github-mcp-server http` 加反向代理。
 
     ⚠ **它不提供「后台任务续跑」语义。** 它的模式是有状态 HTTP / stdio 会话，
     官方没有断点续跑机制。所谓「一直在」指的是远程托管形态的可用性，
@@ -91,10 +91,10 @@ axes:
 
     远程形态还有专属工具集，如 Copilot Spaces、GitHub Support Docs Search。
   context: >-
-    **没有跨会话记忆。** 每次会话独立 —— 状态在 GitHub 平台本身（仓库、issue、PR 的持久状态），
+    **没有跨会话记忆。** 每次会话独立。状态在 GitHub 平台本身（仓库、issue、PR 的持久状态），
     不在 server 里。
 
-    有一条官方特有的上下文控制：**Insiders 模式下 `list_*` 工具可以返回 CSV**
+    有一条官方特有的上下文控制。Insiders 模式下 `list_*` 工具可以返回 CSV
     （`csv_output` 特性标志），用来压缩列表类响应。
 
     ⚠ 那是**响应格式优化，不是记忆机制**。
@@ -126,15 +126,15 @@ axes:
 
     客户端包括 VS Code、Claude Desktop、Cursor、Windsurf、Codex、Gemini CLI 等。
 
-    能做的事：读代码与仓库结构 · 管 issue 与 PR · 监控 Actions ·
-    查 code scanning / dependabot 安全告警 · 读通知。
+    能做的事：读代码与仓库结构、管 issue 与 PR、监控 Actions。
+    还能查 code scanning / dependabot 安全告警、读通知。
 
     **远程托管形态适合「不想自己运维」的人。**
     **本地 Docker 形态适合**：GitHub Enterprise Server 用户 · 需要自托管 HTTP 的人 ·
     要离线可控的人。
 
-    **不适合**两类场景：需要操作本地文件系统（那是 filesystem / git server 的活）；
-    以及需要跨会话记忆的场景。
+    **不适合**两类场景。一是需要操作本地文件系统，那是 filesystem / git server 的活。
+    二是需要跨会话记忆的场景。
 
 pitfalls:
   - 误以为它是已归档的旧 MCP 组织参考 server——那是 servers-archived 里的 github server，本 server 是 GitHub 官方活跃产品线
@@ -246,7 +246,7 @@ confidence: partial
 ## 一句话定位
 
 **GitHub 官方自己的 MCP server**（仓库自述 "GitHub's official MCP Server"），
-以**本地 Docker + 远程托管两形态**把 GitHub 平台能力暴露给任意 MCP 客户端。
+它有**本地 Docker 与远程托管两种形态**。它把 GitHub 平台能力暴露给任意 MCP 客户端。
 
 ## ⚠ 先澄清一个最容易搞混的点
 
@@ -292,8 +292,8 @@ confidence: partial
 | **read-only** | `--read-only` / `X-MCP-Readonly` | **strict security filter**，优先级最高，显式请求写工具也禁用 |
 | **lockdown** | `--lockdown-mode` / `X-MCP-Lockdown` | **best-effort 内容过滤，不是授权边界** |
 
-lockdown 的边界官方写得很实：它只减少**公开仓库里无 push 权限用户产出内容**的 prompt injection 风险，
-**不改变底层凭据能读写什么**，被过滤响应里隐藏的内容仍可能通过其他工具或直接调 GitHub API 拿到
+lockdown 的边界官方写得很实。它只减少一种 prompt injection 风险：**公开仓库里无 push 权限用户产出的内容**。
+它**不改变底层凭据能读写什么**。被过滤响应里隐藏的内容仍可能通过其他工具拿到。也可以直接调 GitHub API 拿到
 （`github-actions[bot]` 与 `copilot` 是例外，始终视为可信）。
 
 ## 认证与权限：token 决定一切
@@ -303,7 +303,7 @@ lockdown 的边界官方写得很实：它只减少**公开仓库里无 push 权
 - **细粒度 PAT（`github_pat_`）/ GitHub App**：**不做工具过滤**，全量显示，权限由 GitHub API 侧强制。
 
 官方给的凭据最佳实践：最小 scope（`repo` / `read:packages` / `read:org`）、按环境分 token、
-定期轮换、别硬编码（部分宿主如 Windsurf 只能硬编码，官方也点出了这个例外）。
+定期轮换、别硬编码。部分宿主如 Windsurf 只能硬编码，官方也点出了这个例外。
 
 ## 适合与不适合
 
@@ -311,15 +311,15 @@ lockdown 的边界官方写得很实：它只减少**公开仓库里无 push 权
 查 code scanning 与 dependabot 告警、读通知。**不想自己运维就选远程托管形态**；
 **GHES / 要自托管 HTTP / 要离线可控就选本地形态**。
 
-**不适合**需要本地文件系统操作（那是 filesystem / git server 的职责），
-也需要跨会话记忆或后台续跑的场景。
+**不适合**需要本地文件系统操作的场景，那是 filesystem / git server 的职责。
+也不适合需要跨会话记忆或后台续跑的场景。
 
 ## 核验说明
 
 `confidence: partial` 的依据（2026-10-08）：
 
 八维与 mcp 三维均给出结论，但有两处**官方文档本身没有内容**，只能落「官方未说明」：
-所谓「动态工具发现」在当前官方文档中查不到（见未知项），以及工具级审批机制官方未提供。
+所谓「动态工具发现」在当前官方文档中查不到（见未知项）。工具级审批机制官方也未提供。
 这些都非取证缺口，而是官方当前未提供，故不足以升到 verified。
 
 **本轮核到的官方页**：README（两形态、toolsets 全表、认证、read-only / lockdown、i18n 覆写）、

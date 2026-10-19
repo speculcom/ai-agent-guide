@@ -357,7 +357,7 @@ Free 档官方写每月最多 50 次 premium requests。付费档的内置模型
 
 ## 核验说明
 
-`confidence: partial` 的依据：运行模式、审批选项、MCP / 扩展面已取到。
+`confidence: partial` 的依据：运行模式与审批选项已取到。MCP / 扩展面也已取到。
 
 上下文管理与计费单位也已取到。
 

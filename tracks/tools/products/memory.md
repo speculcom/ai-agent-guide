@@ -118,7 +118,7 @@ confidence: verified
 
 ## 一句话定位
 
-用本地知识图谱实现跨会话持久记忆的 reference server，**记忆落盘、跨会话共享、无访问控制**。
+用本地知识图谱实现跨会话持久记忆的 reference server。**它记忆落盘、跨会话共享，但没有访问控制**。
 
 ## 变更记录说明
 
@@ -142,7 +142,7 @@ confidence: verified
 | **Relation** | 实体间的有向连接 | `{from: "A", to: "B", relationType: "works_at"}` |
 | **Observation** | 挂在实体上的原子事实 | 建议一条观察只存一个事实 |
 
-**关系用主动语态存储**（`works_at` 而非 `works at`），这是文档里的明确约定。
+**关系用主动语态存储**，如 `works_at` 而非 `works at`。这是文档里的明确约定。
 
 ## 工具清单与读写属性
 

@@ -51,7 +51,7 @@ axes:
     数据都在 Muse Secure VM 里。
 
     官方另有一句针对 app 连接的数据最小化承诺（帮助中心页）：
-    **「例如，连接你的邮件允许 Muse 搜索你的邮件， 但除非你要求，否则它不会下载你的整个收件箱」**。
+    **「例如，连接你的邮件允许 Muse 搜索你的邮件」「但除非你要求，否则它不会下载你的整个收件箱」**。
 
     **这一句是官方在数据面给出的具体边界，值得单独记。**
 
@@ -74,7 +74,8 @@ axes:
     **触发源不止你发指令** —— 帮助中心 Connector 页写了反向推送：
     **官方原文**："Some Connectors can also share information proactively with Muse. For example, calendar Connectors can update Muse automatically when there are changes in your schedule"，且**这类 Connector 会在连接前标明**。
 
-    **后台自主时是只读还是读写，本条给的是机制而非原句**（2026-10-03 补齐）：默认权限档下
+    **后台自主时是只读还是读写？本条给的是机制而非原句**（2026-10-03 补齐）。
+    默认权限档下
     **官方原文**："your Muse will ask for permission before every write action and important read actions"
     而 Connector 页写默认态是 **官方原文**："Muse will not take **many important actions**, like sending an email, without your approval"（注意是 many，不是 every）。
 
@@ -125,7 +126,7 @@ axes:
 
     **这条限定值得记，删除不等于抹掉已学到的。**
 
-    **残留不止删除这一条路径（2026-10-03 补）**：断开 Connector 也不清记忆——
+    **残留不止删除这一条路径（2026-10-03 补）**。断开 Connector 也不清记忆。
     **官方原文**："Information that Muse previously used to perform tasks with that Connector might still remain in Muse's memories and your conversation history"。
 
     **对比之下 reset 才是硬边界**：
@@ -165,8 +166,8 @@ axes:
     （帮助中心页补充：设置默认开，可随时改，改动也适用于历史交互；
     开启时仍会移除姓名/邮箱/电话/SSN 等部分身份信息，并与账号脱钩）；
 
-    **不与广告系统共享**：Muse 官方两处都写了不把对话或 VM 数据给 Meta 广告系统
-    （帮助中心页补充：即使 Accounts Center 里绑了其他 Meta 产品也一样）。
+    **不与广告系统共享**。Muse 官方两处都写了不把对话或 VM 数据给 Meta 广告系统。
+    帮助中心页补充：即使 Accounts Center 里绑了其他 Meta 产品也一样。
 
     **⚠ 官方自己承认 prompt injection 未解决（2026-10-03 补，一手措辞）**：
     **官方原文**："Websites, emails, files and connected services can contain instructions intended to manipulate an AI agent. This is sometimes called a prompt injection attack. Muse uses multiple protections to help detect and resist these attempts. These include model training, automated detection systems, and limits on the information and services Muse can access during a task."
@@ -174,7 +175,7 @@ axes:
     **关键一句**：
     **官方原文**："Important permission and security checks operate separately from the AI model, meaning that they don't rely only on Muse recognizing that an instruction may be malicious."
 
-    ——**官方承认「模型自己认出恶意指令」不足以兜底**，这与 Sentinel 的设计动机一致。
+    ——**官方承认「模型自己认出恶意指令」不足以兜底**。这与 Sentinel 的设计动机一致。
 
     官方也照例写了 **官方原文**："No automated system is perfect"，并要求用户自行复核活动。
 
@@ -189,7 +190,7 @@ axes:
 
     ——**读-only 连接器是官方提供的降权手段。**
 
-    ⚠ 帮助中心页有一处**尚未实现的承诺**：Muse Confidential VM ——
+    ⚠ 帮助中心页有一处**尚未实现的承诺**：Muse Confidential VM。
     官方写 **官方原文**："In the future / Later this year"，
     即**整台 VM 用只有用户持有的密钥加密、连 Meta 都读不了**，**当前不可用**。
 
@@ -247,7 +248,7 @@ confidence: partial
 
 ## 一句话定位
 
-**唯一一家把「审批权交给另一个 agent」的** —— Muse Secure VM 上跑着两个系统级隔离的东西：干活的 Muse，和否决它的 Sentinel。
+**唯一一家把「审批权交给另一个 agent」的**。Muse Secure VM 上跑着两个系统级隔离的东西：干活的 Muse，和否决它的 Sentinel。
 
 ## 与 Dot 的关键设计差异（两份同期档案，最值得对照的地方）
 
@@ -379,7 +380,7 @@ AI glasses 形态「coming soon」）；
 | Meta Careers（Muse Spark 技术描述） | ⚠️ 仅取到摘要 |
 
 **⚠️ 一处取证方式不一致，如实记录**：
-三页 Help Centre 均为**检索接口返回的整页正文**（`WebFetch` 直抓 meta.com 在本机仍失败）。
+三页 Help Centre 均为**检索接口返回的整页正文**。`WebFetch` 直抓 meta.com 在本机仍失败。
 正文完整、可逐字引用，但**不是本机渲染抓出来的**——
 若要用于正式对外引用，应再复核一次。
 
@@ -425,7 +426,7 @@ might still remain in Muse's memories and your conversation history.
 本站尚未完成实测。测试协议见 [tasks/_protocol.md](../tasks/_protocol.md)。
 
 **实测建议**：与 OpenAI Dot 做**同题对照**才有意义 ——
-两者同期发布、定位相近，差异集中在 `permissions`（Sentinel vs 自动审核）
+两者同期发布、定位相近。差异集中在 `permissions`（Sentinel vs 自动审核）
 与 `context`（是否默认开训练）。
 
 这两项都不需要跑基准，只需要读设置页 + 观察行为，

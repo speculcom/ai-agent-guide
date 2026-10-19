@@ -123,7 +123,8 @@ axes:
     LangGraph 本身给的是**状态容器** —— checkpoint 里存的是 graph state。
     至于 agent 要不要读写磁盘、用什么工具读写，不归它管。
 
-    **本站判断（推断）**：想要文件系统，得自己接工具，或走 Deep Agents 那一层。
+    **本站判断（推断）**：想要文件系统，得自己接工具。
+    或者走 Deep Agents 那一层。
 
   background: >-
     **这是它最强的一维，且有官方明文。**
@@ -179,7 +180,7 @@ axes:
 
     以及 **官方原文**："Convert MCP tools into LangChain tools that can be used with LangGraph agents"
 
-    可连接多个 MCP server —— **这就是 LangChain 生态的统一 MCP 接入层。**
+    可连接多个 MCP server。**这就是 LangChain 生态的统一 MCP 接入层。**
 
     注意它是独立包（`pip install langchain-mcp-adapters`），不在 langgraph 核心里。
 
@@ -209,7 +210,7 @@ axes:
     那是上层 Deep Agents 的 context management 能力。
 
   permissions: >-
-    **官方给的是 human-in-the-loop，且是「检查并修改状态」级别，不只是确认。**
+    **官方给的是 human-in-the-loop。** 它是「检查并修改状态」级别，不只是确认。
 
     第二条特性 **Human-in-the-loop** 官方原文是：
 
@@ -226,8 +227,8 @@ axes:
 
     ⚠ **但要说清：它明确给的不是沙箱或权限边界。**
     官方文档未提及文件系统权限模型、网络访问控制、工具级白名单。
-    与本站收录的 OpenHands（明确的 Docker 沙箱 + API key 机制）、
-    Codex SDK（源码里三档 SandboxMode 枚举）形成对照，
+    与本站收录的 OpenHands 对照。它有明确的 Docker 沙箱 + API key 机制。
+    也与 Codex SDK（源码里三档 SandboxMode 枚举）对照。
     **LangGraph 在这一维度上目前查不到官方机制**。
 
   fit: >-
@@ -366,8 +367,8 @@ LangGraph 是本站收录对象里唯一一个在官方首页就把这层区分�
 > **durable execution**, and more.
 
 ⚠ **这是本站见过对「状态持久化」最明确的官方定义。**
-粒度是 **superstep（图的一个步进）**，不是「会话结束时」，也不是「每轮对话后」。
-本站对这条粒度的记录：**落盘粒度是 superstep**（图的一个步进），不是「会话结束时」也不是「每轮对话后」。
+粒度是 **superstep（图的一个步进）**。不是「会话结束时」，也不是「每轮对话后」。
+本站对这条粒度的记录：**落盘粒度是 superstep**（图的一个步进）。它不是「会话结束时」。也不是「每轮对话后」。
 
 ⚠ 但要诚实：**跨机器 / 多进程并发写同一 thread 的冲突语义官方未说明**。
 persistence 文档只给数据库后端与 durability 模式（2026-10-08 核验）。
@@ -450,7 +451,7 @@ Codex SDK（源码里三档 `SandboxMode` 枚举）——
 
 - **工具系统**：五项能力里没有工具系统。工具接入经 LangChain 生态。
 
-⚠ 本站**不把它与本站 MCP 站的 9 个 server 关联** —— 没有证据表明 LangGraph 自带 MCP 客户端。
+⚠ 本站**不把它与本站 MCP 站的 9 个 server 关联**。没有证据表明 LangGraph 自带 MCP 客户端。
 
 ## 溯源与生态：它借鉴了谁
 
@@ -463,10 +464,10 @@ Codex SDK（源码里三档 `SandboxMode` 枚举）——
 > LangGraph is built by LangChain Inc, the creators of LangChain,
 > but **can be used without LangChain**.
 
-**「can be used without LangChain」这句，是本站判断它不是强绑定的关键依据。**
+**「can be used without LangChain」。** 这句是本站判断它不是强绑定的关键依据。
 模型接入通常经 LangChain，但不装也行。
 
-（Pregel 是 Google 的图计算论文，Bulkhead/Beam 那套大图计算思路的来源。）
+（Pregel 是 Google 的图计算论文。它是 Bulkhead/Beam 那套大图计算思路的来源。）
 
 ## 版本号：踩过一个坑，请注意
 

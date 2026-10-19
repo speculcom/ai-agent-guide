@@ -110,18 +110,18 @@ axes:
     另有 `Base URL` 可自定义，本地与自托管模型由此接入。
     官方说保存 local LLM profile 时会先向后端校验。
 
-    **LLM profiles**：最多 10 套配置并存，可在会话中或 `/model` 切换，
+    **LLM profiles**：最多 10 套配置并存。可在会话中或 `/model` 切换。
     也可由内置 `SwitchLLMTool` 让 agent 动态选型。
 
-    ⚠ **两处官方未给出：完整 provider 名单，以及「any LLM」在工具调用与
-    structured output 上的对齐度数据**。核验范围：llm-settings 页。
+    ⚠ **两处官方未给出**。一是完整 provider 名单。二是「any LLM」的对齐度数据。
+    即它在工具调用与 structured output 上是否对齐。核验范围：llm-settings 页。
 
-    **这一项对该对象尤其重要**：它同时是别人的调度层 ——
-    **「Codex / Claude Code 跑在它上面」**时，能用哪些模型由那个 agent 决定。
+    **这一项对该对象尤其重要**：它同时是别人的调度层。
+    **「Codex / Claude Code 跑在它上面」**这一情况比较特殊。能用哪些模型由那个 agent 决定。
 
     **官方 LLM settings 页原文**："This can be any model that is supported by litellm"
   runtime: >-
-    **它有四种官方部署形态，这是本对象最有实用价值的部分（README 四个 Option 全核验）。**
+    **它有四种官方部署形态**。这是本对象最有实用价值的部分。README 四个 Option 全核验。
 
     - **Option 1 无沙箱本地跑**：`npm install -g @openhands/agent-canvas` 然后
       `agent-canvas`，起完整本地栈，**要 Node.js 24+ 与 uv**；
@@ -141,7 +141,7 @@ axes:
     可跑在笔记本 / Mac Mini / 云上 VM / OpenHands Cloud，
     Canvas 前端可以在多个 Server 之间切换。
 
-    关于 Option 3 的官方说明：容器会挂载会话的 workspace 与持久化状态，
+    关于 Option 3 的官方说明。容器会挂载会话的 workspace 与持久化状态。
     **容器替换后文件与对话历史仍在**。
   local_files: >-
     **本地文件能碰多少，取决于你选哪种部署形态 —— 官方把这个变量讲得很清楚。**
@@ -163,15 +163,15 @@ axes:
   background: >-
     **后台任务是它最突出的强项，也是它与其他 harness 站对象最大的差别。**
 
-    把 agent 跑在云上服务器的最大好处有两个：关掉笔记本它还在跑，
-    而且更容易通过 Slack / GitHub / Datadog 等第三方服务触发。
+    把 agent 跑在云上服务器的最大好处有两个。一是关掉笔记本它还在跑。
+    二是更容易被第三方服务触发。比如 Slack、GitHub 或 Datadog。
 
     配套是独立仓 `OpenHands/automation`，提供两种触发方式：
 
     - 定时（schedule）
     - webhook 事件
 
-    官方特性表列了可集成的第三方：Slack、GitHub、Linear、Notion。
+    官方特性表列了可集成的第三方。它们是 Slack、GitHub、Linear 与 Notion。
 
     **对比本站其余对象**：OpenAI Agents SDK、Deep Agents、Codex SDK 的 thread 状态
     都在自己进程 / 自己机器上，关了就没了。
@@ -205,7 +205,7 @@ axes:
 
     **⚠ 修正上一版档案**：本对象**并非只走 ACP** —— MCP 同样是官方能力。
   context: >-
-    **上下文这一点，官方有明确机制：context condenser（本维度证据已补齐）。**
+    **上下文这一点，官方有明确机制：context condenser**。本维度证据已补齐。
 
     默认实现是 `LLMSummarizingCondenser`（继承 `RollingCondenser`），
     参数 `max_size` / `keep_first`。它超阈值时**保留最近的消息不动，只摘要较早的内容**。
@@ -214,10 +214,10 @@ axes:
     LLM settings 页有 "Enable memory condensation" 与
     **"Memory condenser max history size"** 两个开关。
 
-    官方还说明：配了 condenser 之后，超窗改为发 condensation 请求事件，
-    而不再抛 `LLMContextWindowExceedError` —— agent 摘要旧历史后继续。
+    官方还说明。配了 condenser 之后，超窗改为发 condensation 请求事件。
+    而不再抛 `LLMContextWindowExceedError`。agent 摘要旧历史后继续。
 
-    **⚠ 按本站「状态 ≠ 上下文」的口径**：run history 与容器可替换后的持久化属于状态侧；
+    **⚠ 按本站「状态 ≠ 上下文」的口径**。run history 与容器可替换后的持久化属于状态侧。
     上面的 condenser 才是上下文侧的官方手段。两者分开算。
 
     **官方 SDK 指南原文**：context condenser "intelligently summarizing older
@@ -226,8 +226,8 @@ axes:
   permissions: >-
     **这一块官方做得最细，也是最需要认真读的部分。**
 
-    **沙箱**：官方给了 Docker 沙箱与每会话独立容器两种收敛手段（见 local_files），
-    但同时也明确提供无沙箱形态，并两次挂 WARNING。
+    **沙箱**：官方给了两种收敛手段（见 local_files）。一是 Docker 沙箱，二是每会话独立容器。
+    但官方同时明确提供无沙箱形态，并两次挂 WARNING。
 
     **认证用的是 API key，不是用户体系**：
 
@@ -248,7 +248,7 @@ axes:
     官方部署对比表明示 Open Source 档「Users = 1」，
     **Multi-user RBAC 与 SSO/SAML 只有 Enterprise 有**（OSS 栏为「—」）。
 
-    因此 OSS 自托管不含用户 / 角色 / 审计体系，上面那把会话 key 就是全部；
+    因此 OSS 自托管不含用户 / 角色 / 审计体系。上面那把会话 key 就是全部。
     需要多用户分级与审计，须上 Enterprise。
 
     `docs/SELF_HOSTING.md`（核验 286 行）给的就是这套 API key 机制。
@@ -358,10 +358,10 @@ confidence: partial
 
 ## 一句话定位
 
-**它是个自托管的 agent 控制中心** —— 官方 README 现在管它叫 **Agent Canvas**。
+**它是个自托管的 agent 控制中心**。官方 README 现在管它叫 **Agent Canvas**。
 
 它带的是一整套栈：Web GUI、Terminal UI、CLI、REST API 都在里面。
-它管的 agent 不止自家那一个，Codex、Claude Code、Gemini 都能挂上去跑。
+它管的 agent 不止自家那一个。Codex、Claude Code、Gemini 都能挂上去跑。
 
 > 官方定位原文：The self-hosted developer control center for coding agents and automations.
 > Run OpenHands, Claude Code, Codex, Gemini, or **any ACP-compatible agent**
@@ -376,7 +376,7 @@ confidence: partial
 
 **① 主品牌已改成 Agent Canvas，但仓库名没变。**
 
-它现在的定位是 **control center（控制中心）**，不再写作「一个开发工具」。
+它现在的定位是 **control center（控制中心）**。它不再写作「一个开发工具」。
 仓库 description 却还是老样子。
 
 > 仓库 description 原文："🙌 OpenHands: AI-Driven Development"；
@@ -388,7 +388,7 @@ confidence: partial
 
 > README 原文："OpenHands, Claude Code, Codex, Gemini, or any ACP-compatible agent"
 
-**这意味着它和本站收录的 Codex SDK / Claude Agent SDK 不是竞品，而是调度层与被调度者的关系。**
+**它不是本站收录的 Codex SDK 或 Claude Agent SDK 的竞品**。它们是调度层与被调度者的关系。
 
 所以选型问题不是「选它还是选 Codex」，而是「要不要一个界面来统管
 Codex / Claude Code / Gemini」。
@@ -436,8 +436,9 @@ Codex / Claude Code / Gemini」。
 > 官方 FAQ 原文：Open Source 与 Cloud 各档都支持自带 LLM key；
 > 无 key 时走 OpenHands provider，官方强调 "**at cost, with no markup**"。
 
-**③ Individual 还有一批 OSS 档没有的东西**：云端访问（桌面 + 移动端）、
-Cloud API 用于自动化与脚本、Jira 与 Slack 集成、Secrets、组织支持。
+**③ Individual 还有一批 OSS 档没有的东西**。
+它们包括云端访问（桌面 + 移动端）与 Cloud API（用于自动化与脚本）。
+还有 Jira 与 Slack 集成、Secrets、组织支持。
 
 **④ Enterprise 实际是另一套东西，不是「多几个用户」**：
 
@@ -469,7 +470,7 @@ Cloud API 用于自动化与脚本、Jira 与 Slack 集成、Secrets、组织支
 > **the agent will have full access to your filesystem!**
 
 **③ 适合并发**：每次新会话起自己的容器与 Agent Server。
-官方特别说明容器会挂载会话的 workspace 与持久化状态，**容器替换后文件与对话历史仍在** ——
+官方特别说明容器会挂载会话的 workspace 与持久化状态。**容器替换后文件与对话历史仍在**。
 这对本站关心的「可靠长期运行」是正面证据。
 
 但官方也提醒：**用同一宿主工作区的会话仍会共用同一批文件**，
@@ -482,8 +483,8 @@ Cloud API 用于自动化与脚本、Jira 与 Slack 集成、Secrets、组织支
 > This allows your agents to **continue running even when your laptop is shut**,
 > and makes it easier to trigger your agents through third-party services like
 > Slack, GitHub, and Datadog.
-配套是独立仓 `OpenHands/automation`，提供两种触发方式：**定时**与 **webhook**。
-官方特性表列了可集成的第三方：**Slack、GitHub、Linear、Notion**。
+配套是独立仓 `OpenHands/automation`。它提供两种触发方式：**定时**与 **webhook**。
+官方特性表列了可集成的第三方。它们是 **Slack、GitHub、Linear、Notion**。
 
 **对照本站其他对象**：OpenAI Agents SDK 的 session、Codex SDK 的 thread
 都活在你自己进程 / 自己机器上，关掉就没了。
@@ -515,7 +516,7 @@ OSS 档默认单用户、单会话 key。
 ## 上下文维度：官方给了 condenser（2026-10-08 更新）
 
 这档对象持久化做得很好 —— run history、容器可替换后历史仍在。
-**对话上下文长了之后的处理，也有官方机制**：SDK 侧的 context condenser。
+**对话上下文长了之后的处理，也有官方机制**。它在 SDK 侧：context condenser。
 
 按本站主张「**状态 ≠ 上下文**」：
 
@@ -549,13 +550,13 @@ OSS 档默认单用户、单会话 key。
 前端与运行时分离部署。
 
 **不适合**：只想把 agent 嵌进自己的 Python 进程（用 software-agent-sdk 或 OpenAI Agents SDK）；
-单机临时用一下（它是一整套栈）；需要细粒度多用户权限（RBAC / SSO 仅 Enterprise，OSS 档单用户）。
+单机临时用一下（它是一整套栈）。需要细粒度多用户权限的也不行。RBAC / SSO 仅 Enterprise，OSS 档单用户。
 
 ## 核验说明
 
 `confidence: partial` 的依据：
 
-**为什么不是 verified**：并非缺轴 —— 八维本轮均已核到官方机制（`context` 侧有官方
+**为什么不是 verified**：并非缺轴。八维本轮均已核到官方机制（`context` 侧有官方
 condenser，见 axes.context）。仍留 partial 是因为还存在**官方确实没写、或需实测**的项：
 
 - context 压缩的端到端效果
@@ -591,7 +592,7 @@ condenser，见 axes.context）。仍留 partial 是因为还存在**官方确�
 Open Source $0 / Cloud Individual $0 / Enterprise 定制；
 **Individual 每日 10 轮对话上限**（对照 Open Source 的 Unlimited）；
 Individual 支持 BYOK、无 key 时走 OpenHands provider 且官方声明 **at cost, no markup**；
-Enterprise 可部署客户自有 VPC、SAML/SSO、RBAC、每用户无限并发。
+Enterprise 可部署客户自有 VPC。还有 SAML/SSO、RBAC、每用户无限并发。
 Enterprise 的具体报价与「零加价」的实际单价表仍未核验。
 
 ## 实测记录

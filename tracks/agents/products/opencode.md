@@ -52,7 +52,7 @@ axes:
 
     官方点名 llama.cpp、LM Studio、Ollama、Atomic Chat。
 
-    注意：用 Claude Pro/Max 订阅接入**「不是 Anthropic 官方支持的用法」**。
+    注意：用 Claude Pro/Max 订阅接入时，**这不是 Anthropic 官方支持的用法**。
 
   runtime: >-
     本地进程，在终端运行。提供多平台安装方式（macOS Homebrew / Windows Scoop 等）。
@@ -60,7 +60,7 @@ axes:
 
   local_files: >-
     面向真实代码仓库的编程能力。`read`/`edit`/`write`/`grep`/`glob`
-    直接读写工作区；`grep`/`glob` 底层用 ripgrep，**默认遵循 `.gitignore`**。
+    直接读写工作区。`grep`/`glob` 底层用 ripgrep，**默认遵循 `.gitignore`**。
 
     **访问范围默认限定在启动时的工作目录**——越界路径须在 `permission`
     里用 `external_directory` 显式放行（如 `~/projects/personal/**`）。
@@ -76,9 +76,9 @@ axes:
   background: >-
     终端形态，本地进程，生命周期绑定会话。
 
-    官方另有 `opencode serve`
-    （无头 HTTP 服务器）与 `opencode web` / 桌面应用——**都跑在你自己的机器上**，
-    为客户提供会话 API（含 `prompt_async` 异步发送），执行环境归你自己，
+    官方另有 `opencode serve`（无头 HTTP 服务器）。
+    还有 `opencode web` 与桌面应用。**它们都跑在你自己的机器上**。
+    它们为客户提供会话 API，含 `prompt_async` 异步发送。执行环境归你自己，
     不是厂商托管云。
 
     **官方未见「客户端关闭后仍继续 / 关机续跑」的云端后台能力**
@@ -124,7 +124,7 @@ axes:
     在恢复与分叉时保留模型、effort 与模式边界。
 
     会话机制已核到：`/session` API 支持创建、**fork（在某条消息处分叉）**、
-    revert/unrevert 与 summarize；TUI 有 `/undo`、`/redo`、`/share`。
+    revert/unrevert 与 summarize。TUI 有 `/undo`、`/redo`、`/share`。
 
     **压缩策略官方给了配置**——`compaction` 项：
 
@@ -162,7 +162,7 @@ axes:
 
     官方 config 页亦称「默认允许所有操作，无需明确批准」。
 
-    审批 UI 给 once / always / reject，且可对每个代理单独覆盖。
+    审批 UI 给 once / always / reject。它可对每个代理单独覆盖。
 
     v1.1.1 起旧版 `tools` 布尔配置并入 `permission`。
 
@@ -235,7 +235,7 @@ confidence: partial
 
 ## 一句话定位
 
-MIT 许可的多 provider 编程 harness，**运行 bash 命令前会询问权限**，并支持 ACP 载入。
+MIT 许可的多 provider 编程 harness。**它运行 bash 命令前会询问权限**，并支持 ACP 载入。
 
 ## 变更记录说明
 

@@ -82,7 +82,7 @@ axes:
 
     CLI 用 `--executor local|orb|runner:<id>` 选执行位置。
 
-    另有 Web 与 macOS / iOS 应用，同一 agent、同一线程到处可用。
+    另有 Web 与 macOS / iOS 应用。同一 agent、同一线程到处可用。
   local_files: >-
     **Client 只带局部上下文，官方明确不索引整库。**
 
@@ -124,11 +124,11 @@ axes:
     另有 `glob`、`Grep`、`web_search`、`read_web_page`、`Task`、`todo_*`、`undo_edit`。
 
     **子代理 / 工具**：`oracle`（复杂推理第二意见）、
-    **Librarian**（跨仓库检索，可读全部公开 GitHub 代码及你的私有仓库）、
+    **Librarian**（跨仓库检索。可读全部公开 GitHub 代码，也可读你的私有仓库）、
     **Painter**（GPT Image 生成与编辑）、Search、Read Thread。
 
-    **插件系统**：可写自定义 policy plugin（含 permissions 插件示例）与自定义
-    agent mode / subagent。
+    **插件系统**：可写自定义 policy plugin（含 permissions 插件示例）。
+    也可自定义 agent mode 与 subagent。
 
     **MCP**：本地（`amp.mcpServers`，command / args / env，stdio）与
     远程定义（存 ampcode.com，url / headers）。
@@ -137,7 +137,7 @@ axes:
 
     认证含自动 **OAuth**、bearer、**Amp ID token**、Workload Identity。
 
-    官方建议把 MCP server 打包进 **skills**（`mcp.json`）以保持工具列表精简。
+    官方建议把 MCP server 打包进 **skills**（`mcp.json`）。这样能保持工具列表精简。
   context: >-
     **threads 是核心单位，可保存、检索、分享。**
 
@@ -175,10 +175,10 @@ axes:
     （AWS / GCP / Azure、GitHub / GitLab、OpenAI / Anthropic、Stripe / Slack / npm 等，
     替换为 `[REDACTED:amp]`），但承认是 best-effort。
 
-    线程数据存于 ampcode.com（GCP）；**默认不用你的数据训练**（企业档永不可开）。
+    线程数据存于 ampcode.com（GCP）。**默认不用你的数据训练**（企业档永不可开）。
     删除线程后数据 30 天内移除；Enterprise 提供零数据保留（ZDR）。
 
-    **订阅与 BYOK 额度是两回事**：自带 Key / 订阅时无 Amp token 费用。
+    **订阅与 BYOK 额度是两回事**。自带 Key 或订阅时，无 Amp token 费用。
   fit: >-
     适合四类用法：
 
@@ -267,8 +267,8 @@ Amp 是 Sourcegraph 出的前沿编码 agent，**CLI + 云端 orb + runner 三�
 
 具体是运行面、执行面、provider / 模式、MCP 接入、权限与数据面。
 
-没核到的是两处：**Individual 档 Megawatt / Gigawatt 两级的具体额度差**，
-以及官方定价页「Questions & Answers」问答正文。
+没核到的是两处。**一是 Individual 档 Megawatt / Gigawatt 两级的具体额度差**，
+二是官方定价页「Questions & Answers」问答正文。
 
 前者官方以切换形式呈现、未页面并列给出；后者本次抓取未展开。故不给 `verified`。
 

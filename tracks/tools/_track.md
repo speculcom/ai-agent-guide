@@ -29,15 +29,15 @@ MCP servers 仓库 README 的原文声明：
 > security requirements and implement appropriate safeguards based on their
 > specific threat model and use case.
 
-**翻译**：本仓库的 server 是**参考实现**，用于演示 MCP 特性与 SDK 用法，
-面向正在构建自己 MCP server 的开发者，**不是生产就绪方案**。
+**翻译**：本仓库的 server 是**参考实现**，用于演示 MCP 特性与 SDK 用法。
+它面向正在构建自己 MCP server 的开发者，**不是生产就绪方案**。
 使用者需自行评估安全需求并按自身威胁模型实现防护。
 
 **适用范围**：本分区全部 7 个官方 reference server
 （`everything` `fetch` `filesystem` `git` `memory` `sequential-thinking` `time`）。
 
 **社区维护的 2 个**（`playwright` `context7`）不适用此声明，
-但它们各自的 README 有自己的注意事项（如 playwright 的来源限制不构成安全边界）。
+但它们各自的 README 有自己的注意事项。例如 playwright 声明来源限制不构成安全边界。
 
 **为什么把这条放在分区文档而不是每个条目**：
 重复 7 次会让读者疲劳。**分区文档声明一次，各条目在正文引用即可**。
@@ -105,8 +105,8 @@ MCP servers 仓库 README 的原文声明：
 > **不要把归档状态套到它头上** —— 这是本文件此前最容易引起误判的一处。
 
 **收录判断**：已归档对象若仍有大量实际使用（如 github、postgres），
-可作为「历史/归档」条目收录，但 `confidence` 最高只能给 `partial`，
-并在正文首段标明归档事实与归档日期。
+可作为「历史/归档」条目收录。但 `confidence` 最高只能给 `partial`。
+正文首段还要标明归档事实与归档日期。
 
 ---
 
@@ -141,7 +141,8 @@ MCP servers 仓库 README 的原文声明：
 
 ### ① 权限范围是第一位的
 
-**一个能读你整个文件系统的 MCP server，和一个只能读 `./data` 的 server，风险差一个量级。**
+**对比两种 server：一个能读整个文件系统，一个只能读 `./data`。它们的风险差一个量级**。
+前者能碰你的一切文件。后者只碰指定目录。
 
 ```
 默认请求全文件系统访问权限；
@@ -215,13 +216,13 @@ cli.specul.com ──┴── 客户端侧：谁来调用这些 server
 mcp.specul.com ────── 服务端侧：server 本身的能力与风险
 ```
 
-**交叉引用**：IDE/CLI 分区的 `tools` 维度会提到「支持 MCP」，指向本分区。
+**交叉引用**：IDE/CLI 分区的 `tools` 维度会提到「支持 MCP」。它指向本分区。
 
 ---
 
 ## 实测任务集
 
-MCP 分区的实测和工具分区不同——**不是测"能不能干完活"，而是测"接口是否可用、边界是否清楚"**。
+MCP 分区的实测和工具分区不同。**它不是测"能不能干完活"，而是测"接口是否可用、边界是否清楚"**。
 
 见 [`tasks/`](../agents/tasks/)（协议共用，实测内容按分区替换）。
 

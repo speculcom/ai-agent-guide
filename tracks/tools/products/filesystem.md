@@ -73,8 +73,9 @@ mcp:
   transport: >-
     仅 stdio。本地 Node.js 进程，通过标准输入输出通信。
 
-    官方 README（2026-10-08 全文核验）只给 npx / Docker 两种本地启动方式，
-    没有远程传输的官方配置；目录控制走命令行参数或 MCP Roots（可动态更新）。
+    官方 README（2026-10-08 全文核验）只给两种本地启动方式。
+    即 npx 与 Docker。它没有远程传输的官方配置。
+    目录控制走命令行参数或 MCP Roots（可动态更新）。
 
   auth: >-
     无独立认证层。stdio 形态继承启动它的客户端用户的全部文件权限。
@@ -124,11 +125,11 @@ confidence: verified
 
 ## 一句话定位
 
-MCP 官方 reference server 里的文件操作实现，**强制显式声明允许目录，不允许静默访问全盘**。
+MCP 官方 reference server 里的文件操作实现。**它强制显式声明允许目录，不允许静默访问全盘**。
 
 ## 变更记录说明
 
-**本对象无独立 changelog 页**。变更记录体现在 MCP servers 仓库的 releases 与目录 commit 历史中：
+**本对象无独立 changelog 页**。变更记录看 MCP servers 仓库的 releases 页。目录级改动看该目录的 commit 历史：
 
 | 日期 | 类型 | 内容 |
 |---|---|---|
@@ -138,7 +139,7 @@ MCP 官方 reference server 里的文件操作实现，**强制显式声明允�
 
 仓库整体 releases：2026.8.31 / 2026.8.18 / 2026.7.10。
 
-**注意 08-30 那个修复**——它说明 filesystem server 在不同平台路径语义上出过问题。这是实测时值得关注的点。
+**注意 08-30 那个修复**。它说明 filesystem server 在不同平台路径语义上出过问题。这是实测时值得关注的点。
 
 ## 适合与不适合
 
@@ -159,8 +160,8 @@ MCP servers 仓库 README 原文：
 > security requirements and implement appropriate safeguards based on their
 > specific threat model and use case.
 
-**翻译**：本仓库的 server 是**参考实现**，用于演示 MCP 特性与 SDK 用法，
-面向的是正在构建自己 MCP server 的开发者，**不是生产就绪方案**。
+**翻译**：本仓库的 server 是**参考实现**，用于演示 MCP 特性与 SDK 用法。
+它面向正在构建自己 MCP server 的开发者，**不是生产就绪方案**。
 使用者需自行评估安全需求并按自身威胁模型实现防护。
 
 > **注意**：这句话适用于本分区所有官方 reference server，

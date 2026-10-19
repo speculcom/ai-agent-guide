@@ -26,7 +26,7 @@ axes:
 
   runtime: >-
     本地 Node.js 进程（需 Node.js 18+），通过 stdio 通信。
-    也提供 HTTP endpoint 模式与浏览器扩展模式（Edge / Chrome）。
+    它也提供 HTTP endpoint 模式。另有浏览器扩展模式（Edge / Chrome）。
     默认有头模式，可用 --headless 切换。
 
   local_files: >-
@@ -40,7 +40,7 @@ axes:
     下次工具调用会重新拉起浏览器。
 
   tools: >-
-    提供完整的浏览器自动化工具集，**本站已按官方 README 逐条核对：共 72 个工具**
+    它提供完整的浏览器自动化工具集。**本站已按官方 README 逐条核对，共 72 个工具**
     （2026-10-08）：
 
     - 导航与标签页
@@ -88,13 +88,14 @@ mcp:
     支持 **stdio**，另提供 **HTTP endpoint** 模式（--endpoint）
     与浏览器扩展连接模式（--extension，需装 Playwright 扩展，仅 Edge / Chrome）。
 
-    --shared-browser-context 可让多个 HTTP 客户端共用同一浏览器上下文。
+    --shared-browser-context 用于共享浏览器上下文。
+    多个 HTTP 客户端可共用同一上下文。
 
   auth: >-
     stdio 形态无独立认证层，继承客户端用户权限。
 
     **HTTP 模式（2026-10-08 核验官方 README）**：选项表没有 token / auth
-    相关参数，Docker 示例直接以 `--host 0.0.0.0` 裸监听；官方明确声明
+    相关参数。Docker 示例直接以 `--host 0.0.0.0` 裸监听。官方明确声明
 
     “Playwright MCP is **not** a security boundary”，要求按 MCP 安全最佳
     实践自行加固（反向代理 / 网络层）。**认证要自己加，别默认它有。**
@@ -139,7 +140,7 @@ confidence: verified
 
 ## 一句话定位
 
-微软维护的浏览器自动化 server，**用无障碍树而非截图驱动**——不需要视觉模型，输出是结构化快照。
+微软维护的浏览器自动化 server。**它用无障碍树而非截图驱动**，不需要视觉模型。输出是结构化快照。
 
 ## 适合与不适合
 
@@ -218,8 +219,8 @@ Deterministic tool application — Avoids ambiguity common with screenshot-based
 | `--isolated` | 关 | 开启后 profile 仅存内存，不落盘 |
 | `--headless` | 关（有头） | 影响 idle-timeout 行为 |
 
-**`--isolated` 是这里最值得注意的安全选项**——它让浏览器 profile 不落盘，
-适合处理敏感登录态的场景。
+**`--isolated` 是这里最值得注意的安全选项**。它让浏览器 profile 不落盘。
+它适合处理敏感登录态的场景。
 
 ## 浏览器生命周期
 
@@ -230,7 +231,7 @@ Deterministic tool application — Avoids ambiguity common with screenshot-based
   0         禁用该行为
 ```
 
-**这个默认值差异很重要**：headless 会自动关（省资源），headed 常驻（保持登录态）。
+**这个默认值差异很重要**。headless 会自动关（省资源）。headed 常驻（保持登录态）。
 如果你依赖登录状态，headed 模式反而更省事。
 
 ## 能力边界

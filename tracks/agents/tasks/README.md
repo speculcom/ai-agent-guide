@@ -1,6 +1,6 @@
 # CLI 形态实测任务集
 
-任务清单已编写：**T01–T05**（通用编码任务）+ **C01–C03**（CLI 特有维度）。
+任务清单已编写：**T01–T05** 是通用编码任务。**C01–C03** 是 CLI 特有维度。
 
 **基线仓库**：`atlas-bench-fixture` @ `bench-baseline`（commit `5db3db6`）——原基线 keel3d 已随 KEEL 3D 废弃而更换。
 

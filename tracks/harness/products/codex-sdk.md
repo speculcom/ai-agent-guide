@@ -76,11 +76,11 @@ axes:
 
     **README 原文**：If you set `baseUrl`, the SDK passes it as a `--config openai_base_url=...` override
 
-    ⚠ **但换第三方模型之后的工具调用与 structured output 质量，官方没给量化结论，本站也没实测。**
+    ⚠ **但换第三方模型之后呢？工具调用与 structured output 的质量如何？官方没给量化结论。本站也没实测。**
   runtime: >-
     **进程形态是「你的 Node 进程 + 一个被 spawn 的 CLI 子进程」。**
 
-    README 的 `env` 参数说明值得注意：默认情况下 CLI **继承 Node 进程的环境变量**，
+    README 的 `env` 参数说明值得注意。默认情况下 CLI **继承 Node 进程的环境变量**。
     所以你可以整体控制 CLI 能看到哪些变量。官方给的用途是
     sandboxed hosts（例如 Electron 应用）。
 
@@ -98,7 +98,7 @@ axes:
     - `additionalDirectories` —— 追加额外目录
     - `local_image` 类型的输入条目 —— 把本地图片传给 CLI（走 `--image`）
 
-    ⚠ **一个必须知道的行为**：Codex **要求工作目录是一个 Git 仓库**，否则拒绝运行。
+    ⚠ **一个必须知道的行为**：Codex **要求工作目录是一个 Git 仓库**。不满足就拒绝运行。
     可以用 `skipGitRepoCheck` 跳过这个检查。
 
     **这对选型是硬约束**：非 Git 目录（纯数据目录、临时目录）里开箱用不了。
@@ -119,9 +119,9 @@ axes:
 
     SDK 侧对应 `resumeThread()`，Threads 持久化在 `~/.codex/sessions`。
 
-    （与 CLI 条目里「Gemini CLI 是唯一明确支持非交互」的对照正好构成一组。）
+    （这与 CLI 条目的对照构成一组。那边「Gemini CLI 是唯一明确支持非交互」。）
 
-    ⚠ **注意 `~/.codex/sessions` 是文件目录，不是数据库** —— 状态与进程在同一台机器上。
+    ⚠ **注意 `~/.codex/sessions` 是文件目录，不是数据库**。状态与进程在同一台机器上。
 
     **跨机迁移与多进程并发写的语义，官方未说明。**
     （已查 noninteractive 与 config-reference 两页，它们只讲 `history.persistence` 与 resume。）
@@ -130,7 +130,7 @@ axes:
   tools: >-
     **工具面完全由 CLI 决定 —— SDK 既不新增也不裁剪。**
 
-    SDK 侧你拿到的是**结构化事件流**：`runStreamed()` 返回 async generator，事件类型有：
+    SDK 侧你拿到的是**结构化事件流**。`runStreamed()` 返回 async generator。事件类型有：
 
     - `item.completed` —— 工具调用、流式响应、文件变更通知
     - `turn.completed` —— 含 usage 统计
@@ -138,10 +138,10 @@ axes:
     **Structured output 是 SDK 明确支持的一等能力**：`outputSchema` 可以传 JSON Schema，
     官方还推荐 Zod 转换路径 `zodToJsonSchema(schema, { target: "openAi" })`。
 
-    ⚠ **这里有个命名陷阱**：那个 target 写的是 `"openAi"`，但它产出的是
-    **通用 JSON Schema**，给任何遵守该 schema 的模型用都行，**不代表只能用 OpenAI**。
+    ⚠ **这里有个命名陷阱**：那个 target 写的是 `"openAi"`。
+    但它产出的是**通用 JSON Schema**。给任何遵守该 schema 的模型用都行，**不代表只能用 OpenAI**。
 
-    **MCP 的情况要说清**：README 全文没出现 MCP，本站收录的 9 个 MCP server 里也没有它的位置。
+    **MCP 的情况要说清**。README 全文没出现 MCP。本站收录的 9 个 MCP server 里也没有它的位置。
     但 Codex CLI 的 MCP 支持**已核验**（官方有独立 MCP 页）：
 
     - 传输：**STDIO**（command / args / env / env_vars / cwd）与 **Streamable HTTP**（url / bearer / headers）
@@ -157,7 +157,7 @@ axes:
   context: >-
     **它提供的是「会话续接」，不是「上下文管理」。**
 
-    证据是 `resumeThread(threadId)`：能恢复对话继续跑，但**没有压缩、摘要或落盘机制**。
+    证据是 `resumeThread(threadId)`。它能恢复对话继续跑，但**没有压缩、摘要或落盘机制**。
 
     换句话说，`Thread` 解决的是**可靠续跑**（本站说的「状态」面），
     不解决**长上下文**（本站说的「上下文」面）。
@@ -180,8 +180,8 @@ axes:
     - 推理强度 **8 档** —— `ModelReasoningEffort`：minimal / low / medium / high /
       xhigh / max / ultra / persistent
 
-    **另一层是配置透传**：SDK 支持 `config`（自动展平成 dotted path，转 TOML 传给 `--config`）
-    与 `configOverrides`（原始 TOML 逐条透传）。官方示例直接给了文件系统级规则：
+    **另一层是配置透传**。SDK 支持 `config`，它会自动展平成 dotted path、转 TOML 传给 `--config`。
+    另有 `configOverrides`（原始 TOML 逐条透传）。官方示例直接给了文件系统级规则：
 
     **官方示例**：`permissions.audit.filesystem={":root"="read","/path/to/project/.env"="deny"}`
 
@@ -199,7 +199,7 @@ axes:
     - `workspace-write` 下，`.git` / `.agents` / `.codex` **仍递归只读**
     - 网络另有 `features.network_proxy` 域名 allowlist + DNS 重绑定防护
 
-    ⚠ **三档沙箱在 Windows / macOS / Linux 的逐平台实现差异，官方没有逐条给出** ——
+    ⚠ **三档沙箱在各平台的实现有差异。平台指 Windows / macOS / Linux。官方没有逐条给出这些差异**。
     官方只说**「OS-level mechanisms enforce sandbox policies」**，默认无网络、写入限工作区。
 
     （已查 `agent-approvals-security`、`config-advanced`、`config-reference` 三页。）
@@ -301,7 +301,7 @@ confidence: partial
 
 ## 一句话定位
 
-**「把 Codex CLI 变成 Node 进程里可驱动的对象」** —— 官方 README 首句就是
+**「把 Codex CLI 变成 Node 进程里可驱动的对象」**。官方 README 首句就是
 「Embed the Codex agent in your workflows and apps」，第二句划清了形态：
 > The TypeScript SDK **wraps** the `codex` CLI from `@openai/codex`.
 > It **spawns the CLI** and exchanges JSONL events over stdin/stdout.
@@ -327,7 +327,8 @@ confidence: partial
 ## 权限面：源码给出了四种审批模式与三档沙箱
 
 ⚠ **这一段纠正了本站 CLI 站档案里的一个「未核验」**：
-`cli/products/codex-cli.md` 当时写「具体审批模式本次未核验」，原因是在 CLI 文档里没找到枚举。
+本站 CLI 档案（`cli/products/codex-cli.md`）当时写了一句话。
+原话是「具体审批模式本次未核验」。原因是在 CLI 文档里找不到枚举。
 （2026-10-08 该档已按官方文档补全审批四档。）
 这次从 SDK 源码的类型定义里找到了 —— **文档外链里没有，源码里有**：
 
@@ -354,8 +355,8 @@ export type SandboxMode = "read-only" | "workspace-write" | "danger-full-access"
 configOverrides: ['permissions.audit.filesystem={":root"="read","/path/to/project/.env"="deny"}']
 ```
 
-这意味着 `.env` 这类文件可以被单独deny，而不是靠「沙箱一刀切不写」这种粗粒度保护。
-官方给出的优先级：**原始 overrides > 结构化 config > SDK 托管设置**。
+这意味着 `.env` 这类文件可以被单独 deny。它不靠「沙箱一刀切不写」这种粗粒度保护。
+官方给出了优先级顺序。从高到低是：原始 overrides、结构化 config、SDK 托管设置。
 
 **沙箱 / 审批默认值已核验**（见 axes.permissions）：本地默认 `workspace-write` + 网络关闭，
 非版本控制目录默认 `read-only`；`workspace-write` 下 `.git` / `.agents` / `.codex` 递归只读。
@@ -389,8 +390,8 @@ sandbox policies"，未分别列举 Windows / macOS / Linux 的差别（已查
 `docs/exec.md` 的标题就是 **Non-interactive mode**。
 
 这与 CLI 站那份档案形成一组有意思的对照：
-在 CLI 站 6 个对象里，**只有 Gemini CLI 明确支持非交互脚本模式**，其余的这项都标为未核验；
-而在这个 harness 站，Codex SDK 是目前唯一有官方非交互文档的对象。
+在 CLI 站 6 个对象里，**只有 Gemini CLI 明确支持非交互脚本模式**。其余的这项都标为未核验。
+而在这个 harness 站，Codex SDK 是目前唯一的官方非交互文档对象。
 
 **如果你要的是「无人值守跑完一串任务」，这两个是仅有的两个有证据的落点**——
 一个在你的终端，一个在你的 Node 进程里。
@@ -404,8 +405,8 @@ const turn = await thread.run("Summarize repository status", { outputSchema: sch
 - 可直接传 JSON Schema（`as const` 带类型）
 - 也可从 Zod 转换：`zodToJsonSchema(schema, { target: "openAi" })`
 
-⚠ 命名陷阱：那个 `target: "openAi"` 只是告诉转换器用哪种目标格式，
-产出的是标准 JSON Schema，不代表只能 OpenAI 模型用。
+⚠ 这里有个命名陷阱。那个 `target: "openAi"` 只是告诉转换器用哪种目标格式。
+它产出的是标准 JSON Schema，不代表只能 OpenAI 模型用。
 
 ## MCP：Codex CLI 官方支持，SDK 侧经 config 透传
 
@@ -423,11 +424,11 @@ SDK README 全文没有出现 MCP，主仓 `docs/` 目录里也没有 `mcp.md`�
 
 ## 适合与不适合
 
-**适合**：要把 Codex 塞进 Node / Electron 应用或 CI；需要非交互执行；
-需要精确到路径的权限规则；TS 或 Python 栈。
-**不适合**：想要一个纯库、不愿多背一个 CLI 子进程（用 OpenAI Agents SDK）；
-目标目录不是 Git 仓库又不愿开 `skipGitRepoCheck`；
-需要 SDK 层直接暴露压缩 API（CLI 侧可配 `compact_prompt`，见 axes.fit）。
+**适合**：要把 Codex 塞进 Node / Electron 应用或 CI。需要非交互执行。
+需要精确到路径的权限规则。TS 或 Python 栈。
+**不适合**：想要纯库、不愿多背一个 CLI 子进程的人。那种情况用 OpenAI Agents SDK。
+目标目录不是 Git 仓库又不愿开 `skipGitRepoCheck` 的也不行。
+需要 SDK 层直接暴露压缩 API 的也不行（CLI 侧可配 `compact_prompt`，见 axes.fit）。
 
 ## 核验说明
 
@@ -449,7 +450,7 @@ SDK README 全文没有出现 MCP，主仓 `docs/` 目录里也没有 `mcp.md`�
   第三方模型换用后工具调用与 structured output 的质量对齐度、
   Python SDK 的 API 形态与 TS 版是否一致、`~/.codex/sessions` 的并发写语义
 
-⚠ **顺带纠正计划**：v3 计划里写的 `codex-sdk`（标注 127k★）作为**独立仓库不存在**，
+⚠ **顺带纠正计划**。v3 计划里写的 `codex-sdk`（标注 127k★）作为独立仓库不存在。
 gh api 返回 404。127,448★ 是 `openai/codex` monorepo 的星数，
 SDK 是它的 `sdk/typescript` 子目录。
 

@@ -33,9 +33,9 @@ axes:
   model_access: >-
     **模型由厂商指定，你选不了。**
 
-    官方可读页里唯一点名模型的地方，是 GA 发布页说的「用 Gemini 2.5 Pro 的
-    进阶推理能力」。Google One 套餐页在 Ultra 档写 Jules「access to latest
-    models」—— 意思是**更高档位能用更新的模型**。
+    官方可读页里唯一点名模型的地方，是 GA 发布页。它说 Jules 用 Gemini 2.5 Pro 的
+    进阶推理能力。Google One 套餐页在 Ultra 档写 Jules「access to latest
+    models」，意思是**更高档位能用更新的模型**。
 
     哪一档对应哪个模型，官方没写。
 
@@ -43,7 +43,7 @@ axes:
 
     **官方原文**：「Jules now uses the advanced thinking capabilities of Gemini 2.5 Pro」
 
-    这跟 IDE / CLI 那两类正好相反：它们通常有 `/model` 之类的选择面，
+    这跟 IDE / CLI 那两类正好相反。它们通常有 `/model` 之类的选择面，
     而**厂商云形态把「选模型」这件事整个收走了**。
   runtime: >-
     **任务跑在 Google 的云虚拟机上，本机不装任何东西。**
@@ -96,7 +96,7 @@ axes:
   tools: >-
     **工具面集中在云 VM 内的执行能力 + GitHub 集成。**
 
-    官方 FAQ 与 GA 页确认：在 VM 里装依赖、跑测试、按 setup 脚本构建。
+    官方 FAQ 与 GA 页确认了 VM 内的执行能力。包括装依赖、跑测试、按 setup 脚本构建。
     支持的语言是 JavaScript/TypeScript、Python、Go、Java、Rust。
 
     language agnostic but works best with
@@ -108,7 +108,7 @@ axes:
     Long-running processes like dev servers or watch scripts aren't
     currently supported in setup scripts
 
-    另有前端验证能力（在 VM 内跑脚本、回传截图，见官方发布页的 web-app 测试说明）。
+    另有前端验证能力：在 VM 内跑脚本、回传截图。见官方发布页的 web-app 测试说明。
 
     **Jules 是否支持接入 MCP server：官方未说明。**
     （已查 developers.google.com/jules/api 与官方 FAQ 页。）
@@ -120,7 +120,7 @@ axes:
 
     Activity — A single unit of work within a Session
 
-    一个 Session 含用户与 agent 双方的多条 activity（生成计划、发消息、更新进度）。
+    一个 Session 含用户与 agent 双方的多条 activity。比如生成计划、发消息、更新进度。
 
     也就是说**面向程序化调用时，上下文是「会话 + 活动」这条可轮询的状态流**，
     而不是一次性的对话。跨任务层面，官方提供**环境快照**复用：
@@ -165,8 +165,8 @@ axes:
 
     因此**适合自包含、可验证的活**：修一个明确的 bug、升依赖版本、补测试、
     迁移代码片段、小范围新功能。
-    **不适合**：需要实时 shell、边跑边改的高频交互（本分区 CLI / IDE 形态更合适）；
-    需求模糊、需要大量澄清的架构级任务——官方 FAQ 自己把「vague prompts」列为
+    **不适合**：需要实时 shell、边跑边改的高频交互。这类活本分区 CLI / IDE 形态更合适。
+    也不适合需求模糊、需要大量澄清的架构级任务。官方 FAQ 自己把「vague prompts」列为
     任务失败的常见原因之一。
 
 pitfalls:
@@ -233,8 +233,8 @@ confidence: partial
 
 **官方对交付形态的说法**："test verified patches" 与 "Open PRs with runnable code and test results"
 
-**不适合**两类活：需要实时 shell、边跑边改的高频交互（那是 CLI / IDE 形态的强项）；
-以及需求模糊、需要反复澄清的架构级任务 —— 官方 FAQ 自己就把「vague prompts」
+**不适合**两类活。一是需要实时 shell、边跑边改的高频交互，那是 CLI / IDE 形态的强项。
+二是需求模糊、需要反复澄清的架构级任务。官方 FAQ 自己就把「vague prompts」
 列进了任务失败的常见原因。
 
 ## 异步流程与计划审批（本次核验重点）

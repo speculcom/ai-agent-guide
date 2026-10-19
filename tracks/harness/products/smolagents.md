@@ -74,12 +74,12 @@ axes:
 
     - 本地侧有 `TransformersModel`、`MLXModel`、`Ollama`
 
-    **换 provider 的改动量 = 换一个 Model 类（或加 `provider=` 参数）**，代码结构不变。
+    **换 provider 的改动量 = 换一个 Model 类**。也可加 `provider=` 参数。代码结构不变。
 
     **未知：换 provider 后 tool calling / 结构化输出的可靠性对齐，官方未说明。**
     （已查 guided_tour 与 models 参考页。）
   runtime: >-
-    **纯 Python 库：agent loop 由你自己在本地进程里跑，官方无托管执行服务。**
+    **纯 Python 库。agent loop 由你自己在本地进程里跑。官方无托管执行服务。**
 
     官方定位原话（README）：
 
@@ -100,19 +100,19 @@ axes:
     官方 default toolbox（`smolagents[toolkit]`）只有三项：DuckDuckGo/WebSearch、
     Python 代码解释器、Whisper 转写 —— **没有专门的文件读写工具**。
 
-    CodeAgent 要读写文件，靠的是**它自己生成的 Python 代码**（如 `open()`）或你提供的自定义工具。
+    CodeAgent 要读写文件。它靠的是**自己生成的 Python 代码**（如 `open()`）或你提供的自定义工具。
 
-    所以**文件边界不是框架给的，而是执行环境给的**：本地跑则受 `LocalPythonExecutor` 的
-    import 白名单约束；远程沙箱跑则限在沙箱容器内（见 secure_code_execution 页两种沙箱模式）。
+    所以**文件边界不是框架给的，而是执行环境给的**。本地跑则受 `LocalPythonExecutor` 的
+    import 白名单约束。远程沙箱跑则限在沙箱容器内。两种沙箱模式见 secure_code_execution 页。
 
     **未知：CodeAgent 默认允许的文件访问范围，官方未说明。**
     （已查 secure_code_execution 与 guided_tour 两页，无文件权限章节。）
   background: >-
     **自托管 = 进程关了就停，无托管后台选项。**
 
-    README 的运行方式全是本地代码调用（Python API / CLI / 沙箱），没有云端常驻或定时执行形态。
+    README 的运行方式全是本地代码调用。形式是 Python API / CLI / 沙箱。它没有云端常驻或定时执行形态。
 
-    **唯一与「长任务 / 断点」相关的官方机制是单步执行**：`agent.step(memory_step)` 可一次只走一步。
+    **唯一与「长任务 / 断点」相关的官方机制是单步执行**。`agent.step(memory_step)` 可一次只走一步。
     memory 存在进程内的 `agent.memory`。tutorials/memory 页举的用例正是：
 
     **官方原文**："tool calls that take days"
@@ -155,7 +155,7 @@ axes:
     **未知：把大工具输出落盘这类深上下文管理，官方未说明。**
     （已查 tutorials/memory 与 guided_tour 两页。）
   permissions: >-
-    **官方对执行安全说得非常直白：默认的 `LocalPythonExecutor` 不是安全沙箱。**
+    **官方对执行安全说得非常直白。默认的 `LocalPythonExecutor` 不是安全沙箱。**
 
     README 原文：
 
@@ -171,7 +171,7 @@ axes:
 
     **要真正隔离必须用远程沙箱**：`executor_type="blaxel" / "e2b" / "modal" / "docker"`。
 
-    官方区分两种模式：只沙箱化代码片段，或整包 agent 进沙箱（后者多 agent 才可用）。
+    官方区分两种模式。一是只沙箱化代码片段。二是整包 agent 进沙箱（后者多 agent 才可用）。
 
     官方另有 Human-in-the-Loop 示例（examples/plan_customization），但**不是内建审批机制**。
 
@@ -255,8 +255,8 @@ confidence: partial
 
 官方自述是 **"barebones library for agents that think in code"**（仓库 description 原文）。
 
-它最核心的设计是 **code-as-action**：默认的 `CodeAgent` 让 LLM 把动作写成并执行 Python 代码，
-而不是输出 JSON 工具调用。
+它最核心的设计是 **code-as-action**。默认的 `CodeAgent` 让 LLM 把动作写成 Python 代码，
+并执行它。它不输出 JSON 工具调用。
 
 ## 与 OpenAI Agents SDK 的分野：动作怎么表示
 
@@ -269,7 +269,7 @@ confidence: partial
 | 执行风险 | LLM 代码要在**沙箱**里跑 | 工具调用，非任意代码 |
 | 换 provider | 换 Model 类 | 换 `model` 字符串 / 适配器 |
 
-**一句话**：想要「动作即代码」并能给代码上沙箱，选 smolagents；想要工具调用 +
+**一句话**：想要「动作即代码」并能给代码上沙箱，选 smolagents。想要工具调用 +
 内建 guardrails/human-in-the-loop，选 OpenAI Agents SDK。
 
 ## CodeAgent vs ToolCallingAgent（官方对比）
@@ -325,7 +325,7 @@ README 里 agents 和 tools 都是 Hub 对象：
 要薄、可 hack、约千行的库。
 要 MCP / LangChain / Hub Space 工具生态。
 
-**不适合**：需要厂商托管的常驻后台或断点续跑（纯库，进程关了就停、memory 不落盘）。
+**不适合**：需要厂商托管的常驻后台或断点续跑。它是纯库，进程关了就停、memory 不落盘。
 既不愿承担任意代码执行风险又不想上远程沙箱。
 想要开箱即用的文件系统 / 记忆 / 子代理编排。
 

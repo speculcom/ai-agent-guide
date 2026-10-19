@@ -50,7 +50,7 @@ pricing:
     应属旧制或臆测。**本站只写官方页面上能读到的两档。**
 
     **另一条要读出来的事实**：Enterprise 明确写部署可落在
-    **CrewAI 云 / 客户自有 VPC / 客户自有基础设施** ——
+    **CrewAI 云 / 客户自有 VPC / 客户自有基础设施**。
     即以下这行 README 原文在商业侧确实兑现：
 
     > On-premise and Cloud Deployment Options
@@ -106,9 +106,9 @@ layer_position: >-
 
 axes:
   model_access: >-
-    **它的模型接入路径最具体：默认走 OpenAI API，本地模型官方点名了 Ollama 工具。**
+    **它的模型接入路径最具体。默认走 OpenAI API，本地模型官方点名了 Ollama 工具。**
 
-    README 按这个顺序写：默认 OpenAI，另有多种连接方式，例如本地模型走 Ollama 工具。
+    README 按这个顺序写。默认 OpenAI，另有多种连接方式，例如本地模型走 Ollama 工具。
 
     "CrewAI supports using various LLMs through a variety of connection options.
     By default your agents will use the **OpenAI API** when querying the model.
@@ -158,7 +158,7 @@ axes:
 
     那是 README 的定位话术。
 
-    **机制本身官方文档给得很细**（官方 `concepts/checkpointing` 页）：
+    **机制本身官方文档给得很细**。见官方 `concepts/checkpointing` 页：
 
     - **粒度**：事件驱动，默认 `on_events=["task_completed"]`，
       即**每完成一个 task 落一次盘**；`CheckpointConfig` 可改频率与上限
@@ -173,7 +173,7 @@ axes:
   local_files: >-
     **框架本身不内置文件系统能力，文件读写靠工具提供 —— 但工具的默认边界清楚。**
 
-    **默认边界已核到**（官方 FileReadTool 页）：运行时传入的路径**必须落在 `base_dir` 内**，
+    **默认边界已核到**（官方 FileReadTool 页）。运行时传入的路径**必须落在 `base_dir` 内**。
     `base_dir` 默认是当前工作目录。`..` 与符号链接都会先解析再校验，
 
 
@@ -198,7 +198,7 @@ axes:
     **未知：容器部署时的默认权限，官方未说明。**（已查 Files 页与 FileReadTool 页。）
   background: >-
     **它不托管后台。** 库本身不提供厂商托管的执行环境 —— 要「电脑关了还能跑」，
-    得自己把进程跑在自有服务器 / VPC 上（AMP 商业侧另给 Cron scheduling）。
+    得自己把进程跑在自有服务器 / VPC 上。AMP 商业侧另给 Cron scheduling。
 
     **Flow 的 state management 是官方明文。** README 把 Flow 描述成
     "event-driven workflows with **state, branching, routing**"，
@@ -253,7 +253,7 @@ axes:
     - 「Build with AI」段的 agent 配置项清单
       "Configuring agents — role, goal, backstory, tools, LLMs, **memory**, guardrails"
 
-    **机制已核到，且推翻旧判断**（官方 `concepts/memory` 页）：官方现有**统一 `Memory` 类** ——
+    **机制已核到，且推翻旧判断**（官方 `concepts/memory` 页）。官方现有**统一 `Memory` 类**。
 
     **官方原文**："a single `Memory` class that replaces separate short-term, long-term,
     entity, and external memory types with one intelligent API"
@@ -298,7 +298,7 @@ axes:
     所以对照表里 CrewAI 应写作「校验 task 输出、失败重试」。
 
     **沙箱：OSS 无进程 / 容器级沙箱。** 边界来自工具本身 ——
-    文件工具默认把路径限制在 `base_dir`（默认 cwd，见 local_files 轴）。
+    文件工具默认把路径限制在 `base_dir`。默认是 cwd，见 local_files 轴。
     MCP 安全官方明说是「信任」问题、不提供内置防护。
 
     **未知：网络访问控制官方无机制**（已查 tasks 页与 `mcp/security` 页）。
@@ -414,7 +414,7 @@ confidence: partial
 
 ## 一句话定位
 
-**CrewAI 是一个用「角色分工」和「业务流程」两套比喻来编排多 agent 的 Python 框架。**
+**CrewAI 是一个 Python 框架。它用「角色分工」和「业务流程」两套比喻来编排多 agent。**
 官方自述是 "Framework for orchestrating **role-playing**, autonomous AI agents."
 
 **「role-playing」这个词容易让人低估它。** 同一份 README 里也写着 production-grade，
@@ -461,7 +461,7 @@ class AdvancedAnalysisFlow(Flow[MarketState]):
 **这就是本站要找的「状态」** —— 显式、结构化、可按数值阈值分支。
 
 **落盘与跨进程恢复本轮已核到**（官方 `concepts/checkpointing`、`concepts/flows` 页）。
-README 把 checkpointing 写成**按需添加**，两处原话都加了限定语：
+README 把 checkpointing 写成**按需添加**。两处原话都加了限定语：
 
 - "Add tools, memory, **checkpointing**, and async execution **as your system grows**"
 - "Add deterministic steps, human input, structured outputs, and **checkpointing as your system grows**"
@@ -532,9 +532,9 @@ MCP 的接入面：
 **「官方有 `a2a` extra 与一批 A2A 事件」**，协议规范不在本站研究范围。
 
 另外有个有意思的细节：CrewAI 自己托管了一个文档 MCP server
-（`docs.crewai.com/mcp`）。README「Build with AI」段提到有个 `ask-docs` 配置
-可以**「查询 CrewAI 的实时文档 MCP server 获取最新 API 细节」**——
-**它用自己的 MCP server 来喂 AI 编程助手，属于 MCP 的一个真实自用案例。**
+（`docs.crewai.com/mcp`）。README「Build with AI」段提到有个 `ask-docs` 配置：
+**「查询 CrewAI 的实时文档 MCP server 获取最新 API 细节」**
+**它用自己的 MCP server 来喂 AI 编程助手。这属于 MCP 的一个真实自用案例。**
 
 ## 权限维度：guardrails 是「任务输出校验」，不是权限边界
 
@@ -562,7 +562,7 @@ MCP 安全官方明说是「信任」问题、不提供内置防护。
 
 ## 记忆：统一 Memory 系统，机制已核到（旧判断作废）
 
-本轮核实官方 `concepts/memory` 页：**官方已把记忆统一成一个 `Memory` 类** ——
+本轮核实官方 `concepts/memory` 页。**官方已把记忆统一成一个 `Memory` 类**。
 
 > a single `Memory` class that replaces separate short-term, long-term,
 > entity, and external memory types with one intelligent API
@@ -572,7 +572,7 @@ MCP 安全官方明说是「信任」问题、不提供内置防护。
 的分型路线正好相反。
 
 - **作用域**：分层 scope 树（`/agent/researcher` 等），Crew 级默认共享，
-  agent 可用 `memory.scope()` 取私有子树，`slice()` 做跨分支只读或读写视图。
+  agent 可用 `memory.scope()` 取私有子树。`slice()` 做跨分支只读或读写视图。
 
 - **存储后端**：平台目录下的向量库（默认 ChromaDB，`CREWAI_STORAGE_DIR` 可改）。
 - **不靠截断**：检索用 `semantic + recency + importance` 复合打分；
@@ -629,7 +629,7 @@ Basic 的加购一栏写的是「—」。
 
 **结论二：部署形态在商业侧确实兑现了。**
 
-Enterprise 明确写可部署在 CrewAI 云 / **你自己的 VPC** / **你自己的基础设施**。
+Enterprise 明确写可部署在 CrewAI 云。它也支持你自己的 VPC / 你自己的基础设施。
 这也兑现了 README 那句原文：
 
     > On-premise and Cloud Deployment Options
@@ -687,8 +687,8 @@ OSS 是否有网络访问控制的官方机制。
 README 关键段落（双抽象、七项 Key Features、模型接入、Crews/Flows FAQ、
 MarketState 结构化状态示例、Telemetry 与 License 段）。
 
-**本轮（2026-10-01）补上的**：CrewAI AMP 定价（官方页两档，已写进正文表格）、
-Enterprise 的部署形态（客户自有 VPC / 自有基础设施）、无强制联网授权表述。
+**本轮（2026-10-01）补上的**：CrewAI AMP 定价。官方页两档，已写进正文表格。
+Enterprise 的部署形态（客户自有 VPC / 自有基础设施）。无强制联网授权表述。
 
 **核验方法**：先试 `_audit/fetch-pricing.mjs` 渲染 `crewai.com/pricing` 超时，
 改用 WebFetch 直接取官方页正文。

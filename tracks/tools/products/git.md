@@ -71,7 +71,7 @@ axes:
 
   fit: >-
     让 Agent 读取仓库状态、历史与 diff，并在受控前提下执行提交与分支操作。
-    不适合需要 push / PR / 远程仓库管理的场景（本 server 不提供远程操作）。
+    不适合需要 push / PR / 远程仓库管理的场景。本 server 不提供远程操作。
 
 pitfalls:
   - 以为是只读工具，实际能 commit 和切换分支
@@ -127,7 +127,7 @@ confidence: verified
 
 ## 一句话定位
 
-MCP 官方 reference server 里的版本控制实现，**作用域限定在指定 git 仓库，但具备完整的本地写操作能力**。
+MCP 官方 reference server 里的版本控制实现。**它作用域限定在指定 git 仓库，但具备完整的本地写操作能力**。
 
 ## 变更记录说明
 
@@ -160,7 +160,7 @@ MCP 官方 reference server 里的版本控制实现，**作用域限定在指�
 | `git_create_branch` | **写** | 从当前或指定基点建分支 |
 | `git_checkout` | **写** | 切换分支，会改变工作区状态 |
 
-**6 读 5 写**。这不是只读工具——`git_checkout` 切分支会直接改变工作区，如果工作区有未提交改动，行为需要特别留意。
+**6 读 5 写**。这不是只读工具。`git_checkout` 切分支会直接改变工作区。如果工作区有未提交改动，行为需要特别留意。
 
 ## 与 filesystem server 的对比
 
@@ -172,7 +172,7 @@ MCP 官方 reference server 里的版本控制实现，**作用域限定在指�
 | 执行命令 | 不提供 | 内部调用 git 命令行 |
 | 认证 | 无（靠进程权限） | 无（靠进程权限） |
 
-**结论**：git server 的写能力更强，但因为作用域限定在 git 仓库内，风险面比 filesystem 小。
+**结论**：git server 的写能力更强。但它的作用域限定在 git 仓库内，风险面比 filesystem 小。
 
 ## 能力边界
 
@@ -186,8 +186,8 @@ MCP 官方 reference server 里的版本控制实现，**作用域限定在指�
 
 ## 已归档的替代方案
 
-原 `github` server（提供仓库管理、文件操作与 GitHub API 集成）**已归档**至
-[servers-archived](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/github)，归档仓库自 2025-05 后基本无更新。
+原 `github` server 提供仓库管理、文件操作与 GitHub API 集成。它**已归档**至
+[servers-archived](https://github.com/modelcontextprotocol/servers-archived/tree/main/src/github)。归档仓库自 2025-05 后基本无更新。
 
 ## 适合与不适合
 

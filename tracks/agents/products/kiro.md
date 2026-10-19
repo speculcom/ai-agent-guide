@@ -44,7 +44,7 @@ axes:
 
     计费按 credit 倍数：Auto 是 1.0x 基准，GPT-5.6 Sol 最高 4.4x。
 
-    区域上，GPT-5.6 一律从美国服务，其余跟随你的 profile 区域（US / EU）。
+    区域上，GPT-5.6 一律从美国服务。其余跟随你的 profile 区域（US / EU）。
     Claude Fable 5.1 是 Enterprise 预览。
 
     **能不能自带 API Key（BYOK）：官方未说明。**
@@ -54,18 +54,20 @@ axes:
     不是装进别人编辑器的扩展。但官方把它定位为「one agent, every surface」：
     IDE / CLI / Web / Mobile 都是同一个 unified agent harness 的前端，本地客户端经 stdio 走
     **Agent Client Protocol（ACP）**，Web / Mobile 经 WebSocket 连云端沙箱。
-    **IDE 与 CLI 默认在本机运行 harness**（工具操作本地文件与 shell）；两者也可创建并接入云端 sandbox 里的
-    Cloud Session。因为边界是标准 ACP，官方称兼容编辑器如 JetBrains IDE 与 Zed 也能把 Kiro 当 agent 用。
+    **IDE 与 CLI 默认在本机运行 harness**。工具操作本地文件与 shell。
+    两者也可创建并接入云端 sandbox 里的 Cloud Session。
+    因为边界是标准 ACP。官方称 JetBrains IDE 与 Zed 也能把 Kiro 当 agent 用。
   local_files: >-
     它通过 IDE 访问你的工作区文件。
 
     **代码理解分两层。** 第一层是内置的 Tree-sitter，覆盖 18 种语言，
-    提供符号模糊搜索、文档大纲、AST 结构搜索与改写、代码库概览，跨 surface 都能用。
+    提供符号模糊搜索、文档大纲、AST 结构搜索与改写、代码库概览。
+    这些能力跨 surface 都能用。
     第二层是 **LSP（可选）**，能做查引用、跳定义、重命名、诊断、悬停文档 ——
     但只在 IDE 与 CLI 里，而且要自己装语言服务器。
 
     **索引有专页说明**：打开项目就自动索引源码、文档、配置与依赖；
-    文件变更或外部改动会增量重索引，也可以手动 Force Re-Index / Rebuild。
+    文件变更或外部改动会增量重索引。也可以手动 Force Re-Index / Rebuild。
     想让 agent 别碰某些文件，用 `.kiroignore`（gitignore 风格）排除。
 
     **索引会不会上传到云端：官方未说明。**
@@ -115,13 +117,14 @@ axes:
     - `design.md`
     - `tasks.md` —— 支持按依赖图分波并行执行
 
-    **Steering 提供持久的项目上下文**，放在两个位置：工作区 `.kiro/steering/`、
-    全局 `~/.kiro/steering/`。内置 product / tech / structure 三份基础文件，
+    **Steering 提供持久的项目上下文**。它放在两个位置：工作区 `.kiro/steering/`、
+    全局 `~/.kiro/steering/`。内置 product / tech / structure 三份基础文件。
     支持 always / fileMatch / manual / auto 四种 inclusion 模式，并兼容 `AGENTS.md`。
 
-    其它上下文相关能力：subagents（各自独立上下文窗口）· compaction
+    其它上下文相关能力：subagents（各自独立上下文窗口）。
+    另有 compaction。
     （自动摘要旧历史，**单向不可回滚**）· checkpoints / rewind ·
-    `/sessions` 会话管理 · CLI 里实验性的 knowledge 库（语义检索）。
+    `/sessions` 做会话管理。CLI 里另有实验性的 knowledge 库（语义检索）。
 
     **上下文窗口的具体数值，官方 docs 没有单列。**
     （已查 compaction 与 models 两页。）
@@ -141,7 +144,7 @@ axes:
     作用域共六个：Kiro 硬编码、administration、user、workspace、agent、session。
 
     IDE 另有 Agent Autonomy 的 Autopilot / Supervised 两档。
-    **工作区默认不被信任** —— 信任之前不加载仓库内的 agents / steering / MCP / Skills。
+    **工作区默认不被信任**。信任之前不加载仓库内的 agents、steering、MCP、Skills。
     **headless 模式下，每个 `ask` 都按 `deny` 处理。**
 
     **官方 permissions 页原文**：capability-based，"replacing older binary trust models"
@@ -152,10 +155,10 @@ axes:
     - **需要云端会话在关机后继续跑的人**（Cloud sessions，最多 10 并发）
     - 想把 steering 与权限规则**随仓库分发**的团队（`.kiro/` 可提交，跨 surface 一致）
 
-    想低量试用的话，Free 档够用：每月 50 credits，限开放权重模型与 Sonnet 4.5。
+    想低量试用的话，Free 档够用。每月 50 credits，限开放权重模型与 Sonnet 4.5。
 
-    **不适合**两类人：想接自有 API Key 或跑本地模型的（官方 models 与 pricing
-    两页都没有 BYOK）；以及要求额度口径透明的重度用户 —— credit 按模型倍数消耗，
+    **不适合**两类人。一是想接自有 API Key 或跑本地模型的。官方 models 与 pricing
+    两页都没有 BYOK 说明。二是要求额度口径透明的重度用户。credit 按模型倍数消耗，
     官方没给「固定请求数」的换算。
 pitfalls:
   - 把 Kiro 当成纯 IDE 工具，它另有 CLI / Web / Mobile 与 Crew，Cloud Session 还能关机后续跑
@@ -264,8 +267,8 @@ confidence: partial
 需要云端会话在关机后继续跑的人（Cloud sessions，最多 10 并发）。
 想把 steering 与权限规则随仓库分发的团队（`.kiro/` 可提交）。
 
-**不适合**想接自有 API Key 或跑本地模型的人——官方 models 与 pricing 两页都没有 BYOK 说明；
-也不适合要求额度口径透明的重度用户，credit 按模型倍数消耗，官方未给固定请求数换算。
+**不适合**想接自有 API Key 或跑本地模型的人。官方 models 与 pricing 两页都没有 BYOK 说明。
+也不适合要求额度口径透明的重度用户。credit 按模型倍数消耗，官方未给固定请求数换算。
 
 ## 核验说明
 

@@ -26,9 +26,9 @@ axes:
   model_access: >-
     Anthropic 自家 Claude 系列。
 
-    **v2.1.284（2026-09-28）新增 Claude Sonnet 5.5（`claude-sonnet-5-5`），
-    官方标注为 Anthropic API 上的默认 Sonnet 模型：1M 上下文、
-    $2/$10 per Mtok、缓存读取 $0.20/Mtok。**
+    **v2.1.284（2026-09-28）新增 Claude Sonnet 5.5（`claude-sonnet-5-5`）。
+    官方标注它是 Anthropic API 上的默认 Sonnet 模型。**
+    规格为 1M 上下文、$2/$10 per Mtok、缓存读取 $0.20/Mtok。
 
   runtime: >-
     本地进程，在终端运行。生命周期绑定终端会话。
@@ -37,8 +37,9 @@ axes:
   local_files: >-
     **权限模型与工作目录强绑定**——
 
-    CHANGELOG 记录 auto 模式在「读取工作目录之外的文件前」会询问，
-    且新增了「Yes, but ask again next time」选项：**允许这一次读取，之后仍继续询问**。
+    CHANGELOG 记录 auto 模式在「读取工作目录之外的文件前」会询问。
+    它还新增了「Yes, but ask again next time」选项。
+    含义是允许这一次读取，之后仍继续询问。
 
     1M 上下文档位（见 model_access）。
 
@@ -58,21 +59,21 @@ axes:
 
     云会话与 routines 需 Pro / Max / Team 或 Enterprise 付费席位。
 
-    额度与限额跟随套餐（官方 routines 页单列 Usage and limits）。
+    额度与限额跟随套餐。官方 routines 页单列了 Usage and limits。
 
   tools: >-
     **MCP 支持完整且在持续加强**——
 
-    v2.1.284 新增 `/mcp reconnect all`：一次性重试所有连接失败或待认证的 MCP server。
+    v2.1.284 新增 `/mcp reconnect all`。它能一次性重试所有连接失败或待认证的 MCP server。
 
-    同版本修复了「恢复会话时 MCP 工具调用报 No such tool available
-    但 server 其实仍在连接」的问题，现在会**等待最多 10 秒**。
+    同版本修复了一个问题。恢复会话时 MCP 工具调用会报 No such tool available，
+    但 server 其实仍在连接。现在会**等待最多 10 秒**。
 
   context: >-
     **上下文压缩机制有明确的边界处理**——
 
-    v2.1.284 修复了「压缩后仍超长导致 Prompt is too long 持久报错」的问题：
-    现在会**再压缩一次，并保留更少的近期对话**。
+    v2.1.284 修复了一个持久报错问题。压缩后仍超长时，
+    会持续报 Prompt is too long。现在会**再压缩一次，并保留更少的近期对话**。
 
     这说明它确实有多轮压缩能力，且边界情况在持续修补。
 
@@ -143,7 +144,8 @@ confidence: partial
 
 ## 一句话定位
 
-**本分区数据质量最高、发布最频繁的条目** —— 自带 CHANGELOG + Atom feed，权限设计颗粒度最细。
+**本分区数据质量最高、发布最频繁的条目**。它自带 CHANGELOG 与 Atom feed。
+它的权限设计颗粒度最细。
 
 ## ⚠ 许可状态（最重要的前提）
 
@@ -296,7 +298,7 @@ once more, keeping less of the recent conversation
 - ✅ 已核验：仓库、**许可状态原文**、最近 5 个版本与日期、star 数（148,488）、**模型定价原文**、权限设计的三个具体机制、MCP 两处改动、上下文压缩策略、Atom feed 存在、**云端形态（`claude --cloud` / Routines / 关机后续跑）**
 - ❌ 未核验：完整工具清单、沙箱实现细节、是否支持本地模型、API 与订阅额度关系
 
-**这曾是 CLI 形态第一个达到 `verified` 的条目**（因为它把大量信息写在了 CHANGELOG 与 LICENSE 里），
+**这曾是 CLI 形态第一个达到 `verified` 的条目**。它把大量信息写在了 CHANGELOG 与 LICENSE 里。
 **2026-10-03 因本站仍有取证缺口（见下）降为 `partial`**。
 
 ## 适合与不适合
