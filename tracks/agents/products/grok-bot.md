@@ -8,40 +8,6 @@ homepage: https://x.ai/news/introducing-grok-bot
 mark: xAI
 accent: "#000000"
 
-pricing:
-  model: freemium
-  monthly_usd: null
-  monthly_label: 含在 SuperGrok 与 Cursor 各档订阅内（beta），用量与主套餐分开计
-  annual_usd: null
-  annual_label: 官方发布页未给年付口径
-  note: >-
-    **它不单独收费，含在订阅里，但用量另算。**
-
-    以 x.ai 官方两篇发布页正文为准，核验日 2026-10-03。
-
-    首发时的范围：
-
-    > Grok Bot is available today for SuperGrok, SuperGrok Plus, and SuperGrok Heavy; Cursor Pro, Pro+, and Ultra; and Cursor Teams Standard and Premium subscribers on desktop and iOS.
-
-    后来官方又扩大过一次范围：
-
-    > Grok Bot is now included with all SuperGrok, Cursor Pro, and all Cursor Teams plans.
-
-    **最特殊的一条是计费口径，两篇官方页都原文重复：**
-
-    > Grok Bot comes with its own usage, separate from your Grok and Cursor plans, so anything you hand off to a Bot won't count against your existing usage.
-
-    也就是说：**用量独立于主套餐另算。**
-
-    这与 OpenAI Dot 是两种结构 —— Dot 是「与 Dot 的对话不占 ChatGPT 额度，
-    但派给 Codex 的任务照常计入」。
-
-    ⚠ **具体用量数值官方两篇均未给出，本次未核验。**
-  pricing_pitfalls:
-    - 把「独立用量」理解成免费 —— 官方只说与主套餐分开计，没说不计费
-    - 以为只在 SuperGrok 可用 —— 官方已扩大到全部 SuperGrok 与全部 Cursor Teams 档
-    - 按「Beta」预期它还不存在 —— 首发即今日可用，只是仍标 beta
-
 axes:
   model_access: >-
     **官方没点名底层模型，也没说能不能换模型。**
@@ -292,6 +258,17 @@ last_verified: 2026-10-03
 last_updated: 2026-10-03
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: no
+  direct_note: x.ai 大陆直连稳定超时（同日两次 000）。
+  direct_note_en: x.ai times out consistently from mainland (000 twice on the same day).
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位

@@ -8,26 +8,6 @@ homepage: https://github.com/Aider-AI/aider
 mark: A
 accent: "#D4A27F"
 
-pricing:
-  model: open-source
-  monthly_usd: null
-  monthly_label: 开源免费，模型费用另计
-  annual_usd: null
-  annual_label: 开源免费，模型费用另计
-  note: >-
-    **Aider 是 Apache-2.0 开源软件，模型调用费用完全由用户自付。**
-
-    安装渠道是 PyPI 包 `aider-chat`。
-
-    官方徽章显示 680 万次安装。
-
-    模型可以走云端，也可以走本地。
-
-    支持的链路包括 OpenRouter 等平台与本地模型。
-pricing_pitfalls:
-  - 以为开源就等于零成本，模型调用费用要自己承担
-  - 以为还在积极维护，最新 release 停在 2025-08
-
 axes:
   model_access: >-
     **支持云端与本地 LLM，可连接几乎任何模型，明确包含本地模型选项。**
@@ -217,6 +197,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: maintenance
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网仓库在 GitHub，大陆直连波动（同日实测 200/000 混合）；npm / PyPI 安装源实测稳定可达。
+  direct_note_en: Hosted on GitHub — direct reachability from mainland fluctuates (200/000 mixed on the same day); npm / PyPI install routes measured stable.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位

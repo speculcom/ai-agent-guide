@@ -8,12 +8,13 @@
  *   分组   —— data-form（agents 页=形态 track / harness 页=抽象层 family / tools 页无此项）
  *   核验   —— data-conf（verified / partial / stale）
  *   任务   —— data-task（S43：空格分隔多值，卡片可挂多个任务；任务卡链 ?task=<id> 到此）
+ *   中文生态 —— data-cn-origin / data-cn-direct / data-cn-filing（S52：与 models 站同一套字段口径）
  *   排序   —— data-done & data-total（**按产品**的维度补齐数），在各自 .grid 内重排
  *
  * ⚠ 排序只在**同一个 .grid 内**进行：页面按形态/抽象层分了组，
  *   跨组重排会把分组打散（而分组本身是本站的一条判断，不能因为排序就没了）。
  *
- * URL 可还原：?q=&form=&conf=&task=&sort= 写进地址栏。
+ * URL 可还原：?q=&form=&conf=&task=&cnorigin=&cndirect=&cnfiling=&sort= 写进地址栏。
  */
 (function () {
   'use strict';
@@ -26,6 +27,13 @@
   var selConf = box.querySelector('.asel-conf');
   var selTask = box.querySelector('.asel-task');
   var selSort = box.querySelector('.asel-sort');
+  /* S52 中文生态三选：与 models 站 .ssel-cn* 同一套口径。
+   * 控件由构建器按「本页真有区分度」才渲染，所以这里对 null 要防御。 */
+  var cnSels = [
+    { el: box.querySelector('.asel-cnorigin'), attr: 'data-cn-origin', key: 'cnorigin' },
+    { el: box.querySelector('.asel-cndirect'), attr: 'data-cn-direct', key: 'cndirect' },
+    { el: box.querySelector('.asel-cnfiling'), attr: 'data-cn-filing', key: 'cnfiling' },
+  ].filter(function (x) { return x.el; });
   var count = box.querySelector('.acount');
   var allCards = Array.prototype.slice.call(document.querySelectorAll('.grid > .card'));
   if (!allCards.length) return;
@@ -37,6 +45,7 @@
     try {
       var u = new URL(location.href);
       var vals = { q: q ? q.value.trim() : '', form: selForm ? selForm.value : '', conf: selConf ? selConf.value : '', task: selTask ? selTask.value : '', sort: selSort ? selSort.value : '' };
+      cnSels.forEach(function (x) { vals[x.key] = x.el.value; });
       Object.keys(vals).forEach(function (k) { if (vals[k]) u.searchParams.set(k, vals[k]); else u.searchParams.delete(k); });
       history.replaceState(null, '', u.toString());
     } catch (e) { /* file:// 等场景静默降级：功能可用，地址栏不同步 */ }
@@ -63,7 +72,10 @@
       var okConf = !conf || c.getAttribute('data-conf') === conf;
       /* data-task 是空格分隔多值（一份档案可挂多个任务），按 token 匹配。 */
       var okTask = !task || (c.getAttribute('data-task') || '').split(/\s+/).indexOf(task) !== -1;
-      var on = okQ && okForm && okConf && okTask;
+      /* S52：cn 三维各是单值属性；卡片没这维度时属性为空串，
+       * 任何指名筛选都不该匹配它（空 ≠ 该值），未指名则放行。 */
+      var okCn = cnSels.every(function (x) { return !x.el.value || (c.getAttribute(x.attr) || '') === x.el.value; });
+      var on = okQ && okForm && okConf && okTask && okCn;
       c.hidden = !on;
       if (on) shown++;
     });
@@ -110,9 +122,21 @@
     }
     el.value = v;
   });
+  cnSels.forEach(function (x) {
+    var v = param(x.key);
+    if (!v) return;
+    var found = Array.prototype.some.call(x.el.options, function (o) { return o.value === v; });
+    if (!found) {
+      var extra = document.createElement('option');
+      extra.value = v; extra.textContent = v;
+      x.el.appendChild(extra);
+    }
+    x.el.value = v;
+  });
 
   if (q) q.addEventListener('input', function () { apply(); writeUrl(); });
   [selForm, selConf, selTask].forEach(function (s) { if (s) s.addEventListener('change', function () { apply(); writeUrl(); }); });
+  cnSels.forEach(function (x) { x.el.addEventListener('change', function () { apply(); writeUrl(); }); });
   if (selSort) selSort.addEventListener('change', function () { sort(); writeUrl(); });
 
   sort();

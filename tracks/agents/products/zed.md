@@ -8,37 +8,6 @@ homepage: https://zed.dev
 mark: Z
 accent: "#3AB7FF"
 
-pricing:
-  model: freemium
-  monthly_usd: 10
-  monthly_label: Personal $0 永久免费 / Pro $10 每月 / Business $30 每席位每月
-  annual_usd: null
-  annual_label: 官方定价页只列月付；年付折扣未在页面列出，记为未知
-  note: >-
-    **按月付，分三档。**
-
-    **Personal** 是 $0 **forever**：送 **2,000 次接受的编辑预测**。
-    还能**自带 API key，或接外部 agent（如 Claude Agent / Codex CLI）**。
-
-    **Pro** 是 $10/月：含 $5 token 额度，超出按用量计费。
-    Pro 有 Free Trial，官方注明试用期内**只有 GPT-6 Luna 这一个托管模型可用**。
-
-    **Business** 是 $30/席位/月：**无免费试用**。
-
-    **关键结论：编辑器本身的免费层与模型额度是解耦的。**
-    Personal 免费版就能用你自己的 key 或外部 agent。
-    也就是说，不买 Pro 也能用 Agent 功能。
-
-    **官方文档另列 5 条模型接入路径**：Zed-Hosted Models（经 Zed 计费）、
-    API Access、Existing Subscription（复用 ChatGPT / Claude / Copilot 订阅）、
-    Gateway（OpenRouter / Bedrock / Vercel 等）、Local Model（本地或自托管）。
-
-    **核验**：2026-10-01 渲染官方 pricing 页后逐档确认。
-pricing_pitfalls:
-  - 以为必须用 Zed 的模型才能用它的 Agent，其实有 5 条接入路径
-  - 以为免费版是「阉割版」—— Personal 永久免费且支持自带 key，只是编辑预测有 2,000 次额度
-  - 以为「Zed 定价」等于「模型费用」，二者是分开的计费口径
-
 axes:
   model_access: >-
     **官方列出 5 条模型接入路径**（docs/src/ai/llm-providers.md）：
@@ -221,6 +190,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网直连实测 200。
+  direct_note_en: official site measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位

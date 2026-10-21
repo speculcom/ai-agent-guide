@@ -8,28 +8,6 @@ homepage: https://github.com/features/copilot
 mark: GH
 accent: "#24292F"
 
-pricing:
-  model: paid
-  monthly_usd: 10
-  monthly_label: Copilot Free（2,000 补全/月）/ Pro $10 / Pro+ $39 / Max $100 每月
-  annual_usd: null
-  annual_label: 年付按档折算（Pro $15、Pro+ $70、Max $200 每月等值），无统一折算率
-  note: >-
-    **2026-10-01 用 Playwright 渲染官方 plans 页后逐档确认，月付/年付两套口径都拿到**：
-    个人四档 —— Free $0（**每月 2,000 次补全**，chat 与 agent 用量有限）、
-    Pro $10/月、Pro+ $39/月、Max $100/月；这三档的 agent 与 chat 配额均为 **Unlimited**。
-    **月付额度**：Pro $15、Pro+ $70、Max $200 每月总credits（官方标注序号 6的附加说明）。
-    团队每用户每月 —— Pro $10、Pro+ $39、Max $100（另有 Enterprise 定制）。
-    **年付口径数字不同**（Pro $15、Pro+ $70、Max $200），页面同时呈现两套，
-    本站按「月付=当年付折扣后」理解，但**具体折算率官方未单列，勿自行推算**。
-    另有机制：Flex allotment（官方明确标注「Flex allotments may change over time」，
-    即额度可变）、可额外购买 GitHub AI Credits、
-    Business/Enterprise 有 Pooled usage（组织内共享额度 + 管理员支出控制）。
-pricing_pitfalls:
-  - 把 Flex allotment 当成固定额度，官方明确说它会随时间变化
-  - 以为买 AI Credits 能打折，它是独立的加购机制
-  - 以为个人档能共享额度，Pooled usage 仅 Business / Enterprise 有
-
 axes:
   model_access: >-
     由 GitHub / Microsoft 统一托管，绑定 GitHub 账号体系。
@@ -209,6 +187,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网仓库在 GitHub，大陆直连波动（同日实测 200/000 混合）；npm / PyPI 安装源实测稳定可达。
+  direct_note_en: Hosted on GitHub — direct reachability from mainland fluctuates (200/000 mixed on the same day); npm / PyPI install routes measured stable.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -289,22 +278,6 @@ Included AI credits are shared org-wide with admin controls for spending.
 | **Cloud agent** | **部分档位** |
 | 第三方 agent 委派（Claude / Codex） | **标注 Preview** |
 
-## 价格数字（本次采集中最完整，但需注意口径）
-
-官方 plans 页呈现的数字序列：
-
-| 序列 | 数字 |
-|---|---|
-| 个人档相关 | **$15 / $70 / $200** |
-| Business 档相关 | **$100 per month**、**$5 / $31 / $100** |
-
-**必须说明的局限**：
-页面同时存在月付与年付口径，
-本次采集**未能逐档确认每个数字对应哪个档位的哪种周期**。
-
-**按本站方法论，这里应该标为未知而不是猜测。**
-具体价格请以官网为准。
-
 ## 官方生态位：MCP Registry 是平台级能力
 
 值得注意的是，GitHub 把**「MCP Registry / Integrate external tools」**
@@ -322,19 +295,18 @@ Included AI credits are shared org-wide with admin controls for spending.
 需要最广编辑器覆盖的人（VS Code / JetBrains / Eclipse / Xcode 都能用）。
 企业采购需要额度池治理与管理员支出控制的人。
 
-**不适合**要求定价一次讲清的人——
-本次未能逐档确认价格数字，必须自行到官网核对。
-也不适合依赖第三方 agent 委派的场景（官方标注为 Preview）。
+**不适合**依赖第三方 agent 委派的场景（官方标注为 Preview）。
+报价与档位见官方 plans 页（本站按 D9 口径不存价格数字）。
 
 ## 采集限制
 
 | 页面 | 状态 |
 |---|---|
-| plans 页 | ✅ 取到 71K 字符，功能逐项对照完整，⚠️ 价格数字未逐档对应 |
+| plans 页 | ✅ 取到 71K 字符，功能逐项对照完整 |
 | docs.github.com | ✅ 2026-10-08 已取到模型、cloud agent、索引、内容排除、Memory、指令、防火墙等页 |
 | Changelog | ✅ 取到 5838 字符 |
 
-**价格数字的逐档对应仍是缺口，故 confidence: partial。**
+**confidence: partial 的依据**：第三方 agent 委派（Preview）的实际可用范围未核验。
 
 ## 实测记录
 
@@ -345,7 +317,6 @@ Included AI credits are shared org-wide with admin controls for spending.
 
 ## 未知项清单
 
-- 各档位的完整价格对照（价格数字未逐档确认）
 - 第三方 agent 委派（Claude / Codex）的实际可用范围（官方标注 Preview）
 - 企业策略对可用能力的完整影响面
 - cloud agent 防火墙被绕过的实际边界（官方自称可能被绕过）

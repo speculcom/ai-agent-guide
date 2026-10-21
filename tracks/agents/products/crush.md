@@ -8,19 +8,6 @@ homepage: https://github.com/charmbracelet/crush
 mark: CR
 accent: "#F26D9D"
 
-pricing:
-  model: open-source
-  monthly_usd: null
-  monthly_label: 开源免费，模型费用另计
-  annual_usd: null
-  annual_label: 开源免费，模型费用另计
-  note: >-
-    开源免费，模型费用由用户自付。
-    **许可证在 GitHub 上被识别为 NOASSERTION**（无法识别类型），
-    **具体条款本次未核验，商用前须自行确认**。
-pricing_pitfalls:
-  - 以为开源可商用，许可证为 NOASSERTION，条款未核验
-
 axes:
   model_access: >-
     **它自己不带模型，模型全要你自备（BYOK），但可接的 provider 很多。**
@@ -224,11 +211,22 @@ last_verified: 2026-09-29
 last_updated: 2026-09-29
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网仓库在 GitHub，大陆直连波动（同日实测 200/000 混合）；npm / PyPI 安装源实测稳定可达。
+  direct_note_en: Hosted on GitHub — direct reachability from mainland fluctuates (200/000 mixed on the same day); npm / PyPI install routes measured stable.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
 
-**Charm 生态的 TUI 编码 agent，在终端里跑。**
+**crush 是 Charm 生态出品的 TUI 编码 agent，在终端里跑。**
 它的 MCP 三种传输方式标注最完整，并带一个官方订阅方案 Hyper。
 
 ## 变更记录说明
@@ -253,10 +251,10 @@ confidence: partial
 
 | 方式 | 说明 |
 |---|---|
-| Hyper 订阅 | Charm 官方运营，按订阅计费 |
+| Hyper 订阅 | Charm 官方运营，按订阅计费（报价见官方页，本站按 D9 口径不存） |
 | 自带 key | 接 Anthropic / OpenAI 等，费用自付 |
 
-**未知**：Hyper 官方称带免费层，但价格档位与额度数值本次未核验，记为未知。
+**未知**：Hyper 官方称带免费层，但其档位与额度数值本次未核验，记为未知。
 
 ## MCP：三种传输方式写清楚了
 
@@ -292,7 +290,7 @@ GitHub API 返回的许可证字段是 **`NOASSERTION`**，也就是无法识别
   完整 provider 清单与本地模型、LSP 与上下文文件机制、auto-summarize、
   权限 allow/deny 与 `--yolo`、`crush serve` 本地后端边界
 
-- ❌ 未核验：**许可证具体条款**、Hyper 价格与额度
+- ❌ 未核验：**许可证具体条款**、Hyper 免费层的具体额度
 
 ## 适合与不适合
 
@@ -316,7 +314,7 @@ GitHub 识别为 NOASSERTION，条款未核验。
 ## 未知项清单
 
 - **许可证具体条款** —— GitHub 识别为 `NOASSERTION`
-- Hyper 订阅的价格与额度
+- Hyper 免费层的具体额度（报价见官方页，本站按 D9 口径不存）
 - 索引算法与大仓库首次索引耗时（官方未说明，已查 README 与 docs/config）
 
 ## 相关条目

@@ -9,19 +9,6 @@ homepage: https://aider.chat/docs/usage/watch.html
 mark: A
 accent: "#D4A27F"
 
-pricing:
-  model: open-source
-  monthly_usd: null
-  monthly_label: 开源免费，模型费用另计
-  annual_usd: null
-  annual_label: 开源免费，模型费用另计
-  note: >-
-    Apache-2.0 开源。与 [CLI 形态](../../agents/products/aider-cli.md) 同一项目，
-    **无额外授权费用**。模型调用费用由用户自付。
-pricing_pitfalls:
-  - 以为 IDE 形态是插件，它其实是 watch 模式 + 浏览器 UI
-  - 以为形态独立，其实与 CLI 形态共享同一项目与同一维护状态
-
 axes:
   model_access: >-
     **与 CLI 形态同一套模型入口：支持云端与本地 LLM，可连接几乎任何模型。**
@@ -210,6 +197,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: maintenance
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网 aider.chat 直连实测 200。
+  direct_note_en: aider.chat measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位

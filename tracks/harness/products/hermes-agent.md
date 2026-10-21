@@ -19,74 +19,6 @@ providers:
   - 另有 OpenRouter、OpenAI、自建 endpoint（README 明示）
   - 完整清单见官方 `docs/integrations/providers`（本轮未取到正文）
 
-pricing:
-  model: open-source
-  monthly_usd: 0
-  monthly_label: 框架免费（MIT）；推理按你选的 provider 计费；Nous Portal 另有订阅（免费层 + 付费档，官网未公开定价页）
-  note: >-
-    **框架本身 MIT 免费，推理与后端资源自理。**
-
-    核验依据：仓库 MIT（经 license API）、README 的安装命令与 Nous Portal 入口。
-
-    **可能另外花钱的路有三条。**
-
-    （1）OpenAI / Anthropic 等按量的 API。
-
-    （2）**Modal / Daytona 等 serverless 后端。** 官方说这两家提供
-    "serverless persistence"，agent 环境空闲时休眠、按需唤醒，
-    而且 "costing nearly nothing between sessions"。
-
-    （3）自建 GPU 集群，或官方举例的 $5 VPS。
-
-    **⚠ Nous Portal 的计费，本轮核验结果是「官网不公开，只有第三方口径」。**
-
-    抓取 `portal.nousresearch.com` 首页**只有定性描述，没有一个价格数字**。原文写的是：
-
-    > "the models, the tools, the cloud"
-
-    模型目录那句原文：
-
-    > "spans hundreds of models from every frontier lab, with **free options and Portal-only discounts**"
-
-    也就是说，官方只说有免费选项、有 Portal 专属折扣，**没给任何档位与金额**。
-
-    `portal.nousresearch.com/pricing` 返回 **404（Page not found）**。
-
-    四个互相独立的第三方来源（hostinger、moscarillo、aiidelist、standardcompute、
-    toolin）给出一致口径：**Free $0 / Plus $20 每月含 $22 额度 /
-    Super $100 含 $110 / Ultra $200 含 $220**。它们另称付费档含 Tool Gateway
-    （搜索/图像/语音/浏览器自动化），免费档既不含额度也不含 Tool Gateway，
-    额度可按月 rollover（有上限）。
-
-    ⚠ **这些数字本站标为「第三方口径，未获官方确认」。**
-    四个来源一致不等于官方确认，按 v3 铁律「未知就说未知」，不写成已核实。
-
-    **选型前请以登录后 Portal 内的账单页为准。**
-
-    **另有一条值得单独记。** 有第三方明确写出：
-
-    > 「$20 买到 $22 额度是**预付计量表**，不是包月无限」
-
-    即订阅价 ≠ 月度账单，实际花多少取决于用量。长 agent 循环能几天烧完一档额度。
-
-    ⚠ 该说法本身也来自第三方，本站未实证。
-pricing_pitfalls:
-  - 以为「跑在 $5 VPS 上」就是低成本的全部 —— 多后端并行、或用 Modal/Daytona 的
-    唤醒频率决定实际账单，官方没给成本模型
-
-  - 把 serverless 后端理解成「永远关着」—— 官方说的是**休眠**（hibernates when idle），
-    唤醒有延迟，且持久化语义需自己验证
-
-  - 以为免费模型能跑全部功能 —— 模型能力与工具调用可靠性取决于所选 provider，本站未核验
-  - **把 Nous Portal 的订阅价当成月度账单** —— 多个第三方来源指出额度制
-    （$20 档含$22 额度）是**预付计量**、额度按月 rollover 有上限，
-    长 agent 循环消耗速度远高于普通聊天
-
-  - 把第三方站（hostinger / standardcompute 等）列的 Portal 档位当官方数字 ——
-    **Nous Research 官网没有公开定价页**，首页只有定性描述，
-    `portal.nousresearch.com/pricing` 是 404，数字全来自第三方
-
-# 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
   **它不是一个编程助手，而是一个常驻的个人助手。**
 
@@ -527,6 +459,17 @@ last_verified: 2026-10-01
 last_updated: 2026-10-01
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网直连实测 200。
+  direct_note_en: official site measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -828,12 +771,7 @@ hermes claw migrate --preset user-data     # 不导入密钥
 
 **本轮（2026-10-01）补上的**：Nous Portal 计费的**官网状态**已核验 ——
 **官网不公开定价**（首页只有定性描述、无一个数字；`/pricing` 返 404）。
-第三方口径已记入档案，但**标注为未获官方确认**：
-
-- Free
-- Plus $20 含$22
-- Super $100 含 $110
-- Ultra $200 含 $220
+第三方口径流传但**未获官方确认**——按 D9 口径本站不记录这些数字。
 
 **这条的状态：** 从「完全未核验」变成「已核验到官网不公开」。
 
@@ -860,7 +798,7 @@ hermes claw migrate --preset user-data     # 不导入密钥
 - skills 自我改进的边界（会不会越学越歪）
 - Honcho 用户建模的数据去向与隐私
 - Hermes 与 OpenClaw 的确切关系（团队、是否改名、迁移完整性）
-- Nous Portal 的**官方**定价（官网不公开，第三方口径未获确认）
+- Nous Portal 的**官方**档位与额度数值（官网不公开，第三方口径未获确认）
 - Nous Portal 额度制的实际消耗速度（长 agent 循环能几天烧完一档，第三方说法未实证）
 - Nous Portal 与 OpenRouter 的差异（同样走 credit，但模型目录与工具网关不同）
 - 本地 / 自托管模型在各后端下的可靠性（完整 provider 清单已核验）

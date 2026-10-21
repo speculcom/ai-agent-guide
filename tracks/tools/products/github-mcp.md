@@ -8,22 +8,6 @@ homepage: https://github.com/github/github-mcp-server
 mark: GH
 accent: "#181717"
 
-pricing:
-  model: open-source
-  monthly_usd: null
-  monthly_label: 无商业费用（MIT）
-  annual_usd: null
-  annual_label: 无商业费用（MIT）
-  note: >-
-    GitHub 官方仓库，MIT 许可（经 GitHub license API 核验 2026-10-08），无授权费。
-
-    本地形态（Docker 镜像 ghcr.io/github/github-mcp-server）与远程托管形态（api.githubcopilot.com/mcp/）
-    均不单独收费；实际成本来自使用的 GitHub 账号本身（私有仓库 / Copilot / Actions 等按其各自计费），
-    以及你自行部署 HTTP 模式的机器成本。
-pricing_pitfalls:
-  - 以为远程托管形态要单独付费——远程 server 由 GitHub 托管，成本体现在 GitHub 账号与 Copilot 侧
-  - 以为本地 Docker 形态不含 GitHub 账号成本——API 调用仍走你的 token 与账号额度
-
 axes:
   model_access: >-
     **它自己不调模型。** 它是被客户端调用的接口实现 —— **选哪个模型是客户端的事。**
@@ -242,6 +226,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网仓库在 GitHub，大陆直连波动（同日实测 200/000 混合）；npm / PyPI 安装源实测稳定可达。
+  direct_note_en: Hosted on GitHub — direct reachability from mainland fluctuates (200/000 mixed on the same day); npm / PyPI install routes measured stable.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位

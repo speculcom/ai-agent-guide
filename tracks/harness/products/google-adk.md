@@ -21,55 +21,6 @@ providers:
   - ⚠ "optimized for Gemini" 具体优化了什么，官方未说明
   - ⚠ 非 Gemini 模型下的工具调用 / structured output 可靠性，官方未给出对比
 
-pricing:
-  model: open-source
-  monthly_usd: 0
-  monthly_label: 框架免费（Apache-2.0）；设 GOOGLE_GENAI_USE_ENTERPRISE 后走 Google Cloud 企业平台计费
-  note: >-
-    **框架免费不等于零成本。** 可能花钱的地方有两处。
-
-    （1）官方给的部署目标是 **Cloud Run** 与 **Vertex AI Agent Engine**。
-    这两处都按云资源计费。
-
-    （2）用 Gemini 走 Google 侧计费，用其它模型走各自 provider。
-
-    **（3）`GOOGLE_GENAI_USE_ENTERPRISE` 是个计费路径开关。**
-    它不是「解锁企业功能」的开关。
-
-    它把请求从 Gemini Developer API 切到 Google Cloud 企业平台
-    （Gemini Enterprise Agent Platform / Vertex AI），计费口径随之改变。
-
-    官方 codelab 对三个变量的说明原文（核验 2026-10-01）：
-
-    `GOOGLE_GENAI_USE_ENTERPRISE` = "This tells the ADK that you intend to use Google's
-    **Gemini Enterprise Agent Platform** service for your Generative AI operations."
-
-    `GOOGLE_CLOUD_PROJECT` = "ADK needs this to correctly associate your agent with your
-    cloud resources and **enable billing**."
-
-    `GOOGLE_CLOUD_LOCATION` = 地域，如 `global`。
-
-    **⚠ 最关键的一条。** 官方把 "enable billing" 明确挂在 `GOOGLE_CLOUD_PROJECT` 上。
-
-    设了这三个变量，agent 就落进你的 Google Cloud 项目开始计费。
-    不设则走 Gemini Developer API 那条路（另有其免费层与配额）。
-
-    **且三个变量必须成组出现。** 官方所有示例都是三个一起设，没有只设其一的写法。
-
-    ⚠ 官方示例里这个变量的取值不统一，有`1`（README / codelab .env）、`TRUE`、
-    `True`（Cloud 文档）三种写法。**按Python 布尔语义大小写皆真**，但取值不一致这点本身值得注意。
-
-    ⚠ 具体的 Gemini 单价与 Vertex AI Agent Engine / Cloud Run 的实际费率本站未逐项核验。
-pricing_pitfalls:
-  - 以为「Apache-2.0 免费」等于零成本 —— Cloud Run / Vertex Agent Engine 的云资源费用自理
-  - 以为 model-agnostic 就等于各模型表现一致 —— 官方明确说 optimized for Gemini
-  - **把 `GOOGLE_GENAI_USE_ENTERPRISE` 当成「解锁企业功能」的开关 —— 它实际是计费路径开关**。
-    官方原文把「enable billing」挂在 `GOOGLE_CLOUD_PROJECT` 上，
-    与它成组设置即意味着请求走 Google Cloud 企业平台并开始计费
-
-  - 只设 `GOOGLE_GENAI_USE_ENTERPRISE` 不设 project/location —— 官方所有示例都是三个成组出现
-
-# 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
   **它是本站收录的第一个真正的编排框架（orchestration 家族）。**
 
@@ -372,6 +323,17 @@ last_verified: 2026-10-01
 last_updated: 2026-10-01
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网 adk.dev 直连实测 200。
+  direct_note_en: adk.dev measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位

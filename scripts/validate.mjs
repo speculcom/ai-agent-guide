@@ -24,7 +24,7 @@ const AXES_FILE = {
 const MCP_AXES = ['transport', 'auth', 'scope'];
 const CONFIDENCE = ['verified', 'partial', 'stale'];
 const LIFECYCLE = ['active', 'maintenance', 'archived', 'unknown'];
-const PRICING_MODEL = ['freemium', 'paid', 'open-source', 'unknown'];
+/* PRICING_MODEL 已随 D9（2026-10-20 价格口径退役）删除 */
 
 const errors = [];
 const warnings = [];
@@ -67,10 +67,10 @@ function validateEntry(file) {
   // 拆到新分区会让「八维对比」跨站分裂。
   if (fm.track && !['ide', 'cli', 'cloud', 'mcp', 'harness'].includes(fm.track)) fail(`track 枚举非法: ${fm.track}`);
 
-  const p = fm.pricing || {};
-  if (!p.model) fail('缺 pricing.model');
-  else if (!PRICING_MODEL.includes(p.model)) fail(`pricing.model 枚举非法: ${p.model}`);
-  if (p.annual_usd === null && !p.annual_label) fail('annual_usd 为 null 时必须有 annual_label');
+  /* D9（2026-10-20 用户定案）：价格口径退役——pricing 字段族已删。
+   * 反向守卫：档案里再出现 pricing / pricing_pitfalls → 硬失败（防旧口径回灌）。 */
+  if (fm.pricing) fail('出现已退役的 pricing 字段（D9：价格不进数据层）');
+  if (fm.pricing_pitfalls) fail('出现已退役的 pricing_pitfalls 字段（D9）');
 
   const ax = fm.axes || {};
   for (const a of AXES) {
@@ -290,6 +290,129 @@ crossCheck(entries);
     for (const [id, n] of used) {
       if (n === 0) errors.push(`sites/tasks.json · 任务 ${id} 没有任何档案引用（假入口）`);
     }
+  }
+}
+
+/* ── S45 轻档案：light/light.json 校验（2026-10-20 · D9 修订）─────────
+ * 对话问答类 / 创作工具类不走八维（D4 定案），走三要素卡。
+ * 规则（SCHEMA §9.2）：kind 枚举 · 三要素任一为空硬失败 · 出现 cost 字段硬失败（D9 价格退役）·
+ * sources ≥1 · last_verified 在 · confidence 枚举 · id 不与档案撞 · 英文缺 → 警告（R2）。 */
+{
+  const LIGHT_FILE = path.join(ROOT, 'light', 'light.json');
+  if (!fs.existsSync(LIGHT_FILE)) {
+    errors.push('缺轻档案真相源: light/light.json（S45）');
+  } else {
+    const light = JSON.parse(fs.readFileSync(LIGHT_FILE, 'utf8'));
+    const KINDS = new Set(light.kindEnum || ['chat', 'creation']);
+    const entryIds = new Set(entries.map(([rel, fm]) => fm.id || rel));
+    const seen = new Set();
+    for (const it of light.items || []) {
+      const tag = `light.json · ${it.id || '(无 id)'}`;
+      if (!it.id) { errors.push(`${tag} · 缺 id`); continue; }
+      if (seen.has(it.id)) errors.push(`${tag} · id 重复`);
+      seen.add(it.id);
+      if (entryIds.has(it.id)) errors.push(`${tag} · id 与八维档案撞`);
+      if (!KINDS.has(it.kind)) errors.push(`${tag} · kind 不在枚举: ${it.kind}`);
+      for (const k of ['name', 'vendor', 'homepage']) {
+        if (!it[k]) errors.push(`${tag} · 缺 ${k}`);
+      }
+      for (const k of ['what', 'data', 'who']) {
+        if (!it[k] || !String(it[k]).trim()) errors.push(`${tag} · 缺三要素之一: ${k}（缺一个就不是轻档案）`);
+      }
+      /* D9（2026-10-20 用户定案）：价格字段退役——出现即硬失败，防旧口径回灌 */
+      if (it.cost !== undefined || it.costEn !== undefined) errors.push(`${tag} · 出现已退役的 cost 字段（D9：价格不进数据层，只许 pricing_url 指针）`);
+      if (it.pricing_url !== undefined && !/^https?:\/\//.test(it.pricing_url)) errors.push(`${tag} · pricing_url 必须是 http(s) URL（只许指针，不许文字报价）`);
+      /* S47（2026-10-20）：创作类必须有「商用许可」主打列——许可逐条抄官方，不许缺 */
+      if (it.kind === 'creation' && (!it.license || !String(it.license).trim())) {
+        errors.push(`${tag} · 创作类缺 license（S47：商用许可是创作区主打列，逐条挂官方条款）`);
+      }
+      if (!Array.isArray(it.sources) || it.sources.length === 0) errors.push(`${tag} · sources 为空（R5：每条挂官方出处）`);
+      if (!it.last_verified) errors.push(`${tag} · 缺 last_verified（核验快照语义）`);
+      if (!CONFIDENCE.includes(it.confidence)) errors.push(`${tag} · confidence 不在枚举: ${it.confidence}`);
+      for (const k of ['nameEn', 'whatEn', 'dataEn', 'whoEn', ...(it.kind === 'creation' ? ['licenseEn'] : [])]) {
+        if (!it[k]) warnings.push(`${tag} · 缺 ${k}（R2 中英同步）`);
+      }
+    }
+  }
+}
+
+/* ── S48 深水指南：guides/*.md 校验（2026-10-20 · SCHEMA §十）─────────
+ * 方法论内容，不是产品档案——不走八维，也不进 tracks/（tracks 扫描只认
+ * products/，混进去会被误检）。规则：id/topic/title/summary 必填 ·
+ * topic 枚举 · sources ≥1 · last_verified 在 · confidence 枚举 ·
+ * 文件名=id · id 不与档案或轻档案撞 · 英文缺 → 警告（R2）。 */
+{
+  const GUIDES_DIR = path.join(ROOT, 'guides');
+  const TOPICS = new Set(['orchestration', 'memory', 'planning', 'evaluation', 'cost', 'guardrails']);
+  if (!fs.existsSync(GUIDES_DIR)) {
+    warnings.push('缺 guides/ 目录（S48：深水指南真相源，允许先建格式后灌内容）');
+  } else {
+    const lightIds = new Set(
+      fs.existsSync(path.join(ROOT, 'light', 'light.json'))
+        ? (JSON.parse(fs.readFileSync(path.join(ROOT, 'light', 'light.json'), 'utf8')).items || []).map((i) => i.id)
+        : []
+    );
+    const entryIds = new Set(entries.map(([rel, fm]) => fm.id || rel));
+    const seen = new Set();
+    for (const f of collect(GUIDES_DIR)) {
+      if (!f.endsWith('.md')) continue;
+      const rel = path.relative(ROOT, f).replace(/\\/g, '/');
+      const tag = `guides · ${path.basename(f)}`;
+      const text = fs.readFileSync(f, 'utf8');
+      const fm = parseFrontmatter(text);
+      if (!fm) { errors.push(`${tag} · 缺少 frontmatter`); continue; }
+      if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(fm.id || '')) errors.push(`${tag} · id 格式非法: ${fm.id}`);
+      const base = path.basename(f, '.md');
+      if (fm.id !== base) errors.push(`${tag} · 文件名(${base}) != id(${fm.id})`);
+      if (seen.has(fm.id)) errors.push(`${tag} · id 重复`);
+      seen.add(fm.id);
+      if (entryIds.has(fm.id)) errors.push(`${tag} · id 与八维档案撞`);
+      if (lightIds.has(fm.id)) errors.push(`${tag} · id 与轻档案撞`);
+      if (!TOPICS.has(fm.topic)) errors.push(`${tag} · topic 不在枚举: ${fm.topic}`);
+      for (const k of ['title', 'summary']) {
+        if (!fm[k] || !String(fm[k]).trim()) errors.push(`${tag} · 缺 ${k}`);
+      }
+      /* sources 走 parseSources（与档案/构建器同一正则口径）——
+       * parseFrontmatter 不解析对象数组，fm.sources 永远是 undefined。 */
+      const parsedSrc = parseSources(text);
+      if (parsedSrc.length === 0) errors.push(`${tag} · sources 为空（R5：关键事实挂官方出处）`);
+      if (!parsedSrc.some((s) => s.kind === 'docs' || s.kind === 'paper' || s.kind === 'spec')) errors.push(`${tag} · sources 至少 1 条 kind: docs / paper / spec（官方源）`);
+      if (!fm.last_verified) errors.push(`${tag} · 缺 last_verified（核验快照语义）`);
+      if (!CONFIDENCE.includes(fm.confidence)) errors.push(`${tag} · confidence 不在枚举: ${fm.confidence}`);
+      for (const k of ['titleEn', 'summaryEn']) {
+        if (!fm[k]) warnings.push(`${tag} · 缺 ${k}（R2 中英同步）`);
+      }
+    }
+  }
+}
+
+/* ── S52 中文生态透镜：cn 块校验（2026-10-20）─────────────────────────
+ * 「国产 / 国内可直接用 / 备案状态」——与 models 站共用同一字段口径（总纲 §1.7 缺口 #2）。
+ * 档案 frontmatter 的 cn 是两级嵌套 map（parseFrontmatter 支持），轻档案的 cn 是 JSON 对象。
+ * 纪律：origin/direct/filing 封闭枚举 · 每个判断带依据 note（中英）· filed 必带编号 ·
+ *       not-filed 必带检索口径 note · verified 快照日必填。未知就说 unknown。 */
+const CN_ORIGIN = ['domestic', 'foreign'];
+const CN_DIRECT = ['yes', 'no', 'unknown'];
+const CN_FILING = ['filed', 'not-filed', 'unknown'];
+function checkCn(cn, tag, push) {
+  if (!cn || typeof cn !== 'object') { push('error', `${tag} · 缺 cn 块（v7 S52：中文生态透镜必填）`); return; }
+  if (!CN_ORIGIN.includes(cn.origin)) push('error', `${tag} · cn.origin 越枚举: ${cn.origin}`);
+  if (!CN_DIRECT.includes(cn.direct)) push('error', `${tag} · cn.direct 越枚举: ${cn.direct}`);
+  if (!CN_FILING.includes(cn.filing)) push('error', `${tag} · cn.filing 越枚举: ${cn.filing}`);
+  for (const k of ['origin_note', 'direct_note']) if (!cn[k]) push('error', `${tag} · cn.${k} 为空（判断要给出依据）`);
+  if (cn.filing === 'filed' && !cn.filing_no) push('error', `${tag} · cn.filing=filed 但缺 filing_no（备案编号原样抄公示）`);
+  if (cn.filing === 'not-filed' && !cn.filing_note) push('error', `${tag} · cn.filing=not-filed 必须写 filing_note 说明检索口径`);
+  if (!cn.verified) push('error', `${tag} · cn.verified 缺（直连/备案都是快照，日期即有效期）`);
+  for (const k of ['origin_note_en', 'direct_note_en', 'filing_note_en']) if (!cn[k]) push('warn', `${tag} · cn.${k} 缺（R2 中英同步）`);
+}
+for (const [rel, fm] of entries) {
+  checkCn(fm.cn, `档案 ${rel}`, (lvl, msg) => (lvl === 'error' ? errors : warnings).push(msg));
+}
+{
+  const LIGHT_FILE = path.join(ROOT, 'light', 'light.json');
+  if (fs.existsSync(LIGHT_FILE)) {
+    const light = JSON.parse(fs.readFileSync(LIGHT_FILE, 'utf8'));
+    for (const it of light.items || []) checkCn(it.cn, `light.json · ${it.id}`, (lvl, msg) => (lvl === 'error' ? errors : warnings).push(msg));
   }
 }
 

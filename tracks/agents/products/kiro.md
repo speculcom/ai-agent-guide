@@ -7,26 +7,6 @@ vendor: AWS
 homepage: https://kiro.dev
 mark: K
 
-pricing:
-  model: freemium
-  monthly_usd: 20
-  monthly_label: Free $0 / Pro $20 / Pro+ $40 / Pro Max $100 / Power $200（每用户每月），Enterprise 洽谈
-  annual_usd: null
-  annual_label: 官方定价页只列月付（每月 1 日扣费），未列年付报价
-  note: >-
-    官方定价页（kiro.dev/pricing）**2026-10-08 逐档核实**（美元，不含税）：
-    Free $0（50 credits，限开放权重模型与 Claude Sonnet 4.5）、
-    Pro $20（1,000 credits）、Pro+ $40（2,000）、Pro Max $100（5,000）、Power $200（10,000），
-    付费档均可加购 credits（$0.04/credit，可买 $5 起）。Enterprise 集中计费 / SSO / 用量分析，
-    经 AWS 结算。「credit 是对一次 prompt 的工作量计量」（复杂 prompt 常 >1 credit，
-    不同模型按倍数消耗）。**首次升级付费档经社交登录或 AWS Builder ID 可获 $20 抵扣。**
-    未用月额度**不结转**下月；加购 credits 可结转，自购买日起 12 个月过期。
-    AWS GovCloud（US）定价约高 20% 且不提供 Free 档。价格均不含税。
-pricing_pitfalls:
-  - 以为 Kiro Free 是长期免费档，它每月仅 50 credits 且限开放权重模型与 Claude Sonnet 4.5
-  - 以为月度 credits 会累积，官方写明未用月额度不结转下月
-  - 以为加购 credits 永久有效，官方写自购买日起 12 个月过期
-
 axes:
   model_access: >-
     **模型由 Amazon Bedrock 提供，可选多家，但要看你买哪档。**
@@ -226,6 +206,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网直连实测 200。
+  direct_note_en: official site measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -275,7 +266,7 @@ confidence: partial
 
 本条目 `confidence: partial` 的原因：
 
-- ✅ 已核验：定价五档与 credit 规则、模型清单与倍数、specs / steering / hooks 结构、
+- ✅ 已核验：五档档位结构与 credit 规则、模型清单与倍数、specs / steering / hooks 结构、
   MCP 传输方式、capability-based 权限、Cloud sessions 并发数字、
   「built on a VS Code foundation」的形态表述
 

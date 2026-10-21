@@ -177,6 +177,42 @@ function biLabel(pair, fallback) {
   return Array.isArray(pair) ? bi(pair[0], pair[1]) : esc(pair || fallback);
 }
 
+/* ── S52 中文生态透镜（2026-10-20）──────────────────────────────────
+ * 「国产 / 国内可直接用 / 备案状态」——与 models 站共用同一字段口径与同一组
+ * 版式（brand.css 的 .t-tag / .t-state，宪章 1：不新造组件）。
+ * 数据在档案 frontmatter cn: 与 light.json 的 cn（validate 强制必填 + 枚举）。 */
+const CN_ORIGIN_LABEL = { domestic: ['国产', 'domestic'], foreign: ['国外出品', 'foreign-made'] };
+const CN_DIRECT_LABEL = { yes: ['大陆可直连', 'direct OK'], no: ['直连不可达', 'direct blocked'], unknown: ['直连未核验', 'direct unknown'] };
+const CN_FILING_LABEL = { filed: ['已备案', 'filed'], 'not-filed': ['未见于备案名单', 'not in filing list'], unknown: ['备案未核验', 'filing unknown'] };
+function cnChips(cn) {
+  if (!cn) return '';
+  const out = [];
+  if (CN_ORIGIN_LABEL[cn.origin]) out.push(`<span class="t-tag${cn.origin === 'domestic' ? '' : ' is-cyan'}">${bi(CN_ORIGIN_LABEL[cn.origin][0], CN_ORIGIN_LABEL[cn.origin][1])}</span>`);
+  if (CN_DIRECT_LABEL[cn.direct]) out.push(`<span class="t-tag${cn.direct === 'yes' ? ' is-cyan' : ''}">${bi(CN_DIRECT_LABEL[cn.direct][0], CN_DIRECT_LABEL[cn.direct][1])}</span>`);
+  if (CN_FILING_LABEL[cn.filing]) {
+    const dot = cn.filing === 'filed' ? ' is-ok' : (cn.filing === 'unknown' ? ' is-warn' : '');
+    out.push(`<span class="t-state${dot}">${bi(CN_FILING_LABEL[cn.filing][0], CN_FILING_LABEL[cn.filing][1])}</span>`);
+  }
+  return out.join(' ');
+}
+/* 详情页的「中文生态」面板：三行判断 + 依据 + 快照日。
+ * 与 models 站 cnSection 同一口径：备案抄公示编号，直连写实测日期与渠道。 */
+function cnPanel(cn) {
+  if (!cn) return '';
+  const filingRow = cn.filing === 'filed'
+    ? `${bi('已备案', 'Filed')}：<code>${esc(cn.filing_no || '')}</code>${cn.filing_name ? `　${bi('公示名称', 'listed as')}「${esc(cn.filing_name)}」` : ''}${cn.filing_date ? `　·　${bi('备案时间', 'filed')} ${esc(cn.filing_date)}` : ''}${cn.filing_note ? `　·　${bi(esc(cn.filing_note), esc(cn.filing_note_en || cn.filing_note))}` : ''}`
+    : `${bi(CN_FILING_LABEL[cn.filing] ? CN_FILING_LABEL[cn.filing][0] : '备案未核验', CN_FILING_LABEL[cn.filing] ? CN_FILING_LABEL[cn.filing][1] : 'filing unknown')}${cn.filing_note ? `：${bi(esc(cn.filing_note), esc(cn.filing_note_en || cn.filing_note))}` : ''}`;
+  return `      <div class="panel">
+        <h2>${bi('中文生态', 'China availability')} <span class="panel-note">${bi('国产 / 国内可直接用 / 备案状态 · 快照', 'domestic / direct access / CAC filing · snapshot')} ${esc(cn.verified || '')}</span></h2>
+        <dl class="cn-rows">
+          <dt>${bi('出品属地', 'Origin')}</dt><dd>${bi(CN_ORIGIN_LABEL[cn.origin] ? CN_ORIGIN_LABEL[cn.origin][0] : '?', CN_ORIGIN_LABEL[cn.origin] ? CN_ORIGIN_LABEL[cn.origin][1] : '?')}　${bi(esc(cn.origin_note || ''), esc(cn.origin_note_en || cn.origin_note || ''))}</dd>
+          <dt>${bi('国内使用', 'Direct access')}</dt><dd>${bi(CN_DIRECT_LABEL[cn.direct] ? CN_DIRECT_LABEL[cn.direct][0] : '?', CN_DIRECT_LABEL[cn.direct] ? CN_DIRECT_LABEL[cn.direct][1] : '?')}　${bi(esc(cn.direct_note || ''), esc(cn.direct_note_en || cn.direct_note || ''))}</dd>
+          <dt>${bi('备案状态', 'CAC filing')}</dt><dd>${filingRow}</dd>
+        </dl>
+        <p class="cn-foot">${bi('备案信息以网信办《生成式人工智能服务已备案信息》公示名单为准（按批次滚动更新，本站只抄编号不解读）；「大陆可直连」是本站从大陆网络直连实测的结果，不是厂商承诺。GitHub 类站点当日实测有波动，口径写在依据里。', 'Filing status is quoted from the CAC public registry (updated batch by batch; this site copies the number and does not interpret it). "Direct access" is this site\'s own reachability measurement from a mainland network, not a vendor promise. GitHub-hosted sites fluctuated on the measurement day — the note says so.')}</p>
+      </div>\n`;
+}
+
 const SITE = {
   domain: 'agent.specul.com',
   name: 'Agent 图谱',
@@ -496,7 +532,7 @@ try {
       mark: fm.mark || '', accent: fm.accent || '',
       tagline: fm.tagline || '', summary: fm.summary || '',
       tags: fm.tags || [], related: fm.related || [],
-      pricing: fm.pricing || {}, pricingPitfalls: fm.pricing_pitfalls || [],
+      /* D9（2026-10-20）：pricing / pricing_pitfalls 字段族已退役，不再读取 */
       axes, mcp: mcpBlock, sources, extraSections,
       pitfalls: fm.pitfalls || [],
       lastVerified: fm.last_verified, lastUpdated: fm.last_updated,
@@ -504,6 +540,7 @@ try {
       family: fm.family || '',  // harness 分层；validate 强制必填，页面需按它分组呈现
       track: fm.track,// 仍是内容分类四取值（ide/cli/harness/mcp），首页按它分形态
       tasks: Array.isArray(fm.tasks) ? fm.tasks : [], // S43 任务入口（validate 强制 ≥1）
+      cn: fm.cn || null, // S52 中文生态透镜（validate 强制必填，页面按它渲染 chip + 筛选）
       axesKeys: [...AXES.map(x => x[0]), ...mcpKeys],
       body,
       sec: {
@@ -679,6 +716,90 @@ function mdLinks(s, base = '') {
   return out;
 }
 
+function blockMd(s) {
+    const out = [];
+    let mode = null;                       // 'p' 段落 · 'ul' 清单 · 'bq' 引用块 · 'tbl' 表格
+    let buf = [];                          // 当前块累积的行
+    let items = [];                        // 清单项（每项是若干行的数组）
+    let rows = [];                         // 表格行（原始 | 行）
+    const flush = () => {
+      if (mode === 'p' && buf.length) out.push(`<p>${mdLinks(buf.join(' '))}</p>`);
+      else if (mode === 'bq' && buf.length) out.push(`<blockquote>${mdLinks(buf.join(' '))}</blockquote>`);
+      else if (mode === 'ul' && items.length) {
+        /* 清单项内的换行用空格接起来 —— 那是排版折行，不是新的一句。
+         * 但**一行的正文折行**同理，所以段落也是 join(' ')。*/
+        out.push(`<ul>${items.map((it) => `<li>${mdLinks(it.join(' '))}</li>`).join('')}</ul>`);
+      }
+      else if (mode === 'tbl' && rows.length) {
+        /* ⚠ **markdown 表格**（2026-10-09 加）。
+         *   起因：48 篇文章的正文里有 markdown 表格（主要是「实测记录」），
+         *   而渲染路径只走 `mdLinks()`（行内）→ 表格在页面上变成
+         *   「| # | 测什么 | 为什么值得测 | |:--:|---|---| | 1 | …」**一整行竖线文本** ✗。
+         *   实测 agent 站 **23 页 / 143 处**表格流（www / learn / nav 都是 0 ✓）。
+         *   规则：第一个 `|` 行是表头；形如 `|---|:--:|` 的**分隔行**丢掉（它只定义对齐）；
+         *   其余每行一格。不做对齐方式解析（`<td>` 默认左对齐，够用）。 */
+        const cells = (r) => r.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map((c) => c.trim());
+        const sep = /^\s*\|?[\s:|-]+\|[\s:|-]*$/.test(rows[1] || '') && /-/.test(rows[1] || '');
+        const head = cells(rows[0]);
+        const bodyRows = rows.slice(sep ? 2 : 1);
+        /* ⚠ 表格要包一层**可横向滚动的容器**（2026-10-09 补，修 `responsive-overflow` 的 3 处失败）。
+         *   门禁实测 `grok-bot.html` 在 320 / 375 / 390px 下页面宽度被撑到 402–405 ✗，
+         *   越界元素就是 `TABLE` / `THEAD` / `TR` ✓ —— 宽表格在窄屏上把**整页**顶出横向滚动条 ✗。
+         *   这是**渲染层的错**（表格天生会宽 ✓，不该让读者为它横滚整页 ✓），
+         *   所以在这里包容器 + 在 site.css 里给它 `overflow-x:auto` ✓ ——
+         *   表格在**自己的框里**滚，页面不动 ✓。 */
+        out.push('<div class="tbl-wrap"><table><thead><tr>' + head.map((h) => `<th>${mdLinks(h)}</th>`).join('') + '</tr></thead><tbody>'
+          + bodyRows.map((r) => '<tr>' + cells(r).map((c) => `<td>${mdLinks(c)}</td>`).join('') + '</tr>').join('')
+          + '</tbody></table></div>');
+      }
+      mode = null; buf = []; items = []; rows = [];
+    };
+    for (const line of String(s || '').split('\n')) {
+      const t = line.trim();
+      if (!t) { flush(); continue; }                     // 空行 = 块边界
+      const isLi = /^[-*]\s+/.test(t);
+      const isBq = /^>\s?/.test(t);
+      /* ⚠ **小标题**（`### …` / `#### …`）必须渲染成标题（2026-10-09 加）。
+       *   正文按 `## ` 切小节之后，节**内部**还能有 `###` / `####` ——
+       *   而 `blockMd` 原先不认它们 ✗，于是它们掉进 `p` 分支、变成**字面文本**：
+       *   页面上直接显示 `<p>### 记忆是明文的…</p>` ✗。实测 **15 页 / 33 处**。
+       *   这是「探针读源文件 ≠ 读者看页面」的第 14 次 ✓（源文件里是标题、页面里是井号）。 */
+      if (/^#{3,4}\s+\S/.test(t)) {
+        flush();
+        const lvl = t.startsWith('####') ? 4 : 3;
+        const text = t.replace(/^#{3,4}\s+/, '').replace(/\s*#+\s*$/, '');
+        out.push(`<h${lvl} class="sub-h">${mdLinks(text)}</h${lvl}>`);
+        continue;
+      }
+      /* ⚠ **清单项的续行**（2026-10-09 修，第二次）。
+       *   折叠标量里段落分隔**必须**有空行；没有空行就说明「还在同一段里」。
+       *   所以：正在渲染 `<ul>`、而本行既不是新清单项也不是引用块 → 它是上一项的后半段 ✓。
+       *
+       *   旧写法只认「上一项最后一行以 `、` `/` `·` 收尾」✗ —— 判据太窄，
+       *   于是**以句号 / 引号 / 括号收尾的续行被甩出 `<ul>`，变成独立 `<p>`** ✗，
+       *   清单结构在页面上碎掉。实测 `openai-agents-sdk` 的 `axes.model_access` 就中招：
+       *   「与 `any-llm`（…）」「（示例 `MultiProvider…`）」三行全变成独立段落。
+       *   **而 7 项检查全绿** —— 因为没有任何一项验渲染产物（见 _audit/structure-fidelity.mjs）。 */
+      const isTbl = /^\|/.test(t);
+      /* 表格里的续行统一按「行」处理，不做续行合并 */
+      if (isTbl) { if (mode !== 'tbl') flush(); mode = 'tbl'; rows.push(t); continue; }
+      const isListCont = mode === 'ul' && !isLi && !isBq && items.length > 0;
+      if (isListCont) { items[items.length - 1].push(t); continue; }
+      const next = isLi ? 'ul' : isBq ? 'bq' : 'p';
+      if (next === 'ul') {
+        if (mode !== 'ul') flush();
+        mode = 'ul';
+        items.push([t.replace(/^[-*]\s+/, '')]);
+      } else {
+        if (mode !== next) flush();
+        mode = next;
+        buf.push(t.replace(/^>\s?/, ''));
+      }
+    }
+    flush();
+    return out.join('\n            ');
+}
+
 function renderList(items, cls = '') {
   if (!items || !items.length) return '';
   return `<ul class="${cls}">${items.map(i => `<li>${mdInline(i)}</li>`).join('')}</ul>`;
@@ -737,6 +858,50 @@ const GUIDE = {
   },
 };
 
+/* S44（2026-10-20）边界声明三句（D4 定案：「这里收录能接任务、能装、能连你数据的产品」）。
+ * 设计定案：
+ *  - 三张分区索引页**同一份文案**（不各写一套 —— 本项目头号疾病是同一件事两个口径）。
+ *  - 三句各答一个问题：收什么 / 不收什么（纯对话问答去哪）/ 用什么格式。
+ *  - 措辞诚实：对话问答的「轻档案」是 S46 的活，**现在还不存在**，
+ *    所以只说「去 AI 导航」这条现在就能兑现的路，不承诺本站已有。
+ *    S46 更新（2026-10-20）：本站轻档案已落地 → 第二句补上「本页上方的三要素轻档案」，
+ *  - 版式走 brand.css 的 .t-boundary（宪章 1）。 */
+function boundarySection(partKey) {
+  /* 第二句按分区分口径（S46 · 2026-10-20）：
+   * agents 页下方真的渲染对话问答轻档案 → 指本站；
+   * harness / tools 页不渲染对话轻档案 → 只指 AI 导航（可兑现才写）。 */
+  const chatLine = partKey === 'agents'
+    ? [
+        '<strong>纯聊天工具不走八维坐标系。</strong>它们没有「安装形态 / 工具清单」这些维度，硬套只会产出一堆「不适用」——本站给它们的是本页下方的三要素轻档案；更全的对话产品目录在 <a href="https://nav.specul.com/">AI 导航</a>。',
+        '<strong>Plain chat products are not on the 8-axis grid.</strong> They lack dimensions like install form or tool inventory, and forcing them would produce a wall of "not applicable" — this site covers them with the three-essentials light entries below; a fuller directory of chat products lives in the <a href="https://nav.specul.com/">AI Directory</a>.',
+      ]
+    : [
+        '<strong>纯聊天工具不在这里。</strong>如果你只想找一个对话问答的网页，去 <a href="https://nav.specul.com/">AI 导航</a>，ChatGPT、豆包、Kimi 这些都在那里。',
+        '<strong>Plain chat products are not here.</strong> If you just want a chat webpage, go to the <a href="https://nav.specul.com/">AI Directory</a> — ChatGPT, Doubao and Kimi are listed there.',
+      ];
+  const LINES = [
+    [
+      '<strong>这里收录能接任务的产品。</strong>它要么在编辑器或终端里替你写代码，要么能被你装进自己的程序，要么能连上你的文件和账号。',
+      '<strong>This site lists products that take on tasks.</strong> They either write code for you in your editor or terminal, or can be installed into your own program, or connect to your files and accounts.',
+    ],
+    chatLine,
+    [
+      '<strong>每条档案都是核验快照。</strong>字段逐条挂官方出处与核验日期，本站不实测、不排名，未知就写未知。',
+      '<strong>Every entry is a verification snapshot.</strong> Each field carries an official source and a checked date; we run no benchmarks, publish no rankings, and write "unknown" when it is unknown.',
+    ],
+  ];
+  return `    <section class="section">
+      <div class="container">
+        <div class="t-boundary">
+          <ol>
+${LINES.map(([zh, en]) => `            <li>${bi(zh, en)}</li>`).join('\n')}
+          </ol>
+        </div>
+      </div>
+    </section>
+`;
+}
+
 /* S43（2026-10-19）任务化入口：「我想让 AI 替我写代码 / 自己搭 agent / …」。
  * 设计定案：
  *  - 任务卡渲染在**各分区索引页**，只列「本页至少有一份该任务档案」的任务 ——
@@ -763,6 +928,63 @@ function taskSection(partKey, site, entries) {
       <div class="container">
         <h2>${bi('按任务找', 'Find by task')}</h2>
         <p class="section-desc">${bi(`这一页有 ${entries.length} 个对象。下面的数字是本页真正收录的条数——点进去就是筛选后的结果，不是跨站的总数。`, `This page holds ${entries.length} objects. The numbers below are what this page actually carries — clicking filters right here, not a site-wide total.`)}</p>
+        <div class="grid">
+${cards.join('\n')}
+        </div>
+      </div>
+    </section>`;
+}
+
+/* S45（2026-10-20）轻档案区（D4 定案：对话问答 / 创作工具走三要素卡，不上八维）。
+ * 设计定案：
+ *  - 真相源 light/light.json（SCHEMA §9.2 校验：三要素任一空 / 出现 cost 字段 /
+ *    sources 空 / kind 越枚举都硬失败）。validate 阴性对照实测：注入坏条目必报错。
+ *  - D9（2026-10-20 用户定案）：价格不进数据层——卡上「多少钱」一行只放
+ *    pricing_url（缺省回落 homepage）的官方定价页链接，本站不存报价数字。
+ *  - 版式走 brand.css 的 .t-lightcard（宪章 1）。
+ *  - items 为空时整区不渲染（S46/S47 填条目后自动出现）——
+ *    不渲染空壳区，也不提前承诺「本站有轻档案」。
+ *  - 每张卡带「轻档案 · 不上八维」标注：防读者拿它和八维档案横向比。 */
+const LIGHT = (() => {
+  const p = path.join(HERE, '..', 'light', 'light.json');
+  if (!fs.existsSync(p)) return [];
+  return JSON.parse(fs.readFileSync(p, 'utf8')).items || [];
+})();
+const LIGHT_KIND = {
+  chat: ['对话问答', 'Chat products'],
+  /* 区名对齐总纲 §1.7「陪你创作」区（S47） */
+  creation: ['陪你创作', 'Create with AI'],
+};
+function lightSection(partKey) {
+  /* 落点（总纲 §1.4 落点表 + D4）：对话问答 → agents 分区（成品那一侧，
+   * 读者搜 ChatGPT 进来不能看不到）；创作工具 → tools 分区（「陪你创作」区）。
+   * harness 分区不渲染 —— 它是「自己搭」，与两类轻档案都不同层。 */
+  const want = partKey === 'agents' ? 'chat' : partKey === 'tools' ? 'creation' : null;
+  if (!want) return '';
+  const items = LIGHT.filter((it) => it.kind === want);
+  if (!items.length) return '';
+  const kindLabel = want === 'chat' ? LIGHT_KIND.chat : LIGHT_KIND.creation;
+  const cards = items.map((it) => `        <article class="t-lightcard">
+          <h3><a href="${esc(it.homepage)}" rel="noopener">${bi(esc(it.name), esc(it.nameEn || it.name))}</a></h3>
+          <p class="t-lightvendor">${esc(it.vendor)} · ${bi('轻档案 · 不上八维', 'light entry · not on the 8-axis grid')}</p>
+          ${it.cn ? `<p class="m-famcard-cn">${cnChips(it.cn)}</p>` : ''}
+          <dl>
+            <dt>${bi('能做什么', 'What it does')}</dt><dd>${bi(esc(it.what), esc(it.whatEn || it.what))}</dd>
+            <dt>${bi('数据去哪', 'Where your data goes')}</dt><dd>${bi(esc(it.data), esc(it.dataEn || it.data))}</dd>
+            <dt>${bi('适合谁', 'Who it suits')}</dt><dd>${bi(esc(it.who), esc(it.whoEn || it.who))}</dd>
+            ${it.license ? `<dt>${bi('商用许可', 'Commercial use')}</dt><dd>${bi(esc(it.license), esc(it.licenseEn || it.license))}</dd>` : ''}
+          </dl>
+          <p class="t-lightnote">${bi(`多少钱：价格常变，本站不存报价，请看 <a href="${esc(it.pricing_url || it.homepage)}" rel="noopener">官方定价页</a>。`, `Price: prices change often; this site stores no quotes — see the <a href="${esc(it.pricing_url || it.homepage)}" rel="noopener">official pricing page</a>.`)}</p>
+          <p class="t-lightsrc">${bi(`出处：${(it.sources || []).length} 条官方链接 · 核验 ${esc(it.last_verified || '未标注')} · ${esc(it.confidence)}`, `Sources: ${(it.sources || []).length} official links · checked ${esc(it.last_verified || 'n/a')} · ${esc(it.confidence)}`)}</p>
+        </article>`);
+  return `
+    <section class="section">
+      <div class="container">
+        <h2>${bi(kindLabel[0], kindLabel[1])}</h2>
+        <p class="section-desc">${want === 'creation'
+          ? bi('这些工具不走八维坐标系——它们没有「安装形态 / 工具清单」这些维度，硬套只会产出一堆「不适用」。创作工具真正可比的是「能做什么 / 数据去哪 / 适合谁 / 输出物能不能商用」；<strong>商用许可逐条抄官方条款</strong>（许可稳定，值得存），价格常变，本站不存报价，一律看官方定价页。', 'These tools are not on the 8-axis grid — they lack dimensions like install form or tool inventory, and forcing them would produce a wall of "not applicable". What is genuinely comparable for creation tools is what they do, where your inputs go, who they suit, and whether the output may be used commercially. <strong>Commercial licensing is quoted line by line from the official terms</strong> (licences are stable, worth storing); prices change often, so this site stores no quotes and always points to the official pricing page.')
+          : bi('这些产品不走八维坐标系——它们没有「安装形态 / 工具清单」这些维度，硬套只会产出一堆「不适用」。三要素是它们真正可比的地方；价格常变，本站不存报价，一律看官方定价页。', 'These products are not on the 8-axis grid — they lack dimensions like install form or tool inventory, and forcing them would produce a wall of "not applicable". The three essentials are where they are genuinely comparable; prices change often, so this site stores no quotes and always points to the official pricing page.')}
+        </p>
         <div class="grid">
 ${cards.join('\n')}
         </div>
@@ -803,6 +1025,128 @@ ${steps
         <p class="guide-foot">${bi(g.foot, gEn.foot || g.foot)}</p>
       </div>
     </section>`;
+}
+
+/* ── S48 深水指南（guides/*.md · SCHEMA §十 · 2026-10-20）──────────────
+ * 方法论内容（编排/记忆/规划/评测/成本/护栏），不是产品档案——
+ * 真相源在 guides/（不在 tracks/，档案扫描只认 products/）。
+ * 落点：tools 分区「深水指南」区 + guides/<id>.html 详情页。
+ * guides 为空时整区不渲染（不造空壳，同 lightSection 口径）。 */
+const TOPIC_LABEL = {
+  orchestration: ['多 agent 编排', 'Multi-agent orchestration'],
+  memory:        ['记忆系统', 'Agent memory'],
+  planning:      ['规划', 'Planning'],
+  evaluation:    ['评测', 'Evaluation'],
+  cost:          ['成本控制', 'Cost control'],
+  guardrails:    ['护栏与安全', 'Guardrails & safety'],
+};
+
+function loadGuides() {
+  const dir = path.join(DATA, 'guides');
+  if (!fs.existsSync(dir)) return [];
+  const guides = [];
+  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.md')).sort()) {
+    const text = fs.readFileSync(path.join(dir, f), 'utf8');
+    const fm = parseFrontmatter(text);
+    if (!fm) continue; // validate.mjs 会报「缺 frontmatter」，这里不重复报错
+    const body = bodyAfter(text);
+    /* 正文按 `## ` 切节：`## 标题` 行本身进 HTML（双语靠 `## [中文|English]` 写法），
+     * 节正文走 blockMd（段落/清单/引用/表格/### 小标题全认）。 */
+    const sections = [];
+    let cur = null;
+    for (const line of body.split('\n')) {
+      const m = line.match(/^##\s+(.*)$/);
+      if (m) { cur = { head: m[1].trim(), lines: [] }; sections.push(cur); continue; }
+      if (cur) cur.lines.push(line);
+    }
+    guides.push({
+      id: fm.id, topic: fm.topic,
+      title: fm.title || '', titleEn: fm.titleEn || fm.title || '',
+      summary: fm.summary || '', summaryEn: fm.summaryEn || fm.summary || '',
+      /* sources 走 yaml.mjs 的 parseSources（与档案/validate 同一正则口径：
+       * 对象数组每项是 label / url / kind 三行，parseFrontmatter 不解析对象数组）。
+       * ⚠ 注释里不要出现 sources 正则的指纹字样——yaml-single-source 门禁按
+       * 全文指纹计数，注释引用也算一份副本（2026-10-20 踩过）。 */
+      sources: parseSources(text),
+      lastVerified: fm.last_verified || '', confidence: fm.confidence || '',
+      sections,
+    });
+  }
+  return guides;
+}
+
+function deepGuidesSection(partKey, guides) {
+  if (partKey !== 'tools' || !guides.length) return '';
+  const cards = guides.map((g) => {
+    const t = TOPIC_LABEL[g.topic] || [g.topic, g.topic];
+    return `          <a class="t-guidecard" href="guides/${g.id}.html">
+            <span class="t-guidespan">${bi(t[0], t[1])}</span>
+            <h3>${bi(esc(g.title), esc(g.titleEn))}</h3>
+            <p class="t-guidelead">${bi(esc(g.summary), esc(g.summaryEn))}</p>
+          </a>`;
+  }).join('\n');
+  return `
+    <section class="section">
+      <div class="container">
+        <h2>${bi('深水指南', 'Deep guides')}</h2>
+        <p class="section-desc">${bi('产品档案回答「这个工具是什么」；深水指南回答「这类工程问题怎么办」。六篇各管一件事：编排、记忆、规划、评测、成本、护栏——讲机制与取舍，不做框架排名。每篇的关键事实都挂官方文档或论文出处。', 'Product entries answer "what is this tool"; the deep guides answer "how do you handle this class of engineering problem". Six guides, one topic each — orchestration, memory, planning, evaluation, cost, guardrails — covering mechanisms and trade-offs, with no framework rankings. Every key fact carries an official-doc or paper source.')}</p>
+        <div class="grid">
+${cards}
+        </div>
+      </div>
+    </section>`;
+}
+
+function renderGuidePage(g, site) {
+  const t = TOPIC_LABEL[g.topic] || [g.topic, g.topic];
+  const secs = g.sections.map((s) => {
+    /* 双语节标题写法：`## [中文标题|English heading]` → 渲染成 bi 双节点 */
+    const bm = s.head.match(/^\[(.+)\|(.+)\]$/);
+    const head = bm ? bi(esc(bm[1]), esc(bm[2])) : mdLinks(s.head);
+    return `      <div class="panel is-slim">
+        <h2>${head}</h2>
+        ${blockMd(s.lines.join('\n'))}
+      </div>`;
+  }).join('\n');
+  const srcRows = g.sources.map((s) => `          <tr><td>${mdLinks(s.label || '')}</td><td><a href="${s.url}" target="_blank" rel="noopener">${esc(s.url)}</a></td></tr>`).join('\n');
+  const body = `    <div class="container detail">
+      <a class="back" href="../">← ${esc('深水指南')}</a>
+      <div class="detail-head">
+        <div>
+          <h1>${bi(esc(g.title), esc(g.titleEn))}</h1>
+          <div class="vendor is-caps">${bi(t[0], t[1])}</div>
+        </div>
+      </div>
+      <div class="panel-lead">${bi(blockMd(g.summary), blockMd(g.summaryEn))}</div>
+${secs}
+      <div class="panel is-slim">
+        <h2>${bi('出处', 'Sources')}</h2>
+        <div class="tbl-wrap"><table><thead><tr><th>${bi('来源', 'Source')}</th><th>${bi('链接', 'URL')}</th></tr></thead><tbody>
+${srcRows}
+        </tbody></table></div>
+        <p class="guide-foot">${bi(`核验快照：${g.lastVerified} · 本站不实测、不排名，未知就写未知。`, `Verification snapshot: ${g.lastVerified} · no benchmarks, no rankings — unknown stays unknown.`)}</p>
+      </div>
+    </div>`;
+  return buildShell({
+    current: site.navKey,
+    repo: SITE.repo,
+    title: `${g.titleEn || g.title} — 深水指南 | 投机取巧`,
+    desc: metaDesc(plain(`${g.title}：${g.summary}`)),
+    body,
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: g.titleEn || g.title,
+      description: plain(g.summaryEn || g.summary, 300),
+      dateModified: g.lastVerified,
+    },
+    canonical: `https://${SITE.domain}/tools/guides/${g.id}.html`,
+    /* ⚠ assetPrefix 是 **两级**：guide 详情页落在 /tools/guides/<id>.html，
+     * 比 tools/ 下的档案页深一层 —— '../' 会指向 /tools/ 这个不存在 brand.css 的
+     * 目录（2026-10-20 deadlink 实测抓到：6 页全部 poster 404 样式全掉）。
+     * shell 的 depth() 只做透传，深度由调用方按页面实际层级传。 */
+    assetPrefix: '../../',
+  });
 }
 
 // header / footer / page 骨架统一由 shell.mjs 提供（全站唯一真相源）。
@@ -891,7 +1235,7 @@ function renderIndex(site, partKey, entries) {
      *  - data-blob 是搜索口径：名称 + 厂商 + 定位句（不含正文 —— 正文会提到别的产品）。 */
     const pc = PRODUCT_COMPLETENESS[e.id] || { done: 0, total: 0 };
     const blob = [e.name, e.nameEn, e.vendor, lineRaw].filter(Boolean).join(' ').toLowerCase();
-    return `        <article class="card" style="--card-accent:${esc(e.accent || site.accent)}" data-track="${esc(e.track || '')}" data-family="${esc(e.family || '')}" data-task="${esc((e.tasks || []).join(' '))}" data-conf="${esc(e.confidence || '')}" data-done="${pc.done}" data-total="${pc.total}" data-name="${esc(e.name)}" data-blob="${esc(blob)}">
+    return `        <article class="card" style="--card-accent:${esc(e.accent || site.accent)}" data-track="${esc(e.track || '')}" data-family="${esc(e.family || '')}" data-task="${esc((e.tasks || []).join(' '))}" data-conf="${esc(e.confidence || '')}" data-cn-origin="${esc((e.cn || {}).origin || '')}" data-cn-direct="${esc((e.cn || {}).direct || '')}" data-cn-filing="${esc((e.cn || {}).filing || '')}" data-done="${pc.done}" data-total="${pc.total}" data-name="${esc(e.name)}" data-blob="${esc(blob)}">
           <div class="card-top">
             <div class="mark" aria-hidden="true">${esc(e.mark || e.name.slice(0,2))}</div>
             <div class="card-id">
@@ -1041,6 +1385,18 @@ ${orphan.map(cardFor).join('\n')}
       parts.push(`          <label class="af-f"><span class="af-h">${bi('任务', 'Task')}</span>
             <select class="asel-task">${opt(taskVals.map((t) => ({ key: t.id, label: `${t.zh} / ${t.en}` })))}</select></label>`);
     }
+    /* S52 中文生态筛选：与 models 站同一套字段口径（origin/direct/filing）。
+     * 下拉只列本页档案里真实出现的取值（B2 原则：取值唯一则不出控件）。 */
+    const cnOpts = (dim, labels) => {
+      const vals = [...new Set(entries.map((e) => (e.cn || {})[dim]).filter(Boolean))];
+      if (vals.length < 2) return null;
+      return { key: `cn${dim}`, attr: `data-cn-${dim}`, label: bi(dim === 'origin' ? '出品属地' : dim === 'direct' ? '国内直连' : '备案状态', dim === 'origin' ? 'Origin' : dim === 'direct' ? 'Direct access' : 'Filing'),
+        opts: vals.map((k) => ({ key: k, label: labels[k] ? `${labels[k][0]} / ${labels[k][1]}` : k })) };
+    };
+    for (const c of [cnOpts('origin', CN_ORIGIN_LABEL), cnOpts('direct', CN_DIRECT_LABEL), cnOpts('filing', CN_FILING_LABEL)]) {
+      if (c) parts.push(`          <label class="af-f"><span class="af-h">${c.label}</span>
+            <select class="asel-${c.key}" data-attr="${c.attr}">${opt(c.opts)}</select></label>`);
+    }
     if (ratiosVary) {
       parts.push(`          <label class="af-f"><span class="af-h">${bi('排序', 'Sort')}</span>
             <select class="asel-sort"><option value="">默认 / Default</option><option value="done-desc">完整度 高 → 低 / Completeness high–low</option><option value="done-asc">完整度 低 → 高 / Completeness low–high</option></select></label>`);
@@ -1095,7 +1451,13 @@ ${covRows.map(t => {
 
 ${partitionBar(partKey)}
 
+    ${boundarySection(partKey)}
+
     ${taskSection(partKey, site, entries)}
+
+    ${lightSection(partKey)}
+
+    ${deepGuidesSection(partKey, GUIDES)}
 
     ${guideSection(partKey, site, entries)}
 
@@ -1317,89 +1679,6 @@ function renderDetail(site, partKey, e) {
    * 直接丢给 mdLinks() 会把它们压成一段流水文字 —— 清单就退化成正文里的「- xxx - yyy」，
    * 而这正是 _plan/文风规范-说人话.md 第 2 条要消灭的形态。
    * 这里用**最小**的块级规则（段落 / 无序清单 / 引用块 / 空行），不引入完整 markdown 解析。*/
-  const blockMd = (s) => {
-    const out = [];
-    let mode = null;                       // 'p' 段落 · 'ul' 清单 · 'bq' 引用块 · 'tbl' 表格
-    let buf = [];                          // 当前块累积的行
-    let items = [];                        // 清单项（每项是若干行的数组）
-    let rows = [];                         // 表格行（原始 | 行）
-    const flush = () => {
-      if (mode === 'p' && buf.length) out.push(`<p>${mdLinks(buf.join(' '))}</p>`);
-      else if (mode === 'bq' && buf.length) out.push(`<blockquote>${mdLinks(buf.join(' '))}</blockquote>`);
-      else if (mode === 'ul' && items.length) {
-        /* 清单项内的换行用空格接起来 —— 那是排版折行，不是新的一句。
-         * 但**一行的正文折行**同理，所以段落也是 join(' ')。*/
-        out.push(`<ul>${items.map((it) => `<li>${mdLinks(it.join(' '))}</li>`).join('')}</ul>`);
-      }
-      else if (mode === 'tbl' && rows.length) {
-        /* ⚠ **markdown 表格**（2026-10-09 加）。
-         *   起因：48 篇文章的正文里有 markdown 表格（主要是「实测记录」），
-         *   而渲染路径只走 `mdLinks()`（行内）→ 表格在页面上变成
-         *   「| # | 测什么 | 为什么值得测 | |:--:|---|---| | 1 | …」**一整行竖线文本** ✗。
-         *   实测 agent 站 **23 页 / 143 处**表格流（www / learn / nav 都是 0 ✓）。
-         *   规则：第一个 `|` 行是表头；形如 `|---|:--:|` 的**分隔行**丢掉（它只定义对齐）；
-         *   其余每行一格。不做对齐方式解析（`<td>` 默认左对齐，够用）。 */
-        const cells = (r) => r.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map((c) => c.trim());
-        const sep = /^\s*\|?[\s:|-]+\|[\s:|-]*$/.test(rows[1] || '') && /-/.test(rows[1] || '');
-        const head = cells(rows[0]);
-        const bodyRows = rows.slice(sep ? 2 : 1);
-        /* ⚠ 表格要包一层**可横向滚动的容器**（2026-10-09 补，修 `responsive-overflow` 的 3 处失败）。
-         *   门禁实测 `grok-bot.html` 在 320 / 375 / 390px 下页面宽度被撑到 402–405 ✗，
-         *   越界元素就是 `TABLE` / `THEAD` / `TR` ✓ —— 宽表格在窄屏上把**整页**顶出横向滚动条 ✗。
-         *   这是**渲染层的错**（表格天生会宽 ✓，不该让读者为它横滚整页 ✓），
-         *   所以在这里包容器 + 在 site.css 里给它 `overflow-x:auto` ✓ ——
-         *   表格在**自己的框里**滚，页面不动 ✓。 */
-        out.push('<div class="tbl-wrap"><table><thead><tr>' + head.map((h) => `<th>${mdLinks(h)}</th>`).join('') + '</tr></thead><tbody>'
-          + bodyRows.map((r) => '<tr>' + cells(r).map((c) => `<td>${mdLinks(c)}</td>`).join('') + '</tr>').join('')
-          + '</tbody></table></div>');
-      }
-      mode = null; buf = []; items = []; rows = [];
-    };
-    for (const line of String(s || '').split('\n')) {
-      const t = line.trim();
-      if (!t) { flush(); continue; }                     // 空行 = 块边界
-      const isLi = /^[-*]\s+/.test(t);
-      const isBq = /^>\s?/.test(t);
-      /* ⚠ **小标题**（`### …` / `#### …`）必须渲染成标题（2026-10-09 加）。
-       *   正文按 `## ` 切小节之后，节**内部**还能有 `###` / `####` ——
-       *   而 `blockMd` 原先不认它们 ✗，于是它们掉进 `p` 分支、变成**字面文本**：
-       *   页面上直接显示 `<p>### 记忆是明文的…</p>` ✗。实测 **15 页 / 33 处**。
-       *   这是「探针读源文件 ≠ 读者看页面」的第 14 次 ✓（源文件里是标题、页面里是井号）。 */
-      if (/^#{3,4}\s+\S/.test(t)) {
-        flush();
-        const lvl = t.startsWith('####') ? 4 : 3;
-        const text = t.replace(/^#{3,4}\s+/, '').replace(/\s*#+\s*$/, '');
-        out.push(`<h${lvl} class="sub-h">${mdLinks(text)}</h${lvl}>`);
-        continue;
-      }
-      /* ⚠ **清单项的续行**（2026-10-09 修，第二次）。
-       *   折叠标量里段落分隔**必须**有空行；没有空行就说明「还在同一段里」。
-       *   所以：正在渲染 `<ul>`、而本行既不是新清单项也不是引用块 → 它是上一项的后半段 ✓。
-       *
-       *   旧写法只认「上一项最后一行以 `、` `/` `·` 收尾」✗ —— 判据太窄，
-       *   于是**以句号 / 引号 / 括号收尾的续行被甩出 `<ul>`，变成独立 `<p>`** ✗，
-       *   清单结构在页面上碎掉。实测 `openai-agents-sdk` 的 `axes.model_access` 就中招：
-       *   「与 `any-llm`（…）」「（示例 `MultiProvider…`）」三行全变成独立段落。
-       *   **而 7 项检查全绿** —— 因为没有任何一项验渲染产物（见 _audit/structure-fidelity.mjs）。 */
-      const isTbl = /^\|/.test(t);
-      /* 表格里的续行统一按「行」处理，不做续行合并 */
-      if (isTbl) { if (mode !== 'tbl') flush(); mode = 'tbl'; rows.push(t); continue; }
-      const isListCont = mode === 'ul' && !isLi && !isBq && items.length > 0;
-      if (isListCont) { items[items.length - 1].push(t); continue; }
-      const next = isLi ? 'ul' : isBq ? 'bq' : 'p';
-      if (next === 'ul') {
-        if (mode !== 'ul') flush();
-        mode = 'ul';
-        items.push([t.replace(/^[-*]\s+/, '')]);
-      } else {
-        if (mode !== next) flush();
-        mode = next;
-        buf.push(t.replace(/^>\s?/, ''));
-      }
-    }
-    flush();
-    return out.join('\n            ');
-  };
 
   const axesHtml = axisKeys.map(({ label, k, v }) => {
     return `        <div class="axis">
@@ -1417,19 +1696,10 @@ function renderDetail(site, partKey, e) {
     `            <tr><td>${esc(s.kind)}</td><td>${mdLinks(s.label)}</td><td><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.url)}</a></td></tr>`
   ).join('\n');
 
-  const priceRows = [];
-  /* ⚠ 这三行原先直接传原始文本给 `bi()` ✗ —— 而 `bi()` 只做中英双槽包裹、**不渲染 markdown**，
-   *   于是 `**加粗**` 在页面上显示成**字面星号**、`- ` 清单塌成一行。
-   *   实测：**全 55 页共 1403 处字面 `**`**，即每篇文章的「额度说明」都是这个状态。
-   *   （`axes` 走 `blockMd()` 所以没事，这里漏了 —— 同一套 `**官方原文**：` 写法在两处表现不同。）
-   *   现在包一层 `blockMd()`：段落 / 清单 / 引用都能正确渲染 ✓。
-   *
-   *   ⚠ 另一个既有问题**未修**（属内容缺口，不是渲染问题）：英文槽目前传的仍是**中文字符串**
-   *   （`bi(note, note)`）—— 所以英文态会显示中文。要修得先有各篇 note 的英文译文。 */
-  if (e.pricing.monthly_label) priceRows.push([bi('月度入口','Monthly entry'), bi(blockMd(e.pricing.monthly_label), blockMd(e.pricing.monthly_label))]);
-  if (e.pricing.monthly_usd) priceRows.push([bi('月度数值','Monthly price'), `${e.pricing.monthly_usd}`]);
-  if (e.pricing.annual_label) priceRows.push([bi('年付','Annual'), bi(blockMd(e.pricing.annual_label), blockMd(e.pricing.annual_label))]);
-  if (e.pricing.note) priceRows.push([bi('额度说明','Quota note'), bi(blockMd(e.pricing.note), blockMd(e.pricing.note))]);
+  /* D9（2026-10-20 用户定案）：价格面板（priceRows）整体删除。
+   *   原先这里渲染 monthly_label / monthly_usd / annual_label / note 四行 +
+   *   「不同币种不做折算…」脚注。价格高频变动、本站不采不存（见总纲 D9），
+   *   档案页的「多少钱」指引由 sources 表里 kind: pricing 的官方页链接承担。 */
 
   /* 「相关条目」渲染 —— 36 份档案全都有这一章，是访客在同一赛道横向对比的入口。
    *
@@ -1580,6 +1850,7 @@ ${crumb}
         <h2>${bi('适合与不适合', 'When to use it, when not to')}</h2>
 ${body}
       </div>\n`;      })() : ''}
+      ${cnPanel(e.cn)}
 
       <div class="block-head">
         <h2 class="t-h2">${bi('固定坐标系','Fixed coordinate system')}</h2>
@@ -1601,16 +1872,6 @@ ${(() => {
             return e.pitfalls.map((p, i) => `          <li>${bi(mdLinks(p), mdLinks(en[i]))}</li>`).join('\n');
           })()}
         </ul>
-      </div>\n` : ''}
-
-      ${priceRows.length ? `      <div class="panel is-slim">
-        <h2>${bi('价格','Pricing')}</h2>
-        <table class="src">
-          <tbody>
-${priceRows.map(([k, v]) => `            <tr><th class="w-28">${k}</th><td>${v}</td></tr>`).join('\n')}
-          </tbody>
-        </table>
-        <p class="fine mt-3">${bi('不同币种不做折算。优惠、地区、税费与登录后报价可能变化，购买前请到官方页面确认。', 'No currency conversion. Discounts, regions, tax and post-login pricing can change — confirm on the official page before buying.')}</p>
       </div>\n` : ''}
 
       ${e.sec.unknowns && /^\s*[-*]/m.test(e.sec.unknowns) ? `      <div class="panel is-slim">
@@ -1674,9 +1935,7 @@ ${srcRows}
     ...(e.homepage ? { sameAs: e.homepage } : {}),
     description: plain(e.tagline || e.sec.oneline, 300),
     dateModified: e.lastVerified,
-    ...(e.pricing.monthly_usd ? {
-      offers: { '@type': 'Offer', price: e.pricing.monthly_usd, priceCurrency: 'USD' },
-    } : {}),
+    /* D9：JSON-LD 的 offers（价格声明）已删除——本站不存价格数字 */
   };
 
   return buildShell({
@@ -1719,6 +1978,7 @@ const summary = [];
 const allPages = [];   // 汇总给站点级sitemap 用
 
 // 先把所有分区都读一遍+ 校验，任何一个分区出错就不出站（避免半成品上线）
+const GUIDES = loadGuides();
 const loaded = [];
 for (const partKey of targets) {
   const site = SITES[partKey];
@@ -1789,6 +2049,22 @@ for (const { partKey, site, entries } of loaded) {
   for (const e of entries) {
     fs.writeFileSync(path.join(dir, `${e.id}.html`), renderDetail(site, partKey, e), 'utf8');
     allPages.push({ loc: `https://${SITE.domain}/${base}${e.id}.html`, pri: '0.7' });
+  }
+
+  /* S48 深水指南详情页：只落 tools 分区（guides 的落点）。
+   * 先清旧目录（guides 清空时不留孤儿页），再按需写。 */
+  if (partKey === 'tools') {
+    const gdir = path.join(dir, 'guides');
+    if (fs.existsSync(gdir)) {
+      for (const f of fs.readdirSync(gdir).filter((x) => x.endsWith('.html'))) fs.unlinkSync(path.join(gdir, f));
+    }
+    if (GUIDES.length) {
+      fs.mkdirSync(gdir, { recursive: true });
+      for (const g of GUIDES) {
+        fs.writeFileSync(path.join(gdir, `${g.id}.html`), renderGuidePage(g, site), 'utf8');
+        allPages.push({ loc: `https://${SITE.domain}/tools/guides/${g.id}.html`, pri: '0.7' });
+      }
+    }
   }
 
   // 仓库 README（GitHub 落地页，说明这个分区是什么、数据从哪来）

@@ -547,6 +547,28 @@ th.w-28 { width: 112px; } th.w-52 { width: 208px; }
 }
 dl.axes { margin: 0; }
 
+/* ── S52 中文生态面板（详情页）与 chip 行（卡片/轻档案卡）──────────
+ * 与 models 站 cnSection 同一口径；chip 本体（.t-tag/.t-state）在 brand.css，
+ * 这里只补面板内的行式布局，配色全部复用既有 token，不引入新色。 */
+dl.cn-rows { margin: 0; }
+.cn-rows dt {
+  font-size: var(--fs-micro); font-weight: 600;
+  letter-spacing: .1em; color: var(--ink-faint);
+  margin-top: var(--sp-2);
+}
+.cn-rows dt:first-child { margin-top: 0; }
+.cn-rows dd {
+  margin: 2px 0 0; font-size: var(--fs-sm); line-height: 1.74; color: var(--ink);
+}
+.cn-foot {
+  margin: var(--sp-3) 0 0; font-size: var(--fs-xs); color: var(--ink-faint); line-height: 1.7;
+}
+.panel h2 .panel-note {
+  font-size: var(--fs-xs); font-weight: 400; color: var(--ink-faint);
+  letter-spacing: 0;
+}
+.m-famcard-cn { display: flex; gap: .45em; flex-wrap: wrap; align-items: center; margin: .6em 0 0; }
+
 /* 未知项：用状态色，不靠文字说明 */
 .unknown { color: var(--warn); }
 

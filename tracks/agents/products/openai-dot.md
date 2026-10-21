@@ -8,29 +8,6 @@ homepage: https://openai.com/index/introducing-dots/
 mark: OA
 accent: "#10A37F"
 
-pricing:
-  model: freemium
-  monthly_usd: null
-  monthly_label: 含在 ChatGPT Pro / Business Premium 订阅内，无独立 Dot 定价
-  annual_usd: null
-  annual_label: 官方未单列 Dot 的年付口径
-  note: >-
-    **2026-10-03 以官方发布页正文为准（Playwright 渲染，5,166 字）**：
-    「Pro 或 Business Premium 套餐已包含你的首个 Dot，无需额外付费。」
-    **没有独立的 Dot 定价页** —— 它不是一个能单独买的产品，
-    是订阅附带的权益。所以下面这行model: freemium 指「随主订阅附带」，
-    不代表有免费档。
-    另两条官方数字（都与计费直接相关，容易漏）：
-    「与 Dot 的对话不会占用你的 ChatGPT 使用额度」——
-    **但**「当你让 Dot 在 Codex 或 ChatGPT 工作中启动或管理任务时，
-    这些任务仍会照常计入你的使用额度」。
-    即：Dot 自己的对话免费，它派出去的活儿照常算用量。
-    Enterprise 用户含 Edu / Healthcare 需管理员启用后试 beta（默认关闭）。
-pricing_pitfalls:
-  - 把 Dot 当成能单独订阅的产品去买 —— 它没有独立定价
-  - 以为开Pro 就等于不受任何额度限制，Dot 派给 Codex/ChatGPT 的任务照常计入
-  - 以为 Business/Enterprise 默认有Dot 权限，官方明确「默认关闭、需管理员启用」
-
 axes:
   model_access: >-
     **模型不是用户能选的，是厂商指定的** ——
@@ -224,6 +201,17 @@ last_verified: 2026-10-03
 last_updated: 2026-10-03
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: unknown
+  direct_note: openai.com 对 curl 直连与代理都返回 403（反爬拦截），本方法无法判定可达性。
+  direct_note_en: openai.com returns 403 to curl both direct and proxied (anti-bot) — reachability cannot be judged by this method.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -376,7 +364,7 @@ Pro 或 Business Premium 套餐已包含你的首个 Dot，无需额外付费。
 **所以实测要靠「关掉客户端后它是否还在动」这种外部观察**，
 而不是本地基准。
 
-- 价格与形态已核验，不必重复测。
+- 形态与额度口径已核验，不必重复测。
 
 ## 未知项清单
 

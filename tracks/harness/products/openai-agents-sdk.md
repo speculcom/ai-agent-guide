@@ -19,23 +19,6 @@ providers:
   - OpenAI Chat Completions API
   - 100+ 其他 LLM（官方原文 provider-agnostic）
 
-pricing:
-  model: open-source
-  monthly_usd: null
-  monthly_label: 库本身免费（MIT）
-  note: >-
-    **框架免费，不等于运行免费。**
-
-    库本身是 MIT 开源。但有三件事要自己掏钱：
-
-    - 默认需要 `OPENAI_API_KEY`，模型推理费用自理。
-    - 官方示例全部以 OpenAI 模型为主。
-    - Traces 默认上报到 OpenAI 的后端。可用 `trace` 相关开关禁用。
-pricing_pitfalls:
-  - 以为 provider-agnostic 就等于「换 provider 零成本」—— 代码零改动，但换到非 OpenAI 模型后能力对齐度需实测
-  - 以为框架免费就没有账单—— 推理费用、可能的 tracing 存储都是要付费的
-
-# 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
   **Python 生态里最贴近「薄 harness」的一档。**
 
@@ -272,6 +255,17 @@ last_verified: 2026-09-30
 last_updated: 2026-09-30
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: openai.github.io 直连实测 200；PyPI 实测可达。
+  direct_note_en: openai.github.io measured 200 direct; PyPI measured reachable.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -430,7 +424,7 @@ README 里明确指向 `openai/openai-agents-js`（核验 2026-09-30：MIT，3,8
 ❌ 未核验清单：
 
 - 100+ provider 的实际能力对齐度。
-- hosted sandbox client 的定价与可用性。
+- hosted sandbox client 的可用性与计费方式（报价按 D9 口径本站不采）。
 - Sessions 的具体后端语义。
 - Realtime/Voice 路径的成本。
 
@@ -451,7 +445,7 @@ README 里明确指向 `openai/openai-agents-js`（核验 2026-09-30：MIT，3,8
 ## 未知项清单
 
 - 100+ provider 各自的能力对齐度矩阵
-- hosted sandbox client 的定价、可用区域、配额
+- hosted sandbox client 的可用区域、配额与计费方式（报价按 D9 口径本站不采）
 - Sessions 后端在多进程/多机下的并发写语义
 - litellm / any-llm extra 的实际依赖体积与升级冲突
 

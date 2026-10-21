@@ -22,54 +22,6 @@ providers:
 
   - ⚠ 换 provider 之后 tool calling 与 structured output 的可靠性，官方未说明
 
-pricing:
-  model: open-source
-  monthly_usd: 0
-  monthly_label: OSS 框架免费（MIT，自托管不限次数）；AMP 托管平台 Basic $0 / Enterprise 定制
-  note: >-
-    **开源部分与商业部分要分清。**
-
-    核验依据：仓库 MIT（经license API）、README 的 pip 安装路径、官方定价页（核验 2026-10-01）。
-    商业线是 README 单列一节的 **Crew Control Plane**（对外称 CrewAI AMP）。
-
-    **⚠ 官方定价页当前只列两档，且这一条本身就是个坑。**
-
-    **Basic $0** 包含 Visual editor + AI copilot、GitHub 集成、
-    **每月 50 次 workflow executions**。注意**上限就是 50 次**：
-    官方对比表里 Basic 的「Additional executions」一栏写的是「—」，
-    **即没有自助加购通道**。
-
-    **Enterprise 定制**包含 SSO / RBAC / workload identity /
-    PII redaction / policies。部署可选 CrewAI 云、你的自有 VPC、或你自己的基础设施。
-
-    onboarding 是 45 天；forward deployed engineering 与培训按需另购。
-    Enterprise 的执行次数是 "Sized to workflow" + **Flexible overage**，即按实际用量谈。
-
-    **⚠ 第三方定价站上的数字与官方页不一致，本站不采信**：抓取时多个来源分别给出
-    Professional ~$25/mo、Basic $99/mo、Standard $6K/yr、Ultra $120K/yr 等，
-    **官方定价页上不存在这些档位**（只有 Basic 与 Enterprise 两档），
-    应属旧制或臆测。**本站只写官方页面上能读到的两档。**
-
-    **另一条要读出来的事实**：Enterprise 明确写部署可落在
-    **CrewAI 云 / 客户自有 VPC / 客户自有基础设施**。
-    即以下这行 README 原文在商业侧确实兑现：
-
-    > On-premise and Cloud Deployment Options
-
-
-    也**没有强制必须联网授权的表述**。
-pricing_pitfalls:
-  - 把 Crew Control Plane 的能力当成开源版自带 —— tracing / 可观测 / 集中管控 / 企业安全 / 24×7 支持是 AMP 的卖点
-  - 以为「框架 MIT 免费」等于零成本 —— 默认接 OpenAI API，推理费用自理
-  - 以为本地模型要走改代码 —— 官方点名 Ollama 与 LM Studio 工具，属配置项
-  - 以为 AMP 有中间付费档可以按量买 —— **官方定价页只有 Basic（免费，执行次数硬上限 50）
-    与 Enterprise（定制）两档**，Basic 的加购一栏是「—」。
-    超过 50 次/月的自助出路基本只有走 Enterprise 洽谈
-
-  - 拿第三方定价站（trystackd / promptgalaxy 等）的六档报价做预算 —— 那些档位
-    在官方页面上不存在，属旧制或臆测（2026-10-01 核验时官方页只有两档）
-
-# 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
   **本站三个编排框架里抽象层次最「业务化」的一个。**
 
@@ -176,7 +128,6 @@ axes:
 
     **默认边界已核到**（官方 FileReadTool 页）。运行时传入的路径**必须落在 `base_dir` 内**。
     `base_dir` 默认是当前工作目录。`..` 与符号链接都会先解析再校验，
-
 
     so they cannot be used to escape
 
@@ -385,9 +336,9 @@ sources:
     url: https://crewai.com
     kind: docs
 
-  - label: CrewAI 官方定价页（核验 2026-10-01：**只有 Basic $0 与 Enterprise 定制两档**、
+  - label: CrewAI 官方定价页（核验 2026-10-01：**只有 Basic 与 Enterprise 两档**、
     Basic 50 次/月硬上限且加购栏为「—」、Enterprise 可部署在客户自有 VPC/基础设施、
-    45 天 onboarding、SSO/RBAC/PII redaction 等 Enterprise 专属项；第三方站的六档报价均不存在）
+    45 天 onboarding、SSO/RBAC/PII redaction 等 Enterprise 专属项；第三方站的六档均不存在）
     url: https://crewai.com/pricing
     kind: pricing
 
@@ -411,6 +362,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网直连实测 200。
+  direct_note_en: official site measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -596,14 +558,14 @@ README 单列一节 Crew Control Plane Key Features，七项全是商业产品�
 **注意其中「Advanced Security」这一条** ——
 如果你用 CrewAI 的理由之一是权限边界，**开源版并没有这一项**。
 
-### AMP 定价：官方页只有两档，且这本身是个坑
+### AMP 档位：官方页只有两档，且这本身是个坑
 
-2026-10-01 核验官方定价页，**只有两档**：
+2026-10-01 核验官方定价页，**只有两档**（报价按 D9 口径不存，见官方页）：
 
-| 档位 | 价格 | 执行次数 | 席位 |
-|---|---|---|---|
-| **Basic** | **$0** | **50 次/月，上限就是 50** | 1 |
-| **Enterprise** | **定制** | "Sized to workflow" + Flexible overage | 不限 |
+| 档位 | 执行次数 | 席位 |
+|---|---|---|
+| **Basic**（免费档） | **50 次/月，上限就是 50** | 1 |
+| **Enterprise**（定制） | "Sized to workflow" + Flexible overage | 不限 |
 
 **Basic 包含**：
 
@@ -636,14 +598,11 @@ Enterprise 明确写可部署在 CrewAI 云。它也支持你自己的 VPC / 你
     > On-premise and Cloud Deployment Options
 **官方页也没有任何强制联网授权的表述。**
 
-**结论三：第三方定价站的数字一律不可信。**
+**结论三：第三方报价站不可信。**
 
-核验时多个来源分别给出 Professional ~$25/mo、Basic $99/mo、Standard $6K/yr、
-Pro $12K/yr、Enterprise $60K/yr、Ultra $120K/yr ——
-**官方定价页上根本没有这些档位**。
-
-有一个来源自己就标注了「$25 那档来自第三方聚合站，不在官方页上」。
-**本站只采官方页面读得到的数字。**
+核验时多个第三方来源给出的档位与报价，**官方定价页上根本没有这些档位**
+（有来源自己都标注「那一档来自第三方聚合站，不在官方页上」）。
+**本站只采官方页面读得到的事实**——按 D9 口径，本站连官方报价也不存，只给官方页链接。
 
 ## 适合与不适合
 
@@ -668,7 +627,7 @@ Pro $12K/yr、Enterprise $60K/yr、Ultra $120K/yr ——
 换 provider 后 tool calling / structured output 的可靠性、容器部署时的默认权限、
 OSS 是否有网络访问控制的官方机制。
 
-此外 A2A 规范属外部协议、AMP 报价官方仅标 Custom。
+此外 A2A 规范属外部协议、AMP Enterprise 官方仅标 Custom。
 这些不是「没查到」，是官方文档本身没给，故仍不足以升到 verified。
 
 **A6.2 本轮补齐的官方源**：
@@ -688,10 +647,10 @@ OSS 是否有网络访问控制的官方机制。
 README 关键段落（双抽象、七项 Key Features、模型接入、Crews/Flows FAQ、
 MarketState 结构化状态示例、Telemetry 与 License 段）。
 
-**本轮（2026-10-01）补上的**：CrewAI AMP 定价。官方页两档，已写进正文表格。
+**本轮（2026-10-01）补上的**：CrewAI AMP 档位结构。官方页两档，已写进正文表格。
 Enterprise 的部署形态（客户自有 VPC / 自有基础设施）。无强制联网授权表述。
 
-**核验方法**：先试 `_audit/fetch-pricing.mjs` 渲染 `crewai.com/pricing` 超时，
+**核验方法**：先试渲染抓取 `crewai.com/pricing` 超时，
 改用 WebFetch 直接取官方页正文。
 
 ## 实测记录
@@ -715,7 +674,7 @@ Enterprise 的部署形态（客户自有 VPC / 自有基础设施）。无强�
 - 容器部署时的默认权限（官方未说明，已查 Files 页与 FileReadTool 页）
 - OSS 是否有网络访问控制的官方机制（官方未说明）
 - A2A（Agent-to-Agent）规范与生态现状（外部协议，不在本站研究范围）
-- AMP Enterprise 的具体报价（官方仅标 Custom）
+- AMP Enterprise 的档位内容（官方仅标 Custom）
 - Basic 档 50 次/月上限之后，除 Enterprise 洽谈外是否有自助加购路径（官方对比表该栏为「—」）
 - MCP / A2A 接入的实际使用门槛
 

@@ -26,39 +26,6 @@ providers:
   - GitHub Copilot（GitHubCopilotAgent）与 Microsoft Copilot Studio
   - 自建 provider：继承 BaseAgent / BaseChatClient 自行扩展
 
-pricing:
-  model: open-source
-  monthly_usd: 0
-  monthly_label: 框架免费（MIT，自托管不限次数）；云端托管与模型调用另计
-  annual_usd: null
-  annual_label: 未核验年付报价
-  note: >-
-    **框架本体是 MIT 开源的，但「托管」与「模型」两处会产生费用。**
-
-    商业信息要按三层读。
-
-    核验依据：仓库 license API 返回 MIT（核验 2026-10-08）、
-    README 的 pip / dotnet 安装路径、官方 overview 页的 public preview 标注。
-
-    - **第一层（免费）** —— SDK 本身。Python 走 `pip install agent-framework --pre`，
-      .NET 走 `dotnet add package Microsoft.Agents.AI`，自托管不限次数。
-
-    - **第二层（云资源计费）** —— 托管与持久化。Foundry Hosted Agents 部署到
-      Foundry 托管基础设施；Durable Task 扩展落在 Azure Functions 或自建算力；
-      CosmosCheckpointStorage 指向 Azure Cosmos DB。这些都按 Azure 资源计价。
-
-    - **第三层（模型计费）** —— 默认示例走 Microsoft Foundry / Azure OpenAI / OpenAI，
-      推理费用按各家 provider 走。
-
-    **⚠ 官方未给出这三层的具体价目表**（已查官方 overview 页与 README）。
-
-    所以没法折算月费，本站只记「框架免费、其余自理」。
-pricing_pitfalls:
-  - 以为 MIT 免费等于零成本 —— Foundry 托管、Azure Functions、Cosmos DB 与模型调用都另计
-  - 以为 Foundry Hosted Agents 是免费附赠 —— 它部署到 Foundry 托管基础设施，按云资源计费
-  - 把 Durable Task 扩展当成内置能力 —— 它是独立扩展包，落在 Azure Functions 或你自己的算力上
-
-# 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
   **它是 AutoGen 与 Semantic Kernel 两条微软产品线的合并继任。**
 
@@ -379,6 +346,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: learn.microsoft.com 直连实测 200。
+  direct_note_en: learn.microsoft.com measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位

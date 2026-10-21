@@ -19,22 +19,6 @@ providers:
   - 自定义 provider 可配（codex-rs 源码有 model_providers 配置项，162 处引用）
   - 第三方模型：官方 config-advanced 页给出自定义 provider 配置（Ollama / LM Studio / Mistral / Bedrock 等，2026-10-08 核验）
 
-pricing:
-  model: open-source
-  monthly_usd: null
-  monthly_label: SDK 本身免费（Apache-2.0），推理按你接的 provider 计费
-  note: >-
-    **三条计费路径要分清**：
-    （1）SDK 与 CLI 都开源免费，跑起来要 OpenAI API key 或 ChatGPT 额度；
-    （2）可以配 `baseUrl` 指向自建/第三方网关，此时计费跟着那个网关走；
-    （3）OpenAI 另有 Codex Web（chatgpt.com/codex）这条云端产品线，
-    那是订阅制，与本地 SDK 不是同一件事。
-pricing_pitfalls:
-  - 以为 SDK 免费就零成本 —— 推理费用、sandbox 环境的机器成本都要自己算
-  - 把 Codex Web 的订阅和本地 SDK 混为一谈 —— 前者在 chatgpt.com 开通，后者跑在你自己的机器上
-  - 配了 baseUrl 就以为模型能力对齐 —— 换 provider 后的工具调用与推理质量需自行验证（官方未给量化说明）
-
-# 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
   **本站收录的第一个「CLI 包装型」编程底座** —— 与 Claude Agent SDK 同一形态：
   SDK 不含 agent loop 实现，它 spawn 一个真实的 CLI 进程，用 JSONL over stdin/stdout 通信。
@@ -298,6 +282,17 @@ last_verified: 2026-10-01
 last_updated: 2026-10-01
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: no
+  direct_note: developers.openai.com 大陆直连被拦（403），走代理 200。
+  direct_note_en: developers.openai.com 403 direct from mainland, 200 via proxy.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位

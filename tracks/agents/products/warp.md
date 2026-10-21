@@ -7,36 +7,6 @@ vendor: Warp
 homepage: https://www.warp.dev
 mark: W
 
-pricing:
-  model: freemium
-  monthly_usd: 20
-  monthly_label: Free $0 / Build $20 / Max $200 每月（Business $50/席·月；Enterprise 定制）
-  annual_usd: null
-  annual_label: 年付 9 折（官方切换后 Build $18、Max $180、Business $45/席·月），无统一折算说明
-  note: >-
-    **2026-10-08 按 warp.dev/pricing 逐档核实（美元口径）。**
-    五档是这么分的：
-
-    - Free $0（现代终端 + Warp Agent CLI 访问 + 自带推理，但云 agent 与 Warp Drive 访问受限）
-    - Build 起 $20/月（含 1,500 credits = $20 的 API 价额度，并用最高代码库索引上限）
-    - Max 起 $200/月（18,000 credits，约 12× Build）
-    - Business $50/席·月（最多 25 席，含 SAML SSO 与团队用量指标）
-    - Enterprise 定制（不限席位、自托管云 agent、BYOLLM、自定义索引、企业数据治理）
-
-    （上面各档括号里的内容是官方页面的档位描述。）
-
-    **额度是 credit 制。**
-    含额用尽后按 API 价「pay as you go」加购。
-    官方页面同时给出 Annual 切换价：Build $18、Max $180、Business $45。
-
-    **另有一套 Warp Factories（Early Access）定价。**
-    pay-as-you-go 档按 API 价加 20%。
-    Build / Max 档用套餐内含 credits 抵扣。
-pricing_pitfalls:
-  - 把 Build 的 $20 当成纯订阅费，它对应含 1,500 credits（约 $20 API 价额度）
-  - 以为 Free 档能无限用 agent，官方写的是 Limited cloud agents access
-  - 把 Warp Factories 定价与终端定价混为一谈，Factories 是独立的 Early Access 计费
-
 axes:
   model_access: >-
     **能做：多模型 + BYOK，官方明确「pick a model per conversation」。**
@@ -268,7 +238,7 @@ tags: [编程, 终端, 多模型, 协作, 云端, 开源]
 related: [filesystem]
 
 sources:
-  - label: Warp · 官方定价页（Free / Build $20 / Max $200 / Business $50 / Enterprise；2026-10-08 核验）
+  - label: Warp · 官方定价页（Free / Build / Max / Business / Enterprise 五档结构与 credit 说明；2026-10-08 核验）
     url: https://www.warp.dev/pricing
     kind: pricing
 
@@ -312,6 +282,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网直连实测 200。
+  direct_note_en: official site measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -394,7 +375,7 @@ Prompts 与环境变量做成**实时同步的团队对象**。
 
 `confidence: partial` 的原因有两条。
 
-- ✅ 已核验：五档定价与 credit 制、三种入口与开源客户端、
+- ✅ 已核验：五档档位结构与 credit 制、三种入口与开源客户端、
   本地 / 云端两套 MCP 支持、执行 profile 三档值与 auto-approve 行为、
   Warp Drive 对象类型、代码库索引与云 agent 的档位上限
 
@@ -428,7 +409,7 @@ Free 档可以当现代终端用。
 - 上下文压缩策略与跨项目记忆边界（官方未说明，已查 agents/cli 与 warp-drive 两页）
 - 代码库索引的算法与首次建索引耗时（官方未说明，已查 pricing 与 agents/cli）
 - Warp Factories 的普遍可用时间与最终计费口径（官方标注 Early Access）
-- Enterprise 的具体价格（官方页只写「Contact Sales」）
+- Enterprise 的档位内容（官方页只写「Contact Sales」）
 
 ## 相关条目
 

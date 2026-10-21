@@ -8,43 +8,6 @@ homepage: https://docs.github.com/en/copilot/concepts/agents/about-copilot-cli
 mark: CP
 accent: "#24292F"
 
-pricing:
-  model: freemium
-  monthly_usd: null
-  monthly_label: 随 Copilot 订阅（档位价格见 ./copilot.md）；CLI 无独立定价
-  annual_usd: null
-  annual_label: 官方未单列 CLI 年付（额度随 Copilot 订阅，未核验年付口径）
-  note: >-
-    **CLI 没有独立定价，额度与 Copilot 订阅同源。**
-
-    关于「哪些档位能用 CLI」，官方两处口径不一致：
-
-    > about-copilot-cli 页写「available with the GitHub Copilot Pro, GitHub Copilot Pro+, GitHub Copilot Business and GitHub Copilot Enterprise plans」
-
-    > cli-quickstart 页写「available with all Copilot plans」
-
-    > 2026-02-25 官方 changelog 写 GA 后「available to all Copilot subscribers」
-
-    **两页是否含 Free 档的说法不一致**（见「未知项清单」）。
-
-    **计费单位是 premium requests。**
-
-    > 官方原文：「Each time you submit a prompt to Copilot CLI, your monthly quota of Copilot premium requests is reduced by one」
-
-    > 计费文档表单写「Each prompt to Copilot CLI uses one premium request with the default model. For other models, this is multiplied by the model's rate」
-
-    Free 档官方写「up to 50 premium requests per month」。
-
-    付费档的内置模型（GPT-5 mini、GPT-4.1、GPT-4o）「do not consume any premium
-    requests」。
-
-    官方另宣布：「Starting June 1, 2026, GitHub is moving Copilot from request-based
-    billing to usage-based billing」。
-pricing_pitfalls:
-  - 以为 Copilot CLI 能单独购买——它随 Copilot 订阅，无独立定价
-  - 以为 CLI 不耗额度——每次提示词各扣 1 次 premium request，高级模型按倍率
-  - 把 about 页的档位清单（Pro/Pro+/Business/Enterprise）当唯一口径，quickstart 页写的是 all plans
-
 axes:
   model_access: >-
     **多厂商模型，可在 CLI 内切换。**
@@ -260,11 +223,22 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: docs.github.com 直连实测 200。
+  direct_note_en: docs.github.com measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
 
-**终端里的 Copilot agent，与 GitHub 订阅同源**。
+**Copilot 在终端里的编码 agent 形态，与 GitHub 订阅同源**。
 
 它能在终端里走完一条链。
 
@@ -280,7 +254,7 @@ confidence: partial
 
 - 程序化入口
 - 终端级审批
-- 按提示词扣 premium requests 的计费方式
+- 按提示词扣 premium requests 的额度扣减方式
 
 ## 与 IDE 形态的差别（只说差异）
 
@@ -292,7 +266,7 @@ confidence: partial
 | 云端运行面 | 网站 / coding agent | `copilot --cloud` 云沙箱（public preview） |
 | 后台委派 | 派 issue / 评论触发 | **前缀 `&` 把任务交给云端 coding agent** |
 
-**共用的部分不重复写**：模型清单、Copilot Memory、Copilot 档案价格、组织策略，均以 [IDE 条目](./copilot.md) 为准。
+**共用的部分不重复写**：模型清单、Copilot Memory、组织策略，均以 [IDE 条目](./copilot.md) 为准；档位报价一律看官方 plans 页。
 
 ## 程序化与安装
 
@@ -342,7 +316,7 @@ npm install -g @github/copilot
 
 > 「is heuristic and GitHub does not guarantee that all files outside trusted directories will be protected」
 
-## 计费：按提示词扣 premium requests
+## 额度：按提示词扣 premium requests
 
 每次提示词各扣 1 次 premium request。官方原文：
 
@@ -354,7 +328,7 @@ Free 档官方写每月最多 50 次 premium requests。付费档的内置模型
 
 官方并宣布自 2026-06-01 起，把 Copilot 从 request-based billing 转为 usage-based billing。
 
-档位本身的价格见 [IDE 条目](./copilot.md)。
+档位报价见官方 plans 页（本站按 D9 口径不存价格）。
 
 ## 核验说明
 
@@ -397,6 +371,6 @@ Free 档官方写每月最多 50 次 premium requests。付费档的内置模型
 
 ## 相关条目
 
-- [GitHub Copilot](./copilot.md) — 同一产品的 IDE 形态；价格档位、模型清单与云端 coding agent 见该条
+- [GitHub Copilot](./copilot.md) — 同一产品的 IDE 形态；模型清单与云端 coding agent 见该条
 - [Claude Code CLI](./claude-code-cli.md) — 同为终端编码 agent，权限审批的颗粒度可逐项对照
 - [Codex CLI](./codex-cli.md) — 同为终端编码 agent，非交互与沙箱模型不同（Codex 默认工作区沙箱，CLI 默认逐工具审批）

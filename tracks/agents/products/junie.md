@@ -7,29 +7,6 @@ vendor: JetBrains
 homepage: https://www.jetbrains.com/junie/
 mark: J
 
-pricing:
-  model: freemium
-  monthly_usd: null
-  monthly_label: AI Free（3 AI Credits/30 天）/ AI Pro（10）/ AI Ultimate（35）/ AI Enterprise；官方页按核验者所在地显示人民币年付
-  annual_usd: null
-  annual_label: 官方定价页按核验者所在地显示人民币年付价，未取得美元口径，故 annual_usd 记 null
-  note: >-
-    一句话：Junie 消耗的是 JetBrains AI 订阅配额。
-
-    配额按 30 天一个周期给：AI Free 3 AI Credits、AI Pro 10、AI Ultimate 35。
-    加购的 credits 自购买日起 12 个月有效。
-    All Products Pack 与 dotUltimate 自带 AI Pro 档，新用户另有 30 天 AI Pro 试用。
-
-    官方许可页还明确两点：Junie 目前不含在 AI Enterprise 档；因地区限制，中国大陆用户不可用。
-
-    定价页数字按核验者所在地区以人民币年付口径呈现（AI Pro 825、AI Ultimate 2,500、AI Enterprise 5,940 CNY），本站不跨币种折算。
-
-    核验：官方 AI 定价页（jetbrains.com/ai-ides/buy/）与 Junie 许可页，2026-10-08。官方原文「1 AI Credit is worth USD 1.00」。
-pricing_pitfalls:
-  - 以为 Junie 已包含在 AI Enterprise 档，官方写明该档暂不含 Junie
-  - 把 AI Free 的 3 credits 当够日常使用，Junie 按 AI Credits 计费、复杂任务消耗更多
-  - 以为包年即可无限用，配额按 30 天周期重置，用尽需等下一周期或加购 / 升级
-
 axes:
   model_access: >-
     **结论：不锁模型，能自带 API Key，也能接本地模型。**
@@ -251,6 +228,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: unknown
+  direct_note: junie.jetbrains.com 对 curl 直连与代理都返回 403（反爬拦截），本方法无法判定可达性。
+  direct_note_en: junie.jetbrains.com returns 403 to curl both direct and proxied (anti-bot) — reachability cannot be judged by this method.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -323,7 +311,6 @@ ReSharper 2026.2 又把 Junie 带进 Visual Studio（Preview）。
 
 **未取到**
 
-- 美元口径价格（官方页按核验者所在地显示人民币年付）
 - 上下文窗口与压缩参数
 - Junie Local 的完整适用范围
 

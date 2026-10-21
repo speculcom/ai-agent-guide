@@ -4,7 +4,7 @@
 
 **AI agent 地图集** · 纯 Markdown · 开源
 
-记录 **AI coding agent / agent runtime / MCP server** 的能力边界、运行位置、真实价格与官方证据，
+记录 **AI coding agent / agent runtime / MCP server** 的能力边界、运行位置与官方证据，
 用一套固定坐标系组织，让选型变成可回溯的判断而不是感觉。
 
 这个仓库**只存数据，不出结论页面**。结论层由一站三分区消费（2026-10-04 起 v4 架构，

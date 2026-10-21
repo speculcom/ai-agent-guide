@@ -8,19 +8,6 @@ homepage: https://github.com/modelcontextprotocol/servers/tree/main/src/filesyst
 mark: FS
 accent: "#4A90D9"
 
-pricing:
-  model: open-source
-  monthly_usd: null
-  monthly_label: 无商业费用
-  annual_usd: null
-  annual_label: 无商业费用
-  note: >-
-    npm 发布为 @modelcontextprotocol/server-filesystem，开源无授权费。
-    实际成本来自所访问资源所在机器与账号，不来自本 server。
-pricing_pitfalls:
-  - 以为官方 servers 仓库里的可以直接用于生产环境
-  - 以为不传参数就是访问当前目录
-
 axes:
   model_access: >-
     本身不调用模型，是被客户端调用的接口实现。
@@ -122,11 +109,22 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: verified
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网仓库在 GitHub，大陆直连波动（同日实测 200/000 混合）；npm / PyPI 安装源实测稳定可达。
+  direct_note_en: Hosted on GitHub — direct reachability from mainland fluctuates (200/000 mixed on the same day); npm / PyPI install routes measured stable.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
 
-MCP 官方 reference server 里的文件操作实现。**它强制显式声明允许目录，不允许静默访问全盘**。
+MCP 官方 reference server 里的文件操作实现。**它是「白名单目录」式访问：必须显式声明允许目录，不允许静默访问全盘**。
 
 ## 变更记录说明
 

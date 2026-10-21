@@ -8,28 +8,13 @@ homepage: https://github.com/anthropics/claude-code
 mark: CC
 accent: "#D97757"
 
-pricing:
-  model: freemium
-  monthly_usd: null
-  monthly_label: 随 Claude 订阅，档位见定价页
-  annual_usd: null
-  annual_label: 未核验年付报价
-  note: >-
-    **仓库 LICENSE.md 明确：© Anthropic PBC. All rights reserved.
-    Use is subject to Anthropic's Commercial Terms of Service。**
-    **这不是开源许可**，是 proprietary + 商用条款约束。
-    模型费用随 Claude 订阅；**API 与订阅的关系本次未核验**。
-pricing_pitfalls:
-  - 以为 GitHub 上有仓库就是开源，LICENSE.md 明确是 All rights reserved
-  - 以为 API 与订阅额度通用，两者关系本次未核验
-
 axes:
   model_access: >-
     Anthropic 自家 Claude 系列。
 
     **v2.1.284（2026-09-28）新增 Claude Sonnet 5.5（`claude-sonnet-5-5`）。
     官方标注它是 Anthropic API 上的默认 Sonnet 模型。**
-    规格为 1M 上下文、$2/$10 per Mtok、缓存读取 $0.20/Mtok。
+    规格为 1M 上下文（API 报价见官方定价页，本站不存）。
 
   runtime: >-
     本地进程，在终端运行。生命周期绑定终端会话。
@@ -141,6 +126,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网仓库在 GitHub，大陆直连波动（同日实测 200/000 混合）；npm / PyPI 安装源实测稳定可达。
+  direct_note_en: Hosted on GitHub — direct reachability from mainland fluctuates (200/000 mixed on the same day); npm / PyPI install routes measured stable.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -201,24 +197,22 @@ confidence: partial
 
 **5 天内 5 个版本**——本分区里可核实的最密节奏之一。
 
-## 模型与定价（v2.1.284 原文）
+## 模型更新（v2.1.284 原文）
+
+CHANGELOG 原文（节选，API 报价部分按 D9 口径不摘录）：
 
 ```
 Added Claude Sonnet 5.5 (claude-sonnet-5-5), now the default Sonnet
-model on the Anthropic API — 1M context, $2/$10 per Mtok with
-$0.20/Mtok cache reads
+model on the Anthropic API — 1M context…
 ```
 
 | 项目 | 值 |
 |---|---|
 | 模型 id | `claude-sonnet-5-5` |
 | 上下文 | **1M** |
-| 输入价 | $2 / Mtok |
-| 输出价 | $10 / Mtok |
-| 缓存读取 | $0.20 / Mtok |
 
-**这是本次采集中唯一拿到具体模型定价的条目**，
-因为它写在了 CHANGELOG 里而不是价格页。
+**这是本分区唯一从 CHANGELOG 里核实到默认模型规格的对象**，
+因为它写在了 CHANGELOG 里而不是别处。
 
 ## 权限设计：本分区最细
 
@@ -258,10 +252,10 @@ without setting model or enforceAvailableModels
 
 ```
 Added dollar amounts to the Claude apps gateway spend limit in /usage
-and the status line (for example "$271.40 / $500.00 spent this month")
+and the status line
 ```
 
-`/usage` 显示**具体金额**而非抽象百分比。
+`/usage` 与状态栏显示**具体花费数字**而非抽象百分比（原文示例含金额，按 D9 口径不摘录）。
 
 ## MCP 支持在持续加强
 
@@ -296,7 +290,7 @@ once more, keeping less of the recent conversation
 > 按 v3 铁律「未知就说未知」，这些条目存在时标 verified 属于虚高，故降为 partial。
 > 主要缺口：完整工具清单、沙箱实现细节、是否支持本地模型、API 与订阅额度关系。
 
-- ✅ 已核验：仓库、**许可状态原文**、最近 5 个版本与日期、star 数（148,488）、**模型定价原文**、权限设计的三个具体机制、MCP 两处改动、上下文压缩策略、Atom feed 存在、**云端形态（`claude --cloud` / Routines / 关机后续跑）**
+- ✅ 已核验：仓库、**许可状态原文**、最近 5 个版本与日期、star 数（148,488）、**模型规格原文**（报价按 D9 不存）、权限设计的三个具体机制、MCP 两处改动、上下文压缩策略、Atom feed 存在、**云端形态（`claude --cloud` / Routines / 关机后续跑）**
 - ❌ 未核验：完整工具清单、沙箱实现细节、是否支持本地模型、API 与订阅额度关系
 
 **这曾是 CLI 形态第一个达到 `verified` 的条目**。它把大量信息写在了 CHANGELOG 与 LICENSE 里。

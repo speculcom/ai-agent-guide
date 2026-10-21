@@ -79,7 +79,7 @@
 | 2 | `sources` 至少 2 条，必须含 `kind: changelog` |
 | 3 | `pitfalls` 至少 1 条，且必须是具体误解 |
 | 4 | `last_verified` 是**你核验官方源的日子**，不是官方发布日 |
-| 5 | 价格不做跨币种折算 |
+| 5 | 不采不存价格数字与档位报价（D9）；「多少钱」只放官方定价页链接 |
 | 6 | 不得给单一总分排名 |
 | 7 | 有邀请关系必须用 `link.kind: invitation` 并填写 `incentive` |
 | 8 | 不在仓库里放 HTML/CSS/JS |
@@ -140,7 +140,7 @@ type:
 add: cursor — AI 编程 IDE
 
 补充 Cursor 的 8 维度档案。
-年付总额官方页面未列出，标为未知。
+档位能力差异已核到官方定价页；报价数字按 D9 口径不存。
 证据：changelog + docs + pricing 三个官方源，核验日 2026-09-28。
 ```
 

@@ -7,37 +7,6 @@ vendor: Continue
 homepage: https://continue.dev
 mark: Co
 
-pricing:
-  model: freemium
-  monthly_usd: 20
-  monthly_label: 商业线 Team $20/席/月（含 $10 额度）；Starter 按量 $3/百万 token
-  annual_usd: null
-  annual_label: 未核验年付报价
-  note: >-
-    **两件事要分开看：扩展免费，商业线另收费。**
-
-    **核心代码是开源的，扩展本身不收费。**
-
-    仓库 README 原文 "Apache 2.0 © 2023-2026 Continue Dev, Inc."
-
-    **扩展本身无授权费**，模型调用费自付。
-    可以 BYOK，也可以用本地 Ollama。
-
-    **商业线卖的不是这个扩展。** 现为 **Continuous AI**，价目取自
-    hub.continue.dev/pricing（2026-10-08 取到）：
-
-    - Starter **$3 / 百万 token**（pay-as-you-go）
-    - Team **$20/席/月**（含 $10 credits/席）
-    - Company 定制（含 SAML/OIDC、BYOK、SLA）
-
-    **重要背景**：Continue **已被 Cursor 收购**。
-    官网 continue.dev 现为收购公告，原 Hub 定价页 `continue.dev/pricing` 已 404，
-    仓库亦标为 read-only。
-pricing_pitfalls:
-  - 以为开源等于零成本 —— 模型调用费与商业线订阅另计
-  - 以为 Continue Hub 仍按旧价目售卖 —— 官网已被收购公告替换，原定价页 continue.dev/pricing 已 404
-  - 把免费的 IDE 扩展与付费的 CI 检查（现 Continuous AI）当成同一个计费
-
 axes:
   model_access: >-
     **模型完全自配，这是它最核心的定位。**
@@ -223,6 +192,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: archived
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网直连实测 200。
+  direct_note_en: official site measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -302,15 +282,17 @@ JSON MCP 配置复制进来**。官方一句硬限制要注意：
   (`ask` permission) are automatically excluded」，要写文件必须显式
   `--allow Write`（或 `--allow "*"`）。
 
-## 商业线定价（官方页数字）
+## 商业线：Continuous AI（与开源扩展分开读）
 
-hub.continue.dev/pricing（2026-10-08 取到）现为 **Continuous AI** 的价目：
+hub.continue.dev（2026-10-08 取到）现为 **Continuous AI** 的商业线，三档：
 
-| 档位 | 价格 | 要点 |
-|---|---|---|
-| Starter | **$3 / 百万 token**，pay-as-you-go | 创建并运行 agent，接 Slack / Sentry / Snyk |
-| Team | **$20 / 席 / 月**（含 $10 credits/席） | 团队内共享私有 agent，Gmail/GitHub SSO |
-| Company | 定制 | SAML/OIDC、BYOK、承诺用量 / 发票 / SLA |
+| 档位 | 要点 |
+|---|---|
+| Starter | 按量计费（pay-as-you-go）：创建并运行 agent，接 Slack / Sentry / Snyk |
+| Team | 按席位订阅（含每席 credits）：团队内共享私有 agent，Gmail/GitHub SSO |
+| Company | 定制：SAML/OIDC、BYOK、承诺用量 / 发票 / SLA |
+
+报价数字按 D9 口径不存，见 hub.continue.dev/pricing。
 
 **注意这不是 IDE 扩展的订阅** —— 扩展本身免费开源。
 
@@ -321,7 +303,7 @@ hub.continue.dev/pricing（2026-10-08 取到）现为 **Continuous AI** 的价�
 
 这份条目标为 `confidence: partial`，原因有三条：
 
-- **已取到官方正文的**：形态、模型自配、MCP、权限、许可与商业线定价。
+- **已取到官方正文的**：形态、模型自配、MCP、权限、许可与商业线结构。
 - **已停止维护**：上游仓库 read-only、官网被收购公告替换，未来不会再更新。
 - **已无法从官方页取证的**：Hub 旧价目、账户/订阅的去向等历史能力。
 

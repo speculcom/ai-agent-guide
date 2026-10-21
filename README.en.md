@@ -4,7 +4,7 @@
 
 **An atlas of AI agents** · plain Markdown · open source
 
-Records the capability boundaries, runtime location, real pricing and official evidence for
+Records the capability boundaries, runtime location and official evidence for
 **AI coding agents / agent runtimes / MCP servers**, organized in one fixed coordinate
 system, so that choosing becomes a traceable judgement rather than a hunch.
 

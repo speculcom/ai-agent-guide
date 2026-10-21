@@ -20,26 +20,6 @@ providers:
   - 开源权重托管（Baseten / Fireworks 等）
   - 自托管（Ollama / vLLM / llama.cpp）
 
-pricing:
-  model: open-source
-  monthly_usd: null
-  monthly_label: 库本身免费（MIT）
-  note: >-
-    **框架免费 ≠ 运行免费。**
-
-    README 原文推荐搭配 LangSmith 做 tracing / evaluation / monitoring。
-    LangSmith 是商业产品。
-
-    另：模型推理费用自理。官方举例用 `model="openai:gpt-6-astra"`。
-
-    README 的 Quickstart 示例里没提 Deep Agents 自身有托管服务。
-    LangSmith 的具体定价未核验（商业条款不在本档范围）。
-pricing_pitfalls:
-  - 以为用了开源框架就零成本 —— 模型推理与 LangSmith 都要付费
-  - 以为 "production-ready" 等于「开箱零配置上生产」。
-    README 另有 Going to production 专门指南
-
-# 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
   LangChain 生态三层中的**最上层通用 harness**。
 
@@ -202,6 +182,17 @@ last_verified: 2026-09-30
 last_updated: 2026-09-30
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网仓库在 GitHub，大陆直连波动（同日实测 200/000 混合）；npm / PyPI 安装源实测稳定可达。
+  direct_note_en: Hosted on GitHub — direct reachability from mainland fluctuates (200/000 mixed on the same day); npm / PyPI install routes measured stable.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -321,7 +312,7 @@ README 提到 **Deep Agents Code** —— 预构建的终端 coding agent。
 
 > **为什么降级**：下方 ❌ 项的主语是**本站的取证缺口**，不是 "官方未提供"。
 > 按 v3 铁律「未知就说未知」，这些条目存在时标 verified 属于虚高，故降为 partial。
-> 主要缺口：LangSmith 的具体定价、LangGraph interrupt 细节、多 agent 并发文件冲突。
+> 主要缺口：LangSmith 配套的商业条款、LangGraph interrupt 细节、多 agent 并发文件冲突。
 
 - ✅ 已核验：
   - 仓库存在与星数（29,862）
@@ -330,7 +321,7 @@ README 提到 **Deep Agents Code** —— 预构建的终端 coding agent。
   - 仓库描述原文、README 全文四条原则与九条特性清单
   - FAQ 三层关系原文、Security 声明原文、provider 支持范围原文、Quickstart 代码示例
 - ❌ 未核验：
-  - LangSmith 的具体定价
+  - LangSmith 配套的商业条款（报价按 D9 口径本站不采）
   - LangGraph interrupt 的细节
   - sandbox backend 的具体实现与可选项清单
   - `CompiledStateGraph` 作为 sub-agent 的具体 API 形态
@@ -357,7 +348,7 @@ README 提到 **Deep Agents Code** —— 预构建的终端 coding agent。
 
 ## 未知项清单
 
-- LangSmith 定价（README 推荐搭配，但商业条款未核验）
+- LangSmith 配套（README 推荐搭配，但商业条款未核验；报价按 D9 口径本站不采）
 - sandbox backend 的具体可选项与隔离强度
 - interrupt / 补充询问机制在 Deep Agents 上的暴露方式
 - Deep Agents Code 是否与本仓同许可

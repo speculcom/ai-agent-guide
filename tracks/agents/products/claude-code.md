@@ -9,29 +9,14 @@ homepage: https://code.claude.com/docs/en/overview
 mark: CC
 accent: "#D97757"
 
-pricing:
-  model: freemium
-  monthly_usd: null
-  monthly_label: 随 Claude 订阅，档位见定价页
-  annual_usd: null
-  annual_label: 未核验年付报价
-  note: >-
-    与 [CLI 形态](../../agents/products/claude-code-cli.md) 共享同一授权：
-    随 Claude 订阅。
-    **仓库 LICENSE.md 明确：© Anthropic PBC. All rights reserved，
-    使用受 Anthropic 商业条款约束**——源码公开不等于开源。
-pricing_pitfalls:
-  - 以为 IDE 形态要单独付费，它与 CLI 共享授权
-  - 以为有 GitHub 仓库就能自由使用，许可明确是 proprietary
-
 axes:
   model_access: >-
     与 CLI 形态相同：Anthropic 自家 Claude 系列。
 
     **v2.1.284（2026-09-28）新增 Claude Sonnet 5.5（`claude-sonnet-5-5`），
-    1M 上下文、$2/$10 per Mtok、缓存读 $0.20/Mtok。**
+    1M 上下文。**（API 报价见官方定价页，本站不存。）
 
-    这条定价来自 CHANGELOG，是本次采集中唯一拿到具体数字的对象。
+    这条模型更新来自 CHANGELOG，是本次采集中唯一从 changelog 核实到默认模型规格的对象。
 
   runtime: >-
     **一个进程、三种用法**（README 原文）：
@@ -230,6 +215,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 文档站 code.claude.com 直连实测 200。
+  direct_note_en: docs site code.claude.com measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -284,8 +280,11 @@ before a read outside the working directories
 
 ### ③ 额度显示具体金额
 
+CHANGELOG 原文（节选，金额示例按 D9 口径不摘录）：
+
 ```
-"$271.40 / $500.00 spent this month"
+Added dollar amounts to the Claude apps gateway spend limit in /usage
+and the status line
 ```
 
 `/usage` 与状态栏显示金额而非抽象百分比。
@@ -325,7 +324,7 @@ v2.1.284 两处改动：
 
 `confidence: partial`：
 
-- ✅ 已核验：许可状态原文、三种用法的官方表述、模型定价原文、权限设计三个机制、上下文压缩策略、MCP 两处改动、release 频率（5 天 5 版）、Atom feed 存在
+- ✅ 已核验：许可状态原文、三种用法的官方表述、模型规格原文（报价按 D9 不存）、权限设计三个机制、上下文压缩策略、MCP 两处改动、release 频率（5 天 5 版）、Atom feed 存在
 - ✅ A6.2 本轮新核（2026-10-08）：**VS Code / JetBrains 扩展与终端读同一批 settings 文件**；
   allow/ask/deny 规则语法与四级 settings；权限模式枚举；OS 级 Bash 沙箱（文件系统 + 网络隔离）；
   工作目录边界与凭据存储；CLAUDE.md 四级记忆层级与 auto memory；MCP 四种传输与三级 scope；

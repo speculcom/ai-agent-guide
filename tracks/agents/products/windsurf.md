@@ -8,33 +8,6 @@ homepage: https://windsurf.com
 mark: W
 accent: "#0B9D8C"
 
-pricing:
-  model: freemium
-  monthly_usd: 20
-  monthly_label: Free $0 / Pro $20 每月 / Max $200 每月 / Teams 席位 $40 每月
-  annual_usd: null
-  annual_label: 官方定价页只列月付；年付价未列出，记为未知
-  note: >-
-    **2026-10-01 官方定价页全文核实**：Free $0、Pro $20/月、**Max $200/月（新档）**、
-    Teams = **$80/月团队基础费 + 每全职开发者席位 $40/月**（上限 200 用户）、
-    Enterprise 洽谈。Pro 含 OpenAI / Claude / Gemini / SpaceXAI 前沿模型与领先开源模型、
-    完整模型可用性、可按 API 定价加购用量。
-    Free 层（官方原文口径）：Light quota（额度较紧）、有限模型可用性、
-    **无限 inline edits**、**无限 Tab 补全** —— 补全不限量但 agent 额度有限。
-    **Devin Desktop 与 CLI 在 2026-10-10 前免费**，可访问 Devin Cloud 云端智能体。
-    **两家官方来源数字不一致，不要当成已核实**：
-    ① 定价页写 Pro $20/mo、Max $200/mo；
-    ② 官方博客《An Update to Our Pricing》（pricing-v2）写 Pro $15/mo、Pro Ultimate $60/mo、
-    Teams $30/user/mo —— 该文是 2025 年的旧制（明确说「消除 flow action credits、
-    只按 user prompt 计费」），**现行定价页的 $20 / $200 应视为当前口径**，
-    但本站未能确认博客是否已完全失效，故保留两条。
-    另：Windsurf 品牌已并入 Devin —— 定价页标题现为「Plans and Pricing | Devin」，
-    页脚法律实体为 Exafunction, Inc.
-pricing_pitfalls:
-  - 以为 Teams 只是 Per seat，官方是「方案月费 + 全职席位 $40/月」两层收费
-  - 以为加购用量有折扣，官方说明按 API 定价加购（即无折扣）
-  - 忽略 2026-10-10 这个日期，Devin Desktop 与 CLI 的免费期会结束
-
 axes:
   model_access: >-
     **Pro 档明确列出供应商**：OpenAI、Claude、Gemini、**SpaceXAI**
@@ -124,8 +97,8 @@ axes:
 
 pitfalls:
   - 不知道产品已改称 Devin Desktop，搜 Windsurf 可能找不到对应文档
-  - 以为 Teams 是单一按席位计费，实际是「方案月费 + $40/全职席位」两层
-  - 以为加购用量有折扣，官方说明按 API 定价
+  - 以为 Teams 是单一按席位计费，实际是「方案月费 + 席位费」两层
+  - 以为加购用量有折扣，官方说明按 API 价格计
 
 tags: [编程, IDE, 混合, 云端]
 related: [playwright]
@@ -171,6 +144,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网 devin.ai 直连实测 200。
+  direct_note_en: devin.ai measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -192,20 +176,22 @@ confidence: partial
 [Methodology 规则 3「不跨层级混排」](../METHODOLOGY.md) 说的正是这类问题——
 改名后的产品如果还按旧名收录，会直接导致误导。
 
-## 定价结构：两层计费要特别注意
+## 档位结构：两层计费要特别注意
+
+（报价数字按 D9 口径不存，见官方定价页。）
 
 | 档位 | 关键内容 |
 |---|---|
 | **Free** | Light quota、**有限模型可用性**、**无限 inline edits**、**无限 Tab 补全** |
-| **Pro** | 更高额度含 **OpenAI / Claude / Gemini / SpaceXAI** 前沿模型 + 领先开源模型、完整模型可用性、**SWE-2 免费使用**、**Devin Desktop 与 CLI 在 2026-10-10 前免费**、可访问 Devin Cloud、**按 API 定价加购用量** |
-| **Teams** | **方案月费 + 每个全职开发者席位 $40/月**，最多 200 用户，协作与集中计费 |
+| **Pro** | 更高额度含 **OpenAI / Claude / Gemini / SpaceXAI** 前沿模型 + 领先开源模型、完整模型可用性、**SWE-2 免费使用**、**Devin Desktop 与 CLI 有官方标注的限时免费期（2026-10-10 前）**、可访问 Devin Cloud、**加购用量按 API 价格计** |
+| **Teams** | **两层计费：方案月费 + 按全职开发者席位计价**，最多 200 用户，协作与集中计费 |
 
 **三个容易踩的点**：
 
 | 误解 | 实际 |
 |---|---|
-| Teams 只是按席位计费 | **两层**：方案月费 + $40/全职席位/月 |
-| 加购用量有折扣 | **按 API 定价**，即无折扣 |
+| Teams 只是按席位计费 | **两层**：方案月费 + 席位费 |
+| 加购用量有折扣 | **按 API 价格计**，即无折扣 |
 | 免费期是长期的 | **2026-10-10 结束**（Devin Desktop 与 CLI） |
 
 ## 模型供应：多供应商 + 自研模型
@@ -287,11 +273,9 @@ Free 档已含无限 inline edits 与无限 Tab 补全。
 
 | 页面 | 状态 |
 |---|---|
-| 定价页 | ✅ 三档结构与价格均已核实（页面号码由 JS 渲染，直抓需渲染手段） |
+| 定价页 | ✅ 三档结构与能力差异已核实（报价数字按 D9 口径不存） |
 | 文档站 | ✅ 取到 9772 字符文本 |
 | Changelog | ✅ 取到 116K 字符，含多版本发布说明 |
-
-**价格数字均已核实**（Free $0 / Pro $20 / Max $200 / Teams $40/席位，见上方 pricing 段，2026-10-01 官方页）。
 
 ## 实测记录
 
@@ -302,6 +286,8 @@ Free 档已含无限 inline edits 与无限 Tab 补全。
 （2）ACP 传进来的 HTTP/SSE 类型 MCP server 是否真的可用。
 
 ## 未知项清单
+
+以下各项本次未核验，confidence 因此是 partial 而非 verified：
 
 - SWE-2 与第三方模型的优先级关系
 - ACP preview 到稳定的时间表

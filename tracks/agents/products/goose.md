@@ -7,30 +7,6 @@ vendor: Agentic AI Foundation
 homepage: https://github.com/aaif-goose/goose
 mark: G
 
-pricing:
-  model: open-source
-  monthly_usd: null
-  monthly_label: Apache-2.0 开源，goose 本身无订阅档
-  annual_usd: null
-  annual_label: 未核验年付报价
-  note: >-
-    Apache-2.0 开源，goose 本体不收费、无官方订阅档。
-
-    **2026-10-08 按官方仓库与文档核实**：模型推理要自付。
-
-    三条路：
-
-    - 自带 API Key（如 ANTHROPIC_API_KEY / OPENAI_API_KEY）
-    - 用本地模型：Ollama / LM Studio / Docker Model Runner / Ramalama，无 API 费用
-    - 经 ACP / CLI Provider 接入已有的 Claude / ChatGPT / Gemini 订阅
-
-    官方新手向导另推荐 Agent Router by Tetrate。
-
-    首次通过 goose 自动认证，可获 **10 美元免费额度**（新老 Tetrate 用户均可）。
-pricing_pitfalls:
-  - 以为开源就等于零成本——模型推理仍要自付（自带 Key / 订阅，或用本地模型）
-  - 把首次接入 Tetrate 送的 10 美元额度当成常设免费额度
-
 axes:
   model_access: >-
     **能用多家模型，也能接本地模型。**
@@ -274,6 +250,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网仓库在 GitHub，大陆直连波动（同日实测 200/000 混合）；npm / PyPI 安装源实测稳定可达。
+  direct_note_en: Hosted on GitHub — direct reachability from mainland fluctuates (200/000 mixed on the same day); npm / PyPI install routes measured stable.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位

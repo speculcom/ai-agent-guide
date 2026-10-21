@@ -22,30 +22,6 @@ providers:
   - Amazon Bedrock（AmazonBedrockModel）
   - 本地：Transformers / mlx-lm / Ollama / vLLM
 
-pricing:
-  model: open-source
-  monthly_usd: null
-  monthly_label: 库本身免费（Apache-2.0）
-  annual_usd: null
-  annual_label: 无付费档位（纯开源库）
-  note: >-
-    **框架免费，但运行不免费。而且官方没有独立定价页。**
-
-    库本身按 Apache-2.0 开源，没有授权费（仓库 LICENSE 核验 2026-10-08）。
-
-    **运行成本来自两处。**
-
-    一处是**模型推理**：HF Inference Providers 的免费账户自带 included credits 与速率限制，
-    升 PRO 才提高额度（见 installation 与 guided_tour 页）。
-
-    另一处是**远程沙箱**：E2B / Modal / Blaxel 各自按自家服务计费（见 secure_code_execution 页）。
-
-    本地模型（transformers / Ollama / mlx-lm）则推理成本落在本机。
-pricing_pitfalls:
-  - 以为框架开源就零成本——推理费用与远程沙箱（E2B / Modal / Blaxel）费用都要自理
-  - 以为 HF Inference 免费无限用——免费账户自带 included credits 且有速率限制，PRO 才提高额度
-
-# 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
   **它和 OpenAI Agents SDK 同属「原语型 / primitives-only」一档，分野在「动作的表示形式」。**
 
@@ -248,6 +224,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: no
+  direct_note: 文档站在 huggingface.co，大陆直连稳定超时（同日两次 000）；pip 安装走 PyPI 实测可达。
+  direct_note_en: docs live on huggingface.co, which times out consistently from mainland (000 twice); pip install via PyPI measured reachable.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -377,7 +364,7 @@ README 里 agents 和 tools 都是 Hub 对象：
 - 把大工具输出落盘的深上下文管理（官方未说明）
 - 内建网络访问控制机制（官方未说明）
 - 进程间持久化 / 断点续跑的内建方案（官方未提供，得自己序列化 steps）
-- hosted 沙箱（Blaxel / E2B / Modal）的定价与配额（各由服务商页决定，不在本库文档内）
+- hosted 沙箱（Blaxel / E2B / Modal）的配额与计费口径（各由服务商页决定；报价按 D9 口径本站不存）
 
 ## 相关条目
 

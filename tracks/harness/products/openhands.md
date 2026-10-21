@@ -19,52 +19,6 @@ providers:
   - 支持 LLM profiles 多配置并存（官方文档 llm-settings#llm-profiles）
   - 具体清单（官方 llm-settings 页，2026-10-08）：原文 "any model that is supported by litellm"，本地模型经 LiteLLM 接
 
-pricing:
-  model: freemium
-  monthly_usd: 0
-  monthly_label: 开源自托管 Free（MIT，1 用户）/ Cloud Individual Free（1 用户，每日 10 轮对话）/ Enterprise 定制报价
-  note: >-
-    **站点收录的是能自托管的开源版，不是商业版。**
-
-    定价页共三档，两档 $0，一档定制：
-
-    - **① Open Source — Free**：本地跑（Web GUI + Terminal UI + CLI）、Git 集成、
-      社区支持、model agnostic；**1 用户**、**每日对话数 Unlimited**
-
-    - **② SaaS Individual — Free**：云端访问（桌面端 + 移动端）、API 用于自动化与脚本、
-      Jira 与 Slack 集成；**1 用户**
-
-    - **③ SaaS 或 Self-hosted Enterprise — Custom pricing**：可部署在客户自有 VPC、
-      Enterprise SAML/SSO、**每用户无限并发会话**、Large Codebase SDK、
-      优先支持 + 共享 Slack 频道、**Named Customer Engineer**、**用户数 Unlimited**
-
-    **最关键的一条硬数字：Individual 档「Max Daily Conversations = 10」。**
-    对照表里 Open Source 档的同一栏是 **Unlimited**。
-    **「免费」不等于「不限量」**：云端免费档每天只有 10 轮对话，本地自托管才不限量。
-    这是选型时最容易踩的落差。
-
-    **另一条机制：Individual 档支持自带 key（BYOK）。**
-    没有 key 时可以用 OpenHands LLM provider，官方强调
-    "**at cost, with no markup**"（按成本价、**零加价**，按量付费）。
-    在 Settings > API 可以生成 API key，供 CLI / Local Web UI / Software Agent SDK 使用。
-
-    **官方没有公开「零加价」的实际单价表**，只能确认官方声明不加价。
-
-    > 核验依据：主仓 MIT（经 license API）、README 的四份 docker / npm 安装命令全部指向自建、
-    > 官方定价页（核验 2026-10-01）。
-pricing_pitfalls:
-  - 以为「MIT 免费」等于「零成本」—— 模型推理费用、跑 agent 的机器/容器资源都要自己承担
-  - 把自托管版与 OpenHands Cloud / Enterprise 混谈 —— 后者是商业托管服务，不是这个仓
-  - 以为本地跑就安全 —— README 自己在两个安装选项上打了 WARNING，见 permissions
-  - **以为「云端免费档」等于「不限量」—— Individual 档每天只有 10 轮对话**
-    （官方对比表Max Daily Conversations：Open Source = Unlimited，
-    Individual = 10，Enterprise = Unlimited）。想不限量只能本地跑或上Enterprise
-
-  - 以为 Enterprise 只是「多几个用户」—— 它实际是另一套东西：
-    可部署在**客户自有 VPC**、SAML/SSO、RBAC、集中账单、
-    Large Codebase SDK、Named Customer Engineer，**报价需联系销售**
-
-# 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
   **它是本站收录的第一个「平台型」对象：一个带 Web UI 的自托管控制中心，不是 SDK。**
 
@@ -299,7 +253,7 @@ sources:
     url: https://github.com/OpenHands/OpenHands/blob/main/docs/SELF_HOSTING.md
     kind: docs
 
-  - label: 官方定价页（核验 2026-10-01：Open Source $0 / Cloud Individual $0 / Enterprise 定制；**Individual Max Daily Conversations = 10** 而 Open Source 为 Unlimited；BYOK 与 "at cost, with no markup"；Enterprise 可部署客户自有 VPC、SAML/SSO、RBAC、每用户无限并发）
+  - label: 官方定价页（核验 2026-10-01：Open Source 与 Cloud Individual 均为免费档、Enterprise 定制；**Individual Max Daily Conversations = 10** 而 Open Source 为 Unlimited；BYOK 与 "at cost, with no markup"；Enterprise 可部署客户自有 VPC、SAML/SSO、RBAC、每用户无限并发）
     url: https://www.all-hands.dev/pricing
     kind: pricing
 
@@ -355,6 +309,17 @@ last_verified: 2026-10-01
 last_updated: 2026-10-01
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网直连实测 200。
+  direct_note_en: official site measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -411,15 +376,16 @@ Codex / Claude Code / Gemini」。
 > 不是本条目。
 > **本站本次未单独收录它** —— 见下方实测建议第 1 条。
 
-## 定价：三档里两档是 $0，但「免费」有个硬上限
+## 档位：三档里两档是免费档，但「免费」有个硬上限
 
 2026-10-01 核验官方定价页，结论可能与预期不同：**没有「付费个人档」。**
+（报价按 D9 口径不存，见官方定价页。）
 
-| 档位 | 价格 | 部署 | 用户 | 每日对话 |
-|---|---|---|---|---|
-| **Open Source** | **Free** | 本地 | 1 | **Unlimited** |
-| **SaaS Individual** | **Free** | 云端 | 1 | **10** |
-| **Enterprise** | **Custom**（Contact Us） | SaaS 或**客户自有 VPC** | Unlimited | Unlimited |
+| 档位 | 部署 | 用户 | 每日对话 |
+|---|---|---|---|
+| **Open Source**（免费） | 本地 | 1 | **Unlimited** |
+| **SaaS Individual**（免费） | 云端 | 1 | **10** |
+| **Enterprise**（定制，Contact Us） | SaaS 或**客户自有 VPC** | Unlimited | Unlimited |
 
 **① 最关键的一条落差：云端免费档每天只有 10 轮对话。**
 
@@ -432,7 +398,7 @@ Codex / Claude Code / Gemini」。
 供 CLI / Local Web UI / Software Agent SDK 使用。
 官方强调它按成本价、零加价、按量付费。
 
-**官方没有公开实际单价表**，只能确认官方声明不加价。
+**官方没有公开实际单价表**，只能确认官方声明不加价（本站按 D9 口径也不存报价）。
 
 > 官方 FAQ 原文：Open Source 与 Cloud 各档都支持自带 LLM key；
 > 无 key 时走 OpenHands provider，官方强调 "**at cost, with no markup**"。
@@ -563,7 +529,7 @@ condenser，见 axes.context）。仍留 partial 是因为还存在**官方确�
 - context 压缩的端到端效果
 - 本地→远端工作区的同步机制（官方未说明）
 - ACP 与 MCP 的定位边界
-- Enterprise 报价与「零加价」的实际单价表
+- Enterprise 档的具体内容（官方只写 Custom pricing / Contact Us）
 
 按 v3 铁律「未知就说未知」，故仍标 partial。
 
@@ -590,11 +556,11 @@ condenser，见 axes.context）。仍留 partial 是因为还存在**官方确�
 - LLM profiles 的完整配置格式（官方页有，细节未逐条录入）
 
 **本轮（2026-10-01）补上的**：官方定价页三档已核实 ——
-Open Source $0 / Cloud Individual $0 / Enterprise 定制；
+Open Source 与 Cloud Individual 均为免费档、Enterprise 定制；
 **Individual 每日 10 轮对话上限**（对照 Open Source 的 Unlimited）；
 Individual 支持 BYOK、无 key 时走 OpenHands provider 且官方声明 **at cost, no markup**；
 Enterprise 可部署客户自有 VPC。还有 SAML/SSO、RBAC、每用户无限并发。
-Enterprise 的具体报价与「零加价」的实际单价表仍未核验。
+Enterprise 档的具体内容仍未核验（按 D9 口径本站也不存任何报价数字）。
 
 ## 实测记录
 
@@ -617,8 +583,7 @@ Enterprise 的具体报价与「零加价」的实际单价表仍未核验。
 - 对话上下文压缩的端到端效果（机制已有官方 condenser，压缩率待实测）
 - OSS 档多用户方式（正式 RBAC / SSO 在 Enterprise，OSS 默认单用户）
 - ACP 与 MCP 的定位差异（两者都可用；边界官方未系统对比）
-- **Enterprise 的具体报价**（官方仅标 Custom pricing / Contact Us）
-- OpenHands LLM provider「at cost, no markup」的**实际单价表**（官方声明不加价，数字未公开）
+- **Enterprise 档的具体内容**（官方仅标 Custom pricing / Contact Us；报价按 D9 口径本站不采）
 - Individual 每日 10 轮之外，超出后的行为（停用 / 提示升级 / 其它，官方页未写）
 - 后端远程部署时本地代码库的同步机制
 - `software-agent-sdk` 的 API 形态与版本独立节奏

@@ -8,44 +8,6 @@ homepage: https://cursor.com
 mark: C
 accent: "#111111"
 
-pricing:
-  model: freemium
-  monthly_usd: 20
-  monthly_label: Pro $20 / Pro+ $60 / Ultra $200（个人三档），Hobby 免费
-  annual_usd: null
-  annual_label: 官方帮助页说明年付通过 dashboard 的 Upgrade 切换，未取到统一折算价
-  note: >-
-    **个人 4 档 + 团队 3 档，价格已按 2026-10-01 官方页核实。**
-
-    个人档：
-
-    - Hobby 免费：无需信用卡，有限智能体请求 + Composer 访问
-    - Pro $20/mo
-    - Pro+ $60/mo
-    - Ultra $200/mo
-
-    团队档：
-
-    - Teams Standard $40/用户/mo
-    - Teams Premium $120/用户/mo
-    - Enterprise 定制
-
-    **Pro+ / Ultra 不是「前沿模型专属」，而是额度倍数。**
-
-    **官方原文**：Pro+ = "3x Pro limits on Agent"，Ultra = "20x Pro limits on Agent"。
-    三档都写 **"Access to frontier models"**。
-
-    Hobby 另有印度专属付费层 ₹649/mo（含税）。
-
-    所有价格**不含税**；超额用量按各模型标价后付费（on-demand billed in arrears）。
-
-    出处：官方定价页（cursor.com/pricing）
-    与帮助页（cursor.com/help/account-and-billing/pricing）。
-pricing_pitfalls:
-  - 以为只有个人档，实际有 Teams / Enterprise 两档团队形态
-  - 把「有限制的 Hobby 层」当成完全不可用，它有 Composer 访问权限
-  - 以为 Pro+ / Ultra 才能用前沿模型 —— 官方三档都写了 frontier models 访问权，差别在**额度倍数**
-
 axes:
   model_access: >-
     **可选多家厂商的模型；个人三档的差别是额度倍数，不是模型能不能用。**
@@ -302,6 +264,17 @@ last_verified: 2026-10-03
 last_updated: 2026-09-29
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网直连实测 200。
+  direct_note_en: official site measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -380,18 +353,18 @@ confidence: partial
 
 **职责边界很清楚**：代码风格和质量问题仍由 Bugbot 负责。
 
-## 定价结构（6 档，2026-10-01 已取到价格数字）
+## 档位结构（6 档，能力差异 2026-10-01 核实）
 
-官方定价页 + 帮助页逐档核实（美元，月付）：
+官方定价页 + 帮助页逐档核实（报价数字按 D9 口径不存，见官方定价页）：
 
-| 档位 | 价格 | 关键能力 |
-|---|---|---|
-| **Hobby** | $0 | 无需信用卡、有限的智能体请求、Composer 访问权限。**仅可用 Auto 模型** |
-| **Pro** | $20/mo | 扩展的 Agent 额度、Generous limits for Grok、前沿模型访问、Grok Bot 访问、**MCP + 技能 + 钩子**、云端智能体、按用量计费的 Bugbot |
-| **Pro+** | $60/mo | **3x Pro limits on Agent**，其余同 Pro，**Grok Bot 用量更高** |
-| **Ultra** | $200/mo | **20x Pro limits on Agent**，Grok Bot 用量最高，**新功能优先访问** |
-| **Teams** | $40/用户/mo | 集中计费、**团队应用市场**（内部规则/技能/插件）、**共享团队上下文的云端智能体与自动化**、Bugbot 代码审查、**用量分析**、团队级隐私模式、SAML/OIDC 单点登录 |
-| **Enterprise** | 洽谈 | 汇总用量、发票/采购订单结算、SCIM 管理席位 |
+| 档位 | 关键能力 |
+|---|---|
+| **Hobby** | 免费档：无需信用卡、有限的智能体请求、Composer 访问权限。**仅可用 Auto 模型** |
+| **Pro** | 扩展的 Agent 额度、Generous limits for Grok、前沿模型访问、Grok Bot 访问、**MCP + 技能 + 钩子**、云端智能体、按用量计费的 Bugbot |
+| **Pro+** | **3x Pro limits on Agent**，其余同 Pro，**Grok Bot 用量更高** |
+| **Ultra** | **20x Pro limits on Agent**，Grok Bot 用量最高，**新功能优先访问** |
+| **Teams** | 集中计费、**团队应用市场**（内部规则/技能/插件）、**共享团队上下文的云端智能体与自动化**、Bugbot 代码审查、**用量分析**、团队级隐私模式、SAML/OIDC 单点登录 |
+| **Enterprise** | 洽谈：汇总用量、发票/采购订单结算、SCIM 管理席位 |
 
 **三个值得注意的设计**：
 
@@ -429,26 +402,22 @@ Cursor Router 按 cost / balance / intelligence 三档路由，
 
 **代码不能离开自有基础设施的企业**（自托管形态）。
 
-**不适合**要求定价透明到可直接比较的人——
+**不适合**要求额度透明到可直接比较的人——
 各档额度倍数（1x / 3x / 20x）官方未给出具体请求数或 token 量，
 只有倍数表述。
 
-## 采集状态（2026-10-01 更新）
-
-**初次采集时价格数字因 JS 动态渲染未取到。**
-**本轮已通过官方帮助页补齐月付全档。**
+## 采集状态（2026-10-01 更新 · D9 修订）
 
 | 页面 | 状态 |
 |---|---|
-| 定价页 | ✅ 6 档结构与能力清单、✅ 月付价格已从帮助页补齐 |
-| 帮助页（account-and-billing/pricing） | ✅ 全档价格 + 年付切换说明 + 印度专属层 |
+| 定价页 | ✅ 6 档结构与能力清单已核实（报价数字按 D9 口径不存） |
+| 帮助页（account-and-billing/pricing） | ✅ 档位切换机制与额度口径已核 |
 | 文档页 | ✅ 取到文本 |
 | Changelog | ✅ 取到三条完整条目（09-23 / 09-10 / 09-02） |
 
 **因此本条目标 `confidence: partial`**：
 
 - 能力侧证据充分
-- 各档月付价格已补齐
 - 但额度倍数（1x / 3x / 20x）无具体数值
 - 自托管部署细节未核
 

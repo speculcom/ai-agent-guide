@@ -32,22 +32,13 @@ tracks/<track>/products/<id>.md
 | `mark` | string | | 1-2 字符标识符，用于 UI 展示 |
 | `accent` | string | | `#rrggbb`，品牌主色，无则省略 |
 
-### 2.2 商业信息
+### 2.2 商业信息（已随 D9 退役）
 
-| 字段 | 类型 | 必填 | 约束 |
-|---|---|:---:|---|
-| `pricing.model` | enum | ✓ | `freemium` / `paid` / `open-source` / `unknown` |
-| `pricing.monthly_usd` | number \| null | | 未知写 `null`，禁止 `0` 代替 |
-| `pricing.monthly_label` | string | | 档位与周期说明 |
-| `pricing.annual_usd` | number \| null | | 未核验年付报价写 `null` |
-| `pricing.annual_label` | string | | 未知时写「未核验年付报价」 |
-| `pricing.note` | string | | 额度规则、共享规则、限量口径 |
-| `pricing_pitfalls` | string[] | | 价格相关的常见误解，1-3 条 |
+**没有 `pricing` / `pricing_pitfalls` 字段族（D9 定案，2026-10-20）**：价格与档位报价高频变动、本站不采不存。frontmatter 出现 `pricing` 或 `pricing_pitfalls` → 校验硬失败。
 
-**禁止**：
-- 用 `0` 表示"免费"（用 `model: freemium` 表达）
-- 跨币种折算（`pricing_usd_cny` 这类字段不存在）
-- 把年付总额除以 12 写进 `monthly_usd`
+商业事实的去处：
+- **定性口径**（免费 / 开源 / 按量 / 随订阅）与**额度配额事实**（每日轮数、次数上限、席位规则）写在 axes 与正文——它们不随价格变动失效；
+- 「多少钱」一律由 `sources` 里 `kind: pricing` 的官方定价页链接承担（label 不写数字）。
 
 ### 2.3 八个维度
 
@@ -156,7 +147,7 @@ axes:
 |---|---|---|
 | `changelog` | 官方更新日志 / 版本发布页 | **所有条目必填**；无独立 changelog 页时可用官方 releases 或 commit 历史 |
 | `docs` | 官方文档 | **所有条目必填** |
-| `pricing` | 官方定价页 | `pricing.model != open-source` |
+| `pricing` | 官方定价页 | 有商业档位的条目必填（D9：label 只写档位结构与核验日期，**不写价格数字**） |
 | `migration` | 迁移 / 退役公告 | 有则填 |
 | `engineering` | 厂商工程博客 | 有则填 |
 | `repo` | 开源仓库 | 开源项目必填 |
@@ -308,18 +299,6 @@ homepage: https://example.com
 mark: E
 accent: "#111111"
 
-pricing:
-  model: freemium
-  monthly_usd: 20
-  monthly_label: Pro / 月
-  annual_usd: null
-  annual_label: 未核验年付报价
-  note: >-
-    订阅额度与 API 计费分开；API key 单独计费。
-pricing_pitfalls:
-  - 以为买了桌面版就自带云端 Agent
-  - 把活动赠送额度当成永久套餐额度
-
 axes:
   model_access: >-
     支持第三方模型，可自定义模型路由；具体可用模型随订阅档位变化。
@@ -411,7 +390,7 @@ confidence: verified
 | 8 | `sources` ≥2 条且含 `changelog` | 硬失败 |
 | 9 | 日期格式 `YYYY-MM-DD` | 硬失败 |
 | 10 | `confidence` 在枚举内 | 硬失败 |
-| 11 | `pricing.annual_usd == null` 时 `annual_label` 非空 | 硬失败 |
+| 11 | 出现已退役的 `pricing` / `pricing_pitfalls` 字段（D9 反向守卫） | 硬失败 |
 | 12 | `link.kind == invitation` 时 `incentive` 非空 | 硬失败 |
 | 13 | `confidence == verified` 时无「未知」字样 | 硬失败 |
 | 14 | `lifecycle` 在枚举内 | 硬失败 |
@@ -603,9 +582,93 @@ runtime: >-
 | 错误 | 后果 | 正确做法 |
 |---|---|---|
 | `last_verified` 写成官方发布日 | 时间语义混乱 | 核验日与发布日分开 |
-| `pricing.monthly_usd: 0` 表示免费 | 与"无价格信息"混淆 | 用 `model: freemium` |
+| 在 frontmatter 或 label 里写价格数字 | D9 定案：价格高频变动，采了养不起 | 只放官方定价页链接（kind: pricing） |
 | 给 8 维度加第 9 个 | 破坏坐标系可比性 | 加进正文，不进 axes |
 | `sources` 只给 1 条 | 无法交叉核验 | 至少 changelog + docs |
 | 在正文里复制 frontmatter 数据 | 两处不一致 | 正文只写叙述 |
 | 用"可能""也许"堆砌 | 等于没说 | 要么查清，要么写未知 |
 | `pitfalls` 写成产品优点 | 栏目失去意义 | 只写误解 |
+
+---
+
+## 九、轻档案（`light/light.json` · v7 S45 · 2026-10-20）
+
+对话问答类（ChatGPT 等）与创作工具类（Midjourney 等）**不走八维档案**——
+八维是为「能接任务、能装、能连数据」的产品设计的坐标系，对话产品没有
+「安装形态 / 工具清单」这些维度，硬套会产出一堆「不适用」。D4 定案改用
+**三要素卡**（D9 修订：价格高频变动、本站不采不存，「多少钱」一律指向官方定价页），数据放 `light/light.json`（真相源，JSON 不是 md）。
+
+### 9.1 字段表
+
+| 字段 | 类型 | 必填 | 约束 |
+|---|---|:---:|---|
+| `id` | string | ✓ | 与档案 id 同一规则（小写 + 连字符），全仓唯一（含与档案 id 不撞） |
+| `kind` | enum | ✓ | `chat`（对话问答）/ `creation`（创作工具）—— 决定落哪个区 |
+| `name` / `nameEn` | string | ✓ / | 同档案规则 |
+| `vendor` | string | ✓ | 同档案规则 |
+| `homepage` | url | ✓ | 官方主页 |
+| `what` / `whatEn` | string | ✓ / | 要素①「能做什么」：一到两句 |
+| `data` / `dataEn` | string | ✓ / | 要素②「数据去哪」：训练用途 / 留存 / 出境，**每条挂官方出处** |
+| `who` / `whoEn` | string | ✓ / | 要素③「适合谁」：给判断依据，不做排名 |
+
+**没有 `cost` 字段（D9 定案）**：价格与档位报价不进数据层。可选 `pricing_url`（http(s) URL）——卡片渲染时「多少钱」一行只放这个链接（缺省回落 `homepage`），本站不写数字。出现 `cost` / `costEn` → 校验硬失败。
+| `pricing_url` | url | | 可选：官方定价页指针（D9：只许 URL，不许文字报价） |
+| `license` / `licenseEn` | string | 创作类 ✓ | **S47 商用许可主打列**（仅 `kind: creation` 必填）：输出物归属与商用许可，**逐条抄官方条款**（许可稳定、不是价格，D9 明确保留）。对话类不填（对话类没有「输出物商用」这回事） |
+| `sources` | array | ✓ | ≥1 条官方 URL（R5：禁二手博客） |
+| `last_verified` | date | ✓ | 核验快照语义同档案 |
+| `confidence` | enum | ✓ | 同档案枚举 `verified / partial / stale` |
+
+### 9.2 校验（`scripts/validate.mjs` 扩类）
+
+- 三要素（what/data/who）任一为空 → 硬失败（缺一个要素就不是轻档案）；出现 `cost` 字段 → 硬失败（D9：价格字段已退役）；
+- `kind: creation` 而 `license` 为空 → 硬失败（S47：商用许可是创作区的主打列，不许缺）；
+- `sources` 为空或 `last_verified` 缺失 → 硬失败；
+- `kind` 不在枚举 → 硬失败；id 与档案撞 → 硬失败；
+- 英文字段缺失 → 警告（R2 要求补齐，同 nameEn 口径）。
+
+### 9.3 渲染
+
+- 版式走 brand.css 的 `.t-lightcard`（宪章 1，共享层定义一次）；
+- 落点：AI 工具站「对话问答」区与「陪你创作」区（S46 / S47 填入条目后渲染）；
+- 卡片上必须可见「这是轻档案，不上八维」的标注（防读者拿它和八维档案比）。
+
+## 十、深水指南（`guides/*.md` · v7 S48 · 2026-10-20）
+
+「Agent 工程深水区」是方法论内容，不是产品档案——它不描述某个产品，
+而是讲清一类工程问题（编排 / 记忆 / 规划 / 评测 / 成本 / 护栏）。
+放 `guides/`（与 `light/` 平行、**不在 `tracks/` 下**——validate 与 build 的
+档案扫描都只认 `tracks/**/products/`，guides 混进 tracks 会被当八维档案误检）。
+
+### 10.1 frontmatter 字段表
+
+| 字段 | 类型 | 必填 | 约束 |
+|---|---|:---:|---|
+| `id` | string | ✓ | 同档案规则（小写 + 连字符）；文件名 = id；不与档案/轻档案 id 撞 |
+| `topic` | enum | ✓ | `orchestration / memory / planning / evaluation / cost / guardrails`（六主题枚举） |
+| `title` / `titleEn` | string | ✓ / | 中文标题（plain-language：≤ 20 字、说清讲什么） |
+| `summary` / `summaryEn` | string | ✓ / | 一句话定位（plain-language 开场判据适用） |
+| `sources` | array | ✓ | ≥1 条官方 URL（R5：禁二手博客；label 如实标注取法） |
+| `last_verified` | date | ✓ | 核验快照语义同档案 |
+| `confidence` | enum | ✓ | 同档案枚举 `verified / partial / stale` |
+
+### 10.2 正文纪律
+
+- 正文是**方法论**：讲机制、讲取舍、讲失败模式——不写「推荐用哪个框架」的排名（本站不排名宪章）；
+- 每个关键事实句挂出处（正文内联官方 URL 或文末「出处」清单）；官方没写的就写「官方未说明」；
+- **D9 适用**：成本主题只讲机制（缓存命中、步数上限、上下文膨胀），不采不存价格数字；
+- 与八维档案互链：正文引用具体产品时链到该产品的档案页（档案是事实源，guide 是视角）；
+- plain-language 门禁适用（句 P90 ≤ 40、开场判据、列表项 ≤ 80 字）。
+
+### 10.3 校验（`scripts/validate.mjs` 扩类）
+
+- guides 目录缺失 → 警告（允许先建格式后灌内容）；
+- frontmatter 缺 `id / topic / title / summary` 任一 → 硬失败；`topic` 越枚举 → 硬失败；
+- `sources` 空 / `last_verified` 缺 / `confidence` 越枚举 → 硬失败（与轻档案同口径）；
+- 文件名 ≠ id → 硬失败；id 与档案或轻档案撞 → 硬失败；
+- 英文槽位（titleEn / summaryEn）缺 → 警告（R2）。
+
+### 10.4 渲染
+
+- 落点：AI 工具站 tools 分区「深水指南」区（guideSection 之后的独立区）；
+- 版式走 brand.css 共享类（宪章 1：新组件先落共享层一次）；
+- guides 为空时整区不渲染（不造空壳）。

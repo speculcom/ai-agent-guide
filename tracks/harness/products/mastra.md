@@ -18,36 +18,6 @@ providers:
   - 官方点名 OpenAI / Anthropic / Google / xAI，以及 OpenRouter 等网关
   - 本地模型：需自建 OpenAI 兼容服务，官方点名推荐 LMStudio（`id: "lmstudio/..."`）
 
-pricing:
-  model: open-source
-  monthly_usd: null
-  monthly_label: 框架 Apache-2.0 自托管免费；Mastra 平台 Starter $0 / Teams $250 月付（核验 2026-10-08）
-  annual_usd: null
-  annual_label: 未核验年付报价
-  note: >-
-    **框架免费与商业平台是两条线，要分清。**
-    核验依据：仓库 README 的 Licensing 段（双许可）、官方定价页 mastra.ai/pricing（核验 2026-10-08）。
-    **开源侧**：README 原文 "The core framework and the vast majority of this codebase is
-    open source under **Apache-2.0**"；但 "Code in any directory named `ee/` ... is
-    source-available under the **Mastra Enterprise License**"，这些功能生产环境需企业许可。
-    **商业侧（Mastra 平台）**：官方定价页列三档 —— **Starter $0/月**（10 万 observability events、
-    24 CPU 小时、15 天数据保留、用户/部署/项目不限）、**Teams $250/月**（100 万 events、250 CPU 小时、
-    6 个月保留、多团队 + SSO + SOC 2 文档）、**Enterprise 定制**（RBAC、审计日志、SLA、专属支持）。
-    另单列 **Persistent Server（24/7 常驻）$100/项目**、Gateway 令牌 **Market Rate + 5.5%**。
-    **自托管一侧**：官方定价页 Self-Hosted 标签下 **Free（Apache 2.0）** 与 **Enterprise（Licensed
-    self-hosted features，定制）** 两档，Enterprise 卖点是 RBAC/SSO/IAM、数据不出 VPC、统一年费。
-    **官方未说明** `ee/` 目录之外还有哪些功能属企业许可范围（已查仓库 README 许可段与定价页）。
-pricing_pitfalls:
-  - 以为 Mastra 全免费 —— ee/ 目录（企业认证、Agent Builder 等）是 source-available，
-    仓库 license API 返回 NOASSERTION，生产使用需企业许可
-
-  - 把 Mastra Studio / 观测 / 托管部署当成框架自带 —— 这些是 Mastra 平台产品，
-    有 Starter $0 / Teams $250 / Enterprise 三档计费
-
-  - 以为本地开发也要买平台 —— `npm create mastra@latest` + `mastra dev` 本地跑，
-    Studio 起在 localhost:4111，不需要平台账号
-
-# 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
   **TypeScript 生态里「batteries included」程度最高的编排框架之一，也是 LangGraph 的 TS 常见对照物。**
 
@@ -171,7 +141,7 @@ axes:
     - Background Tasks："Run slow tools, workflows, or subagents without blocking"
     - Schedules：cron 定时起 run
 
-    **托管后台**：Mastra 平台 Server 提供 24/7 常驻（官方定价页 Persistent Server **$100/项目**）。
+    **托管后台**：Mastra 平台 Server 提供 24/7 常驻（Persistent Server 按项目计费，单价见官方页）。
     OSS 自托管则是「你自己把进程跑起来」，关了就停。
   tools: >-
     **工具面是三件套：自定义工具 + MCP 一等支持 + 可作 MCP server。官方文档给得很全。**
@@ -261,7 +231,7 @@ axes:
 
 pitfalls:
   - 以为 Mastra 全是 Apache-2.0 免费 —— `ee/` 目录是 source-available，生产用需企业许可，仓库 license API 返回 NOASSERTION
-  - 把 Mastra Studio / 观测 / 托管部署当成框架自带 —— 那些是 Mastra 平台产品，有 Starter $0 / Teams $250 / Enterprise 计费
+  - 把 Mastra Studio / 观测 / 托管部署当成框架自带 —— 那些是 Mastra 平台产品，按 Starter / Teams / Enterprise 分档计费
   - 把 README 的「40+ providers」当作上限 —— 官方 /models 目录页写的是 213 providers / 7815 models
   - 以为本地模型要改代码 —— 官方支持 OpenAI 兼容端点，推荐 LMStudio，属配置项（`id` + `url`）
 
@@ -325,7 +295,7 @@ sources:
     url: https://mastra.ai/docs/auth/overview
     kind: docs
 
-  - label: 官方定价页（核验 2026-10-08：Platform Starter $0 / Teams $250 / Enterprise；Self-Hosted Free 与 Enterprise；Persistent Server $100/项目；Gateway +5.5%）
+  - label: 官方定价页（核验 2026-10-08：Platform 三档 Starter/Teams/Enterprise；Self-Hosted Free 与 Enterprise；Persistent Server 按项目计费；Gateway 有加价费率）
     url: https://mastra.ai/pricing
     kind: pricing
 
@@ -341,6 +311,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网直连实测 200。
+  direct_note_en: official site measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -455,10 +436,10 @@ GitHub 的 license API 对整仓返回 **NOASSERTION**。
 
 另一条线是 **Mastra 平台**（YC W25）。官方定价页（核验 2026-10-08）分两处：
 
-- **平台三档**：**Starter $0/月**、**Teams $250/月**、**Enterprise 定制**
+- **平台三档**：Starter（免费档）、Teams（付费档）、Enterprise（定制）
 - **自托管两档**：Free 与 Enterprise
 
-**Studio、Observability、托管 Server 与 24/7 常驻（$100/项目）都是平台产品**。它们不是框架自带。
+**Studio、Observability、托管 Server 与 24/7 常驻都是平台产品**（常驻托管按项目计费，单价见官方页）。它们不是框架自带。报价按 D9 口径不存。
 
 ## 适合与不适合
 
@@ -523,7 +504,7 @@ GitHub 的 license API 对整仓返回 **NOASSERTION**。
 - `ee/` 目录之外还有哪些功能属企业许可范围（官方 README 只给目录示例，未给完整功能清单）
 - 跨进程 / 多实例并发 resume 同一 snapshot 的冲突语义（官方未说明）
 - Observational Memory 压缩后的信息损失与成本（本站未实测）
-- Mastra 平台各档的实际吞吐与超量计费在真实负载下的表现（官方仅给单价）
+- Mastra 平台各档的实际吞吐与超量计费在真实负载下的表现（官方只给计费口径）
 
 ## 相关条目
 

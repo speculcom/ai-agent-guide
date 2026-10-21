@@ -8,26 +8,6 @@ homepage: https://about.fb.com/news/2026/09/introducing-muse/
 mark: MU
 accent: "#0866FF"
 
-pricing:
-  model: freemium
-  monthly_usd: null
-  monthly_label: 官方原文「free for most of what people need」，付费走订阅档
-  annual_usd: null
-  annual_label: 官方发布页未给年付口径
-  note: >-
-    **2026-10-03 以官方发布页正文为准（Playwright 渲染，7,655 字）**：
-    官方原句「It's free for most of what people need,
-    with subscription plans for people who want to do more」——
-    **有免费额度，但本站未取到订阅档的具体价格**。
-    与 OpenAI Dot 的差别值得记：Dot 官方明说「套餐已包含你的首个 Dot，无需额外付费」，
-    **完全没提免费档**；Muse 则明确「大部分需求免费」。
-    两个厂商在计费透明度上给的是不同颗粒度，**不要把两家当同一种模型比较**。
-    **订阅档位价格、各档额度差异，官方发布页未列，本次未核验。**
-pricing_pitfalls:
-  - 把 Dot 与 Muse 当成同一种商业模式 —— 一个明确无独立定价，一个明确有免费档
-  - 以为 Muse 免费版没有限制 —— 官方只说「most of what people need」，边界未量化
-  - 指望 Meta One 订阅与 Muse 免费额度可叠加 —— 官方发布页未说明叠加关系
-
 axes:
   model_access: >-
     **模型是厂商指定的** —— **官方原文**："powered by Muse Spark, Meta's most capable model to date, built for real-world agentic work like this"。
@@ -208,7 +188,7 @@ pitfalls:
   - 把 Confidential VM 当成现成特性 —— 官方写 Later this year，尚未上线
   - 把 Sentinel 当成「Muse 自己会先问一下」 —— 它是系统级隔离的独立 agent
   - 以为删消息就等于抹掉了记忆 —— 官方明说可能仍记得已学到的内容
-  - 以为「free for most」等于全功能免费 —— 边界未量化，且订阅档价格未核验
+  - 以为「free for most」等于全功能免费 —— 边界未量化
   - 把 Muse 的后台权限说成「官方写了只读」 —— 官方给的是机制（写操作必审批），不是只读原句
   - 以为断开 Connector 就清掉了相关记忆 —— 官方写明might still remain
   - 以为 forget skill 是保证抹净 —— 官方措辞是 to the best of its ability
@@ -245,6 +225,17 @@ last_verified: 2026-10-03
 last_updated: 2026-10-03
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官方新闻页 about.fb.com 直连实测 200；产品入口在 Meta 系应用内，未单独实测。
+  direct_note_en: the official news page about.fb.com measured 200 direct; the product ships inside Meta apps, which were not probed separately.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -388,7 +379,7 @@ AI glasses 形态「coming soon」）；
 **confidence 仍为 partial，但原因已经换了两条**：
 补核验前是因为**「Help Centre 直抓超时、只拿到检索摘要」**；
 补完后三页正文齐了，剩下的是**官方压根没公布的数据**——
-订阅档位价格、上下文窗口大小、Sentinel 判定标准。
+上下文窗口大小、Sentinel 判定标准。
 
 ## 三个值得单独记的官方自认风险
 
@@ -435,7 +426,6 @@ might still remain in Muse's memories and your conversation history.
 
 ## 未知项清单
 
-- 订阅档位价格与各档额度
 - 上下文窗口大小（官方无任何数字）
 - Sentinel 的判定标准与误判处理
 - Confidential VM 的上线时间与形态

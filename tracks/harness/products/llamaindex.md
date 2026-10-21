@@ -19,56 +19,6 @@ providers:
   - 命名空间规则：带 `.core` 的是核心，不带的是集成包
   - 具体 provider 清单未核验（分散在 300+ 个集成包里）
 
-pricing:
-  model: open-source
-  monthly_usd: 0
-  monthly_label: OSS 框架免费（MIT）；LlamaParse 平台 Free $0 / Starter $50 / Pro $500 每月
-  note: >-
-    **先说结论：这个项目现在的重心是 LlamaParse 文档解析平台，不是编排框架。**
-
-    核验依据：仓库 MIT（经license API）+ README 首屏 NOTE 段落原文（核验 2026-10-01）：
-
-    > "The **current focus** of LlamaIndex is to build the best AI-powered engine for
-    > **document parsing and extraction**. **LlamaParse** is our **enterprise platform** for
-    > agentic OCR, parsing, extraction, indexing and more."
-
-    官方同时说 OSS 框架仍然可用，但投入重心已经转移：
-
-    > "While we still have the OSS framework available as an open toolkit that you're welcome
-    > to use, **our primary focus has shifted towards LlamaParse**, along with liteparse and
-    > our benchmarking efforts."
-
-    **注意：转向的是公司投入，不是代码归属。**
-
-    编排（Workflows）的代码仍在 OSS core —— `llama_index.core.workflow`（2026-10-08 核验）。
-    商业平台 LlamaAgents 提供的是托管形态与 Agent Builder。
-
-    **LlamaParse 定价（2026-10-01 官方 pricing 页核实，按 credits 计费）**：
-
-    - **Free $0/月** —— 含 **10K credits**
-    - **Starter $50/月** —— 含 **40K credits**，可加购至 400K
-    - **Pro $500/月** —— 含 **400K credits**，另有一次性 800K credits 赠额
-      （官方折算价值 $1,000），可加购至 $5,000/月
-
-    - **Enterprise** —— 定制
-    - **三档均含 100 个用户席位**；超出按 **1,000 credits = $1.25** 加购
-
-    ⚠ **最关键的缺口：官方只给 credits 单价，没给「一页文档消耗多少 credits」的口径。**
-    所以「$50 能解析多少页 PDF」在公开信息里换算不出来，选型前必须自己拿真实文档试跑。
-    这一点是本站明确的信息缺口，不做推测。
-
-    **另有一条零成本路线：LiteParse。** 官方另推这个 VLM-free、可本地跑的 OSS 解析器，
-    **它不吃 credits、免费**。官方自己的形容是：
-
-    > "VLM-free fast and local OSS parsing"
-pricing_pitfalls:
-  - 以为 LlamaIndex 仍是以「编排框架」为核心的项目 —— **官方首屏已声明 primary focus 已转向文档解析**
-  - 以为编排（Workflows）已随战略转移离开 OSS —— 仍在开源核心（`llama_index.core.workflow`，官方框架文档明示）；转移的是公司投入重心，不是代码归属
-  - 把 LlamaParse 当免费开源组件 —— 它是商业平台，需注册取 key；计费单位是 **credits 不是「页数」**，1,000 credits = $1.25，而官方**没公布每页消耗多少 credits**，所以「$50 能解析多少页」换算不出来
-  - 以为 LlamaParse 是唯一解析路线 —— 官方另有 **LiteParse**，VLM-free + 本地可跑 + OSS，**不吃 credits**；预算敏感或有本地化要求时应先看它
-  - 以为「300+ 集成包」是 LlamaIndex 自己维护的 —— 多数是社区集成，能力对齐度需逐个确认
-
-# 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
   **本站收录对象里唯一一个「公司战略已明显转移」的对象。**
 
@@ -269,7 +219,6 @@ axes:
     - 需要明确的沙箱与权限边界 —— 官方框架文档无此类机制
     - 需要「关机后托管续跑」—— 走 LlamaAgents 平台侧
 
-
 pitfalls:
   - 看到 52k★ 就以为是「一个活跃的编排框架」—— **官方首屏已声明 primary focus 转向文档解析**
   - 以为 workflow / agent 编排在 OSS 里 —— README 把 Workflows 写在商业平台 LlamaAgents 那一节
@@ -302,7 +251,7 @@ sources:
     url: https://cloud.llamaindex.ai
     kind: docs
 
-  - label: LlamaParse 官方定价页（Free/Starter/Pro 三档credits 额度、加购上限、1,000 credits = $1.25、LiteParse 免费 OSS，核验 2026-10-01）
+  - label: LlamaParse 官方定价页（Free/Starter/Pro 三档 credits 额度与加购上限；报价按 D9 口径不存；LiteParse 免费 OSS，核验 2026-10-01）
     url: https://www.llamaindex.ai/pricing
     kind: pricing
 
@@ -342,6 +291,17 @@ last_verified: 2026-10-01
 last_updated: 2026-10-01
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网直连实测 200。
+  direct_note_en: official site measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位

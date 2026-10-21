@@ -7,29 +7,6 @@ vendor: Google
 homepage: https://jules.google
 mark: JL
 
-pricing:
-  model: freemium
-  monthly_usd: null
-  monthly_label: 免费「Introductory access」；更高额度随 Google AI Pro / Ultra 订阅，无独立 Jules 定价
-  annual_usd: null
-  annual_label: 无独立 Jules 年付报价（额度随 Google One 订阅，官方未单列）
-  note: >-
-    **2026-10-08 核验**：官方 GA 发布页（blog.google，2025-08-06）写「Introductory access
-    to Jules」为免费入口、「Jules in Google AI Pro: 5x higher limits」、
-    「Jules in Google AI Ultra: 20x higher limits」，并注明「Specific usage limits
-    are listed at jules.google」。Google One 官方套餐页（2026-10-08 取）在 Pro 的
-    「Code faster」下列「Expanded limits in AI Studio, Google Antigravity, and Jules」，
-    Ultra 档列 Jules 的「Expanded task and concurrency limits, and access to latest
-    models」。**但 jules.google 定价页为 JS 渲染，逐档每日任务数与并发数（免费层与
-    Pro / Ultra 的具体数字）在可读官方页里没有列出——官方未说明（已查 jules.google
-    定价页、Google One AI 套餐页与 GA 发布页），故不写具体数字。**
-    另注：官方旧文档站（jules-documentation.web.app）仍写 beta 期「2 concurrent /
-    5 total tasks per day」，与 GA 后的分档口径不一致，**勿把 beta 数字当现行额度**。
-pricing_pitfalls:
-  - 把 beta 旧文档的「2 并发 / 每天 5 次」当成现行免费额度
-  - 以为 Jules 能单独订阅——付的是 Google AI Pro / Ultra，额度随订阅
-  - 把「免费 Introductory access」当成无限制使用
-
 axes:
   model_access: >-
     **模型由厂商指定，你选不了。**
@@ -93,7 +70,7 @@ axes:
     Scheduled Tasks ... you can now define the cadence and Jules will
     perform the task at that time
 
-    **并发任务数随订阅档位变化**（具体数字见 pricing.note）。
+    **并发任务数随订阅档位变化**（具体数字见官方套餐页，本站按 D9 口径不存）。
   tools: >-
     **工具面集中在云 VM 内的执行能力 + GitHub 集成。**
 
@@ -155,8 +132,8 @@ axes:
 
     Jules does not train on private repository content
 
-    **额度与计费边界**：免费层与 Pro / Ultra 的具体任务数，官方可读页未列
-    （见 pricing.note）。但**「额度按任务计、不按 token 计」**这一点，
+    **额度边界**：免费层与 Pro / Ultra 的具体任务数，官方可读页未列
+    （见官方套餐页）。但**「额度按任务计、不按 token 计」**这一点，
     从官方 API 概念（session 即任务单位）可以读出来。
   fit: >-
     官方给自己划的活是具体的：把任务描述交进 GitHub 仓库后，它做这些事：
@@ -215,6 +192,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: no
+  direct_note: jules.google 大陆直连稳定超时（同日两次 000）。
+  direct_note_en: jules.google times out consistently from mainland (000 twice).
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位

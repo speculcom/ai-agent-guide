@@ -8,17 +8,6 @@ homepage: https://github.com/modelcontextprotocol/servers/tree/main/src/memory
 mark: M
 accent: "#7B61FF"
 
-pricing:
-  model: open-source
-  monthly_usd: null
-  monthly_label: 无商业费用
-  annual_usd: null
-  annual_label: 无商业费用
-  note: >-
-    随 MCP servers 仓库分发，npm 包为 @modelcontextprotocol/server-memory。
-    实际成本来自本地 JSONL 存储占用的磁盘，不来自本 server。
-pricing_pitfalls: []
-
 axes:
   model_access: >-
     本身不调用模型，是被客户端调用的接口实现。
@@ -115,11 +104,22 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: verified
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网仓库在 GitHub，大陆直连波动（同日实测 200/000 混合）；npm / PyPI 安装源实测稳定可达。
+  direct_note_en: Hosted on GitHub — direct reachability from mainland fluctuates (200/000 mixed on the same day); npm / PyPI install routes measured stable.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
 
-用本地知识图谱实现跨会话持久记忆的 reference server。**它记忆落盘、跨会话共享，但没有访问控制**。
+用本地知识图谱做跨会话持久记忆的 reference server。**它记忆落盘、跨会话共享，但没有访问控制**。
 
 ## 变更记录说明
 

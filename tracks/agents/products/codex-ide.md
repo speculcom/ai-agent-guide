@@ -9,22 +9,6 @@ homepage: https://developers.openai.com/codex/ide
 mark: C
 accent: "#10A37F"
 
-pricing:
-  model: freemium
-  monthly_usd: null
-  monthly_label: 随 ChatGPT 套餐，档位见定价页
-  annual_usd: null
-  annual_label: 未收录年付报价
-  note: >-
-    与 [CLI 形态](./codex-cli.md) 共享同一授权：随 ChatGPT 订阅。
-    **API 计费与订阅不是同一额度。**
-    取证：官方 IDE 文档站对 curl 返回 403（2026-10-08 改用 WebFetch 取到定价页，模型档位已核）；
-    额度细则未逐档录入，以官方定价页为准。
-
-pricing_pitfalls:
-  - 把 IDE 扩展当成独立产品付费，它与 CLI 共享同一授权
-  - 以为买了订阅就含 API 额度，API 单独计费
-
 axes:
   model_access: >-
     **用的是 CLI 那套 agent 和配置，模型可以换。**
@@ -213,6 +197,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: no
+  direct_note: developers.openai.com 大陆直连被拦（403），走代理 200——拦截发生在网络层，不是反爬。
+  direct_note_en: developers.openai.com returns 403 direct from mainland but 200 via proxy — the block is at the network layer, not anti-bot.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位

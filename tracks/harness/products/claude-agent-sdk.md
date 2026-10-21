@@ -17,26 +17,6 @@ language: Python 3.10+
 providers:
   - 仅 Claude（Anthropic 官方 API）
 
-pricing:
-  model: paid
-  monthly_usd: null
-  monthly_label: 库免费（MIT）· 模型按 Claude API 计费（无法预置月费）
-  note: >-
-    **库免费，模型不免费 —— 这就是它的定价全貌。**
-
-    仓库是 MIT。推理费用全部按 Claude API 计费，所以月费无法预置。
-
-    **它也是本站十个对象里唯一不支持换 provider 的编程底座。**
-
-    SDK 只包装 Claude Code CLI，agent 的推理全部走 Anthropic API。
-    没有 litellm / any-llm 这类旁路。
-
-    **换模型 = 换方案，不是换配置。**
-pricing_pitfalls:
-  - 以为它是「Claude 模型的通用 harness」—— 它绑定的是 Claude Code CLI 这一具体产品，换 provider 无路可走
-  - 以为 MIT 就等于「随便商用」—— 见下方正文「许可条款的真相」，它还受 Anthropic 商业条款约束
-
-# 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
   **它不是独立的 agent 实现，而是 Claude Code CLI 的编程接口。**
 
@@ -279,6 +259,17 @@ last_verified: 2026-09-30
 last_updated: 2026-09-30
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 文档站直连实测 200。
+  direct_note_en: docs site measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位

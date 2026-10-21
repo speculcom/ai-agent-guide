@@ -7,42 +7,6 @@ vendor: Factory AI
 homepage: https://factory.ai
 mark: D
 
-pricing:
-  model: paid
-  monthly_usd: 20
-  monthly_label: Pro $20 / Plus $100 / Max $200 每月；Business / Enterprise 定制报价
-  annual_usd: null
-  annual_label: 官方定价页只列月付；年付价未列出，记为官方未说明
-  note: >-
-    **它是付费产品，没有任何免费档；最低就是 Pro $20/月。**
-
-    **2026-10-08 按 factory.ai/pricing 与 docs.factory.ai/pricing 逐档核实（美元口径）**：
-
-    - Pro $20/月
-    - Plus $100/月 —— 约 5× Pro 用量，并解锁 Droid Computers（Factory 托管的云电脑）
-    - Max $200/月 —— 约 10× Pro 用量，另有新功能抢先体验
-    - Business —— 最多 150 席，公开页未给数字，需联系销售
-    - Enterprise —— 不限席位，公开页未给数字，也需联系销售
-
-    **额度机制是「滚动 Rate Limits」。**
-
-    - 5 小时 / 7 天 / 30 天三个窗口独立计算
-    - 三个窗口都需有余量才能发请求
-    - Standard Usage 先扣
-
-    撞限后有两个去处：
-
-    - **Droid Core** —— 一批开放权重模型，独立额度、免费
-    - **Extra Usage** —— 预付额度，最低 $10、永不过期
-
-    **BYOK 也有额度，超出后按套餐计费。**
-
-    **官方原文**："All Individual plans include an allowance of free BYOK usage"
-pricing_pitfalls:
-  - 以为有免费档，官方最低档就是 Pro $20/月，无免费层
-  - 把 Droid Core 当成免费套餐，它是撞限后的开放权重兜底模型池
-  - 把三窗口 Rate Limit 当成一个总额度，5 小时 / 7 天 / 30 天彼此独立
-
 axes:
   model_access: >-
     **模型无关是它的卖点：官方托管模型、BYOK、本地模型三路并存。**
@@ -265,7 +229,7 @@ axes:
     - 要做 CI/CD 自动化：`droid exec` 单次执行、JSON 输出、失败返回非零码
     - 需要 BYOK / 本地模型 / 气隙部署，以此摆脱单一厂商锁定
 
-    **不适合只想找一个免费轻量终端助手的个人**——官方最低档就是 Pro $20/月。
+    **不适合只想找一个免费轻量终端助手的个人**——官方没有免费档，最低是付费档 Pro。
 
 pitfalls:
   - 以为 BYOK 就完全不受额度限制，官方写明 Individual 档 BYOK 也有免费额度上限
@@ -276,7 +240,7 @@ tags: [编程, 终端, 多模型, 本地]
 related: [filesystem]
 
 sources:
-  - label: Factory AI · 官方定价页（Pro $20 / Plus $100 / Max $200；2026-10-08 核验）
+  - label: Factory AI · 官方定价页（Pro / Plus / Max 三档；报价按 D9 口径不存；2026-10-08 核验）
     url: https://factory.ai/pricing
     kind: pricing
 
@@ -340,6 +304,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网直连实测 200。
+  direct_note_en: official site measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -400,7 +375,7 @@ npm install -g droid
 
 撞限后可以切 **Droid Core** 继续干：它是开放权重模型池，有独立的免费额度。
 
-也可以用 **Extra Usage**：预付、$10 起、不过期。
+也可以用 **Extra Usage**：预付制、不过期（起充额见官方页，本站按 D9 口径不存）。
 
 这是本站见到的最细的额度口径之一。
 
@@ -424,7 +399,7 @@ Droid 可以跑在：
 
 `confidence: partial` 的原因：
 
-- ✅ 已核验：定价五档与三窗口 Rate Limit 机制、Droid Core / Extra Usage / BYOK
+- ✅ 已核验：五档档位结构与三窗口 Rate Limit 机制、Droid Core / Extra Usage / BYOK
 - ✅ 已核验：安装三选一、CLI + Desktop + SDK 三入口
 - ✅ 已核验：四档 Autonomy 与命令名单、MCP 两种传输与分层配置
 - ✅ 已核验：headless `droid exec` 与自主级别、企业部署与合规自述
@@ -442,7 +417,7 @@ Droid 可以跑在：
 - CI/CD 自动化：`droid exec` 单次执行 + JSON 输出 + 失败非零码
 - 需要 BYOK / 本地模型 / 气隙部署，以摆脱单一厂商锁定
 
-**不适合**只想找一个免费轻量终端助手的个人：官方最低档就是 Pro $20/月，没有免费层。
+**不适合**只想找一个免费轻量终端助手的个人：官方没有免费档，最低是付费档 Pro。
 
 `droid exec` 默认只读，想让它自动改文件要显式提级。
 
@@ -459,7 +434,7 @@ Droid 可以跑在：
 - 代码库向量索引是否存在、大仓库首次建索引耗时（官方未说明，已查 CLI Reference 与 Quickstart）
 - 云端背景 agent 与 Droid Computers 的并发数值与配额（官方只说随套餐，未给数字）
 - CLI 侧跨会话记忆的持久化边界与保留策略（官方未在 CLI 页说明，已查 CLI Overview 与 Droid Exec）
-- Business / Enterprise 的具体价格（官方页只写「联系销售」）
+- Business / Enterprise 的档位内容（官方页只写「联系销售」）
 
 ## 相关条目
 

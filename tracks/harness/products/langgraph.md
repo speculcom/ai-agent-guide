@@ -19,30 +19,6 @@ providers:
   - 官方生态位是 LangChain 全家桶，接法通常经 LangChain 的模型集成层
   - LangGraph 自身不提供 provider 层：模型接入走 LangChain 集成（官方文档 2026-10-08 核验）
 
-pricing:
-  model: open-source
-  monthly_usd: null
-  monthly_label: 框架免费（MIT）；LangSmith（调试/评估/部署）是独立商业产品
-  note: >-
-    **框架 MIT 与 LangSmith 是两件事。**
-
-    **README 里 LangSmith 出现 4 次**，分别指向调试可视化、agent eval 与部署平台。
-    README 首屏还放了一个 TIP，引导读者去用 LangSmith：
-
-    > "For developing, debugging, and deploying AI agents and LLM applications, see LangSmith"
-
-    ⚠ LangSmith 的定价与免费额度未逐档核实。
-    **不开 LangSmith 也能完整跑**（OSS 库独立运行，官方文档 2026-10-08 核验）。
-
-    另有 LangSmith Deployment，官方描述里有
-    "Discover, reuse, configure, and share agents across teams"。
-    它是托管平台，本条不收录。
-pricing_pitfalls:
-  - 以为「装LangGraph 就够」—— 官方首屏就引导配 LangSmith 做调试与部署，那部分是商业产品
-  - 把 LangSmith Deployment 当成 LangGraph 的能力 —— 那是独立平台，官方在 README 里分开列
-  - 忽略持久化后端的选型 —— checkpoint 有多个子包，SQLite 与 Postgres 的可靠性与并发语义不同
-
-# 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
   **本站收录对象里对「状态」这个概念最认真回答的一个，也是 durable execution 的定义者。**
 
@@ -330,6 +306,17 @@ last_verified: 2026-10-01
 last_updated: 2026-10-01
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: docs.langchain.com 直连实测 200；PyPI 安装源实测可达。
+  direct_note_en: docs.langchain.com measured 200 direct; PyPI install route measured reachable.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -503,7 +490,7 @@ monorepo 的子包命名是 `<子包>==<版本>`，无前缀那个才是主包�
 
 > **为什么降级**：正文「未知项清单」里仍有主语是**本站**的取证缺口
 > （如「多进程并发写同一 thread 的冲突语义」「interrupts 重入边界」
-> 「LangSmith 定价」），已不是「官方未提供」那一类。
+> 「LangSmith 配套的商业条款」），已不是「官方未提供」那一类。
 > 按 v3 铁律「未知就说未知」，标 verified 属于虚高 —— 降为 partial。
 > **2026-10-08 补核验**：短期记忆裁剪（Trim / Delete / Summarize）、
 > 长期记忆（store 语义搜索 + 内容过滤）、`langchain-mcp-adapters`、
@@ -522,7 +509,7 @@ monorepo 的子包命名是 `<子包>==<版本>`，无前缀那个才是主包�
 - ⚠ 未核验且**是本站缺口**（构成降为 partial 的直接依据）：
   > superstep 落盘性能代价、interrupts 重入边界、
   > 多进程并发写同一 thread 的冲突语义（官方未说明）、
-  > 长期记忆的具体存储后端、LangSmith 定价、Python 与 JS/TS 版的能力对齐度
+  > 长期记忆的具体存储后端、LangSmith 配套的商业条款、Python 与 JS/TS 版的能力对齐度
 
 ## 实测记录
 
@@ -545,7 +532,7 @@ monorepo 的子包命名是 `<子包>==<版本>`，无前缀那个才是主包�
 - superstep 级落盘的性能与写入量代价
 - 长期记忆的具体存储后端（官方只给 store 抽象，未指明后端）
 - interrupts 修改状态后的重入边界
-- LangSmith 的定价、免费额度，以及不用它时 LangGraph 是否完整可用
+- LangSmith 配套的免费额度与商业条款（报价按 D9 口径本站不采），以及不用它时 LangGraph 是否完整可用
 - Python 与 JS/TS 版的能力对齐度
 
 ## 相关条目

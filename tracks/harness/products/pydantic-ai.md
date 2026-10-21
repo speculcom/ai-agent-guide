@@ -19,34 +19,6 @@ providers:
   - 本地与自托管：Ollama / vLLM / LiteLLM
   - 推理平台与网关：Groq / Cerebras / Hugging Face / Together / Fireworks / OpenRouter / Vercel AI Gateway / Pydantic AI Gateway
 
-pricing:
-  model: open-source
-  monthly_usd: null
-  monthly_label: 库本身 MIT 免费；Pydantic Logfire 观测平台 Free $0 / Pro 按量（核验 2026-10-08）
-  annual_usd: null
-  annual_label: 未核验年付报价
-  note: >-
-    **库永久 MIT 免费，商业价值在观测与网关两条线。**
-
-    核验依据：仓库 README（Logfire free tier 段）+ 官方定价页 pydantic.dev/pricing（核验 2026-10-08）。
-    定价页 FAQ 原文："The Pydantic Library is (always has been, always will be) **completely free
-    and permissively licensed under the MIT license**. Prices displayed on this page apply to
-    **Pydantic Logfire, only**."
-
-    **Logfire（观测）**：官方定价页列 **Free $0**（每月 1,000 万 spans/metrics 免费、
-    1 个月数据保留、无需信用卡）、**Pro $2/百万**（超出 1,000 万后按量）、**Enterprise**（定制、多组织/项目/席位）。
-
-    **Pydantic AI Gateway**：官方称 "one key for every model, with cost monitoring and spending limits"，
-    可自托管；其**具体加价费率官方定价页未单列**（README 只说带成本监控与预算控制）。
-
-    **框架免费 ≠ 运行免费**：默认需自备各 provider 的 API key，推理费用自理；
-    官方提供内置 `'test'` 模型（TestModel），无 key 也能先跑通流程。
-pricing_pitfalls:
-  - 以为 MIT = 全免费 —— 库免费，但推理费用自理；Logfire 观测与 Gateway 是独立商业产品
-  - 把 Pydantic Logfire 当作必需 —— 官方声明是标准 OpenTelemetry，任何 OTLP 后端都能接，Logfire 只是最省事的一个
-  - 以为用了 Pydantic AI Gateway 就没有额外成本 —— 它是模型路由层，官方称带成本监控，费率与计费细节须以其页为准
-
-# 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
   **「给你 agent loop 的 Python 库」这一档里，把「类型安全」和「durable execution」做到最深的那个。**
 
@@ -356,7 +328,7 @@ sources:
     url: https://pydantic.dev/docs/ai/integrations/a2a/
     kind: docs
 
-  - label: 官方定价页（核验 2026-10-08：Pydantic 库永久 MIT 免费；Logfire Free $0 含 1,000 万 spans/月，Pro $2/百万）
+  - label: 官方定价页（核验 2026-10-08：Pydantic 库永久 MIT 免费；Logfire 免费档含 1,000 万 spans/月、另有 Pro 档；报价按 D9 口径不存）
     url: https://pydantic.dev/pricing/
     kind: pricing
 
@@ -372,6 +344,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网直连实测 200；PyPI 实测可达。
+  direct_note_en: official site measured 200 direct; PyPI measured reachable.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -558,7 +541,7 @@ confidence: partial
 - 核心 SDK 不经 Harness 时的文件访问默认边界（官方未说明，已查 overview 与 harness 页）
 - 核心 SDK 是否有进程/网络级沙箱与内置权限边界（官方未说明，沙箱在 Harness / Monty）
 - Harness compaction 的默认裁剪策略与阈值（官方未说明）
-- Pydantic AI Gateway 的加价费率与计费细节（官方定价页未单列）
+- Pydantic AI Gateway 的计费细节（官方定价页未单列；费率按 D9 口径本站不采）
 - 八种 durable 引擎之间的功能对齐度（官方未说明）
 - 不同 provider 之间行为完全等价性（官方已声明「取决于所选模型与 API」）
 - A2A 移除后官方在 2.0 的替代路线（官方指向 datalayer/fasta2a）

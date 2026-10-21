@@ -7,35 +7,6 @@ vendor: Sourcegraph
 homepage: https://ampcode.com
 mark: A
 
-pricing:
-  model: freemium
-  monthly_usd: 20
-  monthly_label: Hobby 免费 / Individual $20 每月（Megawatt、Gigawatt 两级）/ Teams 不加价 / Enterprise 定制
-  annual_usd: null
-  annual_label: 未核验年付报价
-  note: >-
-    **定价按官方定价页核实（ampcode.com/pricing 与 ampcode.com/docs/pricing，2026-10-08）**：Hobby 免费。
-
-    Individual **$20/mo**。官方页以 Megawatt / Gigawatt 两级切换呈现。
-
-    官方另称 Megawatt 平均 60% 折扣、Gigawatt 平均 65% 折扣。
-
-    Teams「No extra charge」；Enterprise 定制。
-
-    官方原文「Start free. Scale your orbs and team.」
-
-    **真正按量计费的是用法。** Amp 对 provider 的 API 价不加价。
-
-    超量可购 paid credits（购买后 12 个月过期）。non-model 工具（如 web search）也消耗 credits。
-
-    **orbs 按分钟计费、独立额度。** 暂停中的 orb 不计费。
-
-    官方另说明：用自带 Key / 订阅时**无 Amp token 费用或上限**。
-pricing_pitfalls:
-  - 以为免费档用不了——Hobby 免费，自带 Key/订阅时无 Amp token 费用
-  - 以为必须订阅才能用 ChatGPT 订阅——官方说明无需月费即可用 ChatGPT 订阅
-  - 以为 $20/mo 就是全部成本——orbs 按分钟、超量按 credits 另计
-
 axes:
   model_access: >-
     **多模型前沿路由，按任务分档而非锁死单模型。**
@@ -191,7 +162,7 @@ axes:
 pitfalls:
   - 以为默认会在执行工具前请求批准——官方明确默认不审批
   - 以为有独立 VS Code 扩展——实际靠 CLI + ide connect 接入（VS Code/Cursor/Windsurf/Zed/Neovim）
-  - 把 $20/mo 当成全部开销——orbs 按分钟、超量按 credits 另计
+  - 把订阅当成全部开销——orbs 按分钟、超量按 credits 另计
 
 tags: [编程, 终端, 云端, 混合, 多模型]
 related: [deepagents]
@@ -201,7 +172,7 @@ sources:
     url: https://ampcode.com/
     kind: docs
 
-  - label: Amp · 官方定价页（Hobby 免费 / Individual $20/mo / Teams / Enterprise）
+  - label: Amp · 官方定价页（Hobby 免费 / Individual / Teams / Enterprise 四档；报价按 D9 口径不存）
     url: https://ampcode.com/pricing
     kind: pricing
 
@@ -237,6 +208,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网直连实测 200。
+  direct_note_en: official site measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
@@ -292,7 +274,7 @@ Amp 是 Sourcegraph 出的前沿编码 agent，**CLI + 云端 orb + runner 三�
 
 ## 未知项清单
 
-- Individual 档 Megawatt 与 Gigawatt 的**具体额度差**：官方定价页以切换形式呈现，本页并列展示的是默认那一级的 $20/mo 与 45,000 分钟 orb 时长
+- Individual 档 Megawatt 与 Gigawatt 的**具体额度差**：官方定价页以切换形式呈现，未并列给出（orb 时长额度见官方页；报价按 D9 口径不存）
 - 官方定价页 FAQ 的**问答正文**：本页只抓到问题标题，具体答复内容未展开
 - orb 的并发上限与单次最长时长：官方未说明（已查 docs/orbs 与定价页）
 - 自托管部署：官方安全参考称为空（明确不支持），未提供任何自托管路径

@@ -8,45 +8,6 @@ homepage: https://github.com/google-gemini/gemini-cli
 mark: G
 accent: "#4285F4"
 
-pricing:
-  model: freemium
-  monthly_usd: 0
-  annual_usd: null
-  monthly_label: 个人层免费（无需信用卡），Code Assist 个人版 6,000 代码请求/日 + 240 对话/日
-  annual_label: 个人层无年付（免费）；Google Developer Program Premium 为 $299/年
-  note: >-
-    **免费层有硬额度，而且 CLI 与代理模式共用一份。**
-
-    免费层「Gemini Code Assist for individuals」**无需信用卡**，额度是：
-
-    - **每天 6,000 次代码相关请求**（代码生成与补全）
-    - **每天 240 次对话请求**
-    - 每用户**每秒 2 次请求**
-
-    最关键的一条机制，直接影响选型：
-
-    **CLI 与代理模式的额度合并计算，跨模型不分开算。**
-    官方原文「Quotas for requests from Gemini Code Assist agent mode and
-    Gemini CLI are combined」，且「一个提示可能产生多个模型请求」。
-    额度按**与任意模型版本或系列（Pro、Flash）的全部互动次数累计**。
-    达到上限后须等配额重置才能继续。
-
-    付费层与其它路径：
-
-    - Gemini Code Assist Standard **1,500 请求/用户/日**
-    - Enterprise **2,000 请求/用户/日**
-    - 云端版另给 960 次/日的 Cloud Assist 面板请求
-    - 个体开发者可订阅 Google AI Pro / AI Ultra / Developer Program premium 以提高上限
-
-    Gemini CLI on GitHub 的用量**不计入常规额度** —— 它走独立配额，PR 审查每天至少 100 次。
-
-    Apache-2.0 开源，支持 npx 直接运行无需安装。
-    额度内容于 **2026-10-01 按官方 quotas 文档核实**（此前记为未知）。
-pricing_pitfalls:
-  - 以为开源就无限用 —— 免费层有明确日额度（6,000 代码请求 + 240 对话）
-  - **以为换更小的模型（Flash）能用得更久 —— 额度跨模型版本/系列累计，不分开计算**
-  - 以为 CLI 和 IDE 代理模式各有一份额度 —— 官方明确两者合并计算
-
 axes:
   model_access: >-
     **用 Google 自家的 Gemini 系列**，模型可以换。
@@ -138,7 +99,7 @@ axes:
     `general.sessionRetention` 默认保留 30 天。
     超期自动清理。
 
-    **额度**就是 pricing 轴里的每日请求上限。
+    **额度**就是官方用量口径里的每日请求上限。
     官方未另设云端额度。
   tools: >-
     **明确支持 MCP，而且是它标注的核心特性。**
@@ -339,6 +300,17 @@ last_verified: 2026-09-29
 last_updated: 2026-09-29
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网仓库在 GitHub，大陆直连波动（同日实测 200/000 混合）；npm / PyPI 安装源实测稳定可达。
+  direct_note_en: Hosted on GitHub — direct reachability from mainland fluctuates (200/000 mixed on the same day); npm / PyPI install routes measured stable.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位

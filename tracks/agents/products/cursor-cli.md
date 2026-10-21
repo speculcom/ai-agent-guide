@@ -8,34 +8,6 @@ homepage: https://cursor.com/cli
 mark: C
 accent: "#111111"
 
-pricing:
-  model: freemium
-  monthly_usd: 20
-  monthly_label: 随 Cursor 账户订阅（Hobby 免费 / Pro $20 / Pro Plus $60 / Ultra $200 每月，Teams $40 起）
-  annual_usd: null
-  annual_label: 未核验年付报价
-  note: >-
-    官方 Models & pricing 页口径如下。
-    （cursor.com/docs/models-and-pricing，2026-10-08 核实。）
-
-    所有个人档都含**两个用量池**——**Auto + Composer 池**（额度显著更多）
-    与 **API 池**（按模型 API 价扣减）。
-
-    个人档月付 Pro $20 / Pro Plus $60 / Ultra $200，
-    分别含 $20 / $70 / $400 的 API 用量。
-    Teams $40/用户/月，Enterprise 定制。
-
-    **CLI 不单卖**：用 Cursor 账户（`agent login`）或 `CURSOR_API_KEY`
-    （Dashboard → Cloud Agents → User API Keys），用量并入账户同一额度池。
-
-    超出包含额度后可开「按需用量」按同费率后付费，或升档。
-
-    **各档额度倍数未给具体请求数或 token 量。**
-pricing_pitfalls:
-  - 以为 Cursor CLI 可以脱离 Cursor 账户单独免费使用，实际需登录账户或 API key
-  - 以为 CLI 有独立价目，用量其实并入 Cursor 账户的 Auto+Composer / API 两个池
-  - 把包含的 API 用量（Pro 为 $20）当成固定座席费，超出后仍按同费率后付费
-
 axes:
   model_access: >-
     **和 Cursor 编辑器同源：模型清单跟着账户走。**
@@ -268,6 +240,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网直连实测 200。
+  direct_note_en: official site measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位

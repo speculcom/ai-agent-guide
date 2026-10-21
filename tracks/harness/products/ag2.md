@@ -23,34 +23,6 @@ providers:
   - xAI Grok（XAIConfig）与 Z.AI GLM（ZAIConfig）
   - OpenAI 兼容自托管（vLLM / LM Studio 等，走 OpenAIConfig）
 
-pricing:
-  model: open-source
-  monthly_usd: 0
-  monthly_label: 框架免费（Apache-2.0，自托管不限次数）；模型调用费用自理
-  annual_usd: null
-  annual_label: 未核验年付报价
-  note: >-
-    **纯开源库，无官方商业档位。**
-
-    **唯一成本是模型调用。**
-
-    核验依据：README License 段（"licensed under the
-    Apache License, Version 2.0"）、仓库 license API 返回 Apache-2.0（核验 2026-10-08）、
-    PyPI 安装路径 `pip install ag2[...]`。
-
-    按 provider 拆 extra 安装：`ag2[openai]` / `ag2[anthropic]` / `ag2[gemini]` / `ag2[ollama]` 等。
-    默认最小依赖 —— 装哪个 provider，付哪个 provider 的钱。
-
-    **⚠ 官方未给出任何付费档位、SLA 或托管报价**（已查 README 与 docs.ag2.ai 站点）。
-
-    原因是它是社区维护的库、没有商业控制面。这一点与 CrewAI 不同 —— CrewAI 另有 AMP 商业线。
-
-    **本对象是 AutoGen 原仓库的社区延续。** 派生修改部分在 README 中声明同样以 Apache-2.0 授权。
-pricing_pitfalls:
-  - 以为 Apache-2.0 免费等于零成本 —— 每次 model 调用按所选 provider 计费
-  - 以为它像 CrewAI 一样有官方托管商业线 —— AG2 是纯社区库，没有付费控制面
-
-# 三层定位（v3 计划 §5.4：同生态易混淆，本字段强制）
 layer_position: >-
   **本站编排家族里「社区续作 vs 官方继任」这条分界线的社区一端。**
 
@@ -317,10 +289,6 @@ pitfalls:
   - 以为它是微软官方项目 —— 社区志愿者维护（ag2ai），与微软的 Microsoft Agent Framework 是两条线
   - 以为 blocked=[...] 是安全边界 —— 官方原文说它只是 best-effort，受限 shell 的隔离靠 allowed 白名单与 readonly
 
-pricing_pitfalls:
-  - 以为 Apache-2.0 免费等于零成本 —— 默认最小依赖，模型调用按所选 provider 计费
-  - 以为它像 CrewAI 有官方托管商业线 —— AG2 是社区库，没有付费控制面
-
 tags: [编排框架, Python, 开源, Apache-2.0, 多Agent, 角色分工, 子代理, HITL, human-in-the-loop, 沙箱, 事件驱动, 工作流, 持久化, 长期记忆, 上下文压缩, MCP, A2A, 本地模型, Ollama, 多后端]
 related: [filesystem]
 
@@ -369,6 +337,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网直连实测 200。
+  direct_note_en: official site measured 200 direct.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位

@@ -8,21 +8,6 @@ homepage: https://github.com/cline/cline
 mark: C
 accent: "#3EA3FF"
 
-pricing:
-  model: open-source
-  monthly_usd: null
-  monthly_label: 开源免费，模型费用另计
-  annual_usd: null
-  annual_label: 开源免费，模型费用另计
-  note: >-
-    Apache-2.0 开源，无授权费。
-    **模型调用费用由用户自付**——
-    多形态（CLI / Desktop / VS Code 扩展）共享同一开源核心。
-    若使用云端模型，需自备 provider 凭据。
-pricing_pitfalls:
-  - 以为开源就零成本，模型费用要自己承担
-  - 以为只有一个形态，实际有 CLI / Desktop / 扩展三套
-
 axes:
   model_access: >-
     **provider 由你自选。官方给出 30+ 家清单，以自带 API key（BYOK）为主。**
@@ -237,6 +222,17 @@ last_verified: 2026-10-08
 last_updated: 2026-10-08
 lifecycle: active
 confidence: partial
+cn:
+  origin: foreign
+  origin_note: 国外主体（网信办公示名单未见对应备案主体）。
+  origin_note_en: foreign entity (no matching filing entity in the CAC registry).
+  direct: yes
+  direct_note: 官网仓库在 GitHub，大陆直连波动（同日实测 200/000 混合）；npm / PyPI 安装源实测稳定可达。
+  direct_note_en: Hosted on GitHub — direct reachability from mainland fluctuates (200/000 mixed on the same day); npm / PyPI install routes measured stable.
+  filing: not-filed
+  filing_note: 未见于网信办公示名单（2026-10-20 检索 13 批附件，https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm）；该产品未面向大陆公众提供服务，备案不适用。
+  filing_note_en: not in the CAC public registry (13 batch attachments searched 2026-10-20, https://www.cac.gov.cn/2024-04/02/c_1713729983803145.htm); the product does not serve the mainland public, so filing does not apply.
+  verified: 2026-10-20
 ---
 
 ## 一句话定位
